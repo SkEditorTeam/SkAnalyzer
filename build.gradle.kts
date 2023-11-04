@@ -15,9 +15,9 @@ dependencies {
     }
     api("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")
     implementation("org.apache.logging.log4j:log4j-core:3.0.0-alpha1")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
     implementation("commons-io:commons-io:2.14.0")
     implementation("commons-lang:commons-lang:2.6")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
 
 java {

@@ -11,6 +11,7 @@ import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.structures.StructCommand;
 import ch.njol.skript.structures.StructFunction;
+import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.structure.StructureType;
 import me.glicz.skanalyzer.structure.data.EventData;
 import me.glicz.skanalyzer.structure.data.StructureData;
@@ -79,20 +80,18 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 Skript.getAddonInstance().loadClasses(basePackage + ".economy");
                 Skript.getAddonInstance().loadClasses(basePackage + ".chat");
                 Skript.getAddonInstance().loadClasses(basePackage + ".permission");
-                System.out.println("Force loaded Vault hook.");
+                SkAnalyzer.get().getLogger().info("Force loaded Vault hook.");
             } catch (IOException e) {
-                System.out.println("Something went wrong while trying to force load Vault hook");
-                e.printStackTrace(System.out);
+                SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load Vault hook", e);
             }
         }
         if (args.contains("--forceRegionsHook")) {
             try {
                 String basePackage = RegionsPlugin.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage);
-                System.out.println("Force loaded Regions hook.");
+                SkAnalyzer.get().getLogger().info("Force loaded regions hook.");
             } catch (IOException e) {
-                System.out.println("Something went wrong while trying to force load Regions hook");
-                e.printStackTrace(System.out);
+                SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load regions hook", e);
             }
         }
     }

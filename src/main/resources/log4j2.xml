@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="PlainLogger" target="SYSTEM_OUT">
+            <PatternLayout pattern="%msg%n"/>
+        </Console>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{[%d{HH:mm:ss} %level]: [%logger] %msg%n%xEx{full}}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="PlainLogger" additivity="false">
+            <AppenderRef ref="PlainLogger"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

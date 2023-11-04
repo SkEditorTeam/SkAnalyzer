@@ -43,7 +43,7 @@ public class AddonsLoader {
             SkAnalyzer.get().getServer().getPluginManager().enablePlugin(plugin);
             return plugin;
         } catch (Exception e) {
-            e.printStackTrace(System.out);
+            SkAnalyzer.get().getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
         }
         return null;
     }

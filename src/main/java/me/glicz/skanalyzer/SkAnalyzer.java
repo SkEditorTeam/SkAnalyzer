@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,21 +17,24 @@ import java.util.Scanner;
 public class SkAnalyzer {
     private static SkAnalyzer instance;
     private final AnalyzerServer server;
+    private final Logger logger;
 
     private SkAnalyzer(List<String> args) {
         Preconditions.checkArgument(instance == null, "SkAnalyzer instance is already set!");
         instance = this;
 
+        logger = LogManager.getLogger(args.contains("--enablePlainLogger") ? "PlainLogger" : "SkAnalyzer");
+
         System.out.printf("SkAnalyzer v%s - simple Skript parser. Created by Glicz.%n", getClass().getPackage().getSpecificationVersion());
         extractEmbeddedAddons();
-        System.out.println("Enabling...");
+        logger.info("Enabling...");
 
         server = MockBukkit.mock(new AnalyzerServer());
         AddonsLoader.loadAddons();
         AddonsLoader.getMockSkriptBridge().parseArgs(args);
 
         server.startTicking();
-        System.out.println("Successfully enabled. Have fun!");
+        logger.info("Successfully enabled. Have fun!");
 
         startReadingInput();
     }
@@ -44,6 +49,10 @@ public class SkAnalyzer {
 
     public AnalyzerServer getServer() {
         return server;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
     private void startReadingInput() {
@@ -66,7 +75,7 @@ public class SkAnalyzer {
     }
 
     private void extractEmbeddedAddons() {
-        System.out.println("Extracting embedded addons...");
+        logger.info("Extracting embedded addons...");
 
         try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream("MockSkript.jar.embedded")) {
             Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded MockSkript.jar");
@@ -82,6 +91,6 @@ public class SkAnalyzer {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Successfully extracted embedded addons!");
+        logger.info("Successfully extracted embedded addons!");
     }
 }
