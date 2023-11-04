@@ -81,7 +81,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 Skript.getAddonInstance().loadClasses(basePackage + ".economy");
                 Skript.getAddonInstance().loadClasses(basePackage + ".chat");
                 Skript.getAddonInstance().loadClasses(basePackage + ".permission");
-                SkAnalyzer.get().getLogger().info("Force loaded Vault hook.");
+                SkAnalyzer.get().getLogger().info("Force loaded Vault hook");
             } catch (IOException e) {
                 SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load Vault hook", e);
             }
@@ -90,7 +90,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
             try {
                 String basePackage = RegionsPlugin.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage);
-                SkAnalyzer.get().getLogger().info("Force loaded regions hook.");
+                SkAnalyzer.get().getLogger().info("Force loaded regions hook");
             } catch (IOException e) {
                 SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load regions hook", e);
             }
@@ -104,7 +104,11 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
             return;
         AnalyzerCommandSender sender = new AnalyzerCommandSender();
         RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, null).start();
-        ScriptLoader.loadScripts(file, logHandler, false).thenRun(() -> {
+        ScriptLoader.loadScripts(file, logHandler, false).whenComplete((info, throwable) -> {
+            if (throwable != null) {
+                SkAnalyzer.get().getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
+                return;
+            }
             Map<StructureType, List<StructureData>> structures = new HashMap<>();
             Script script = ScriptLoader.getScript(file);
             if (script != null) {

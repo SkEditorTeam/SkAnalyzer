@@ -32,7 +32,7 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
         ClassLoader.registerAsParallelCapable();
     }
 
-    @Getter(onMethod_={@NotNull})
+    @Getter(onMethod_ = {@NotNull})
     private final PluginClassLoaderGroup group = new MockBukkitPluginClassLoaderGroup();
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
     @Getter

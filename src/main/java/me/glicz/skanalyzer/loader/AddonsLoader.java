@@ -5,6 +5,8 @@ import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerClassLoader;
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,6 +16,8 @@ import java.util.jar.JarFile;
 public class AddonsLoader {
     public static final File USER_HOME = new File(System.getProperty("user.home"));
     public static final File ADDONS = new File(USER_HOME, "SkAnalyzer/addons");
+    private static final String MOCK_SKRIPT = "MockSkript.jar";
+    private static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
     private static JavaPlugin skript;
     @Getter
     private static MockSkriptBridge mockSkriptBridge;
@@ -21,15 +25,20 @@ public class AddonsLoader {
     public static void loadAddons() {
         if (skript != null)
             throw new RuntimeException("Addons are already loaded!");
-        skript = loadAddon(new File(ADDONS, "MockSkript.jar")); // currently only Skript support :(
-        mockSkriptBridge = (MockSkriptBridge) loadAddon(new File(ADDONS, "MockSkriptBridge.jar"));
+        skript = loadAddon(new File(ADDONS, MOCK_SKRIPT));
+        mockSkriptBridge = (MockSkriptBridge) loadAddon(new File(ADDONS, MOCK_SKRIPT_BRIDGE));
+        FileUtils.listFiles(ADDONS, new String[]{"jar"}, false).forEach(AddonsLoader::loadAddon);
     }
 
     @SuppressWarnings("UnstableApiUsage")
     private static JavaPlugin loadAddon(File file) {
+        if (skript != null && file.getName().equals(MOCK_SKRIPT)) return null;
+        if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE)) return null;
         try {
             JarFile jarFile = new JarFile(file);
             PluginDescriptionFile description = new PluginDescriptionFile(jarFile.getInputStream(jarFile.getEntry("plugin.yml")));
+            if (Bukkit.getServer().getPluginManager().isPluginEnabled(description.getName()))
+                throw new RuntimeException("Plugin named '%s' is already loaded".formatted(description.getName()));
             AnalyzerClassLoader classLoader = new AnalyzerClassLoader(
                     SkAnalyzer.class.getClassLoader(),
                     description,
@@ -43,11 +52,11 @@ public class AddonsLoader {
             JavaPlugin plugin = (JavaPlugin) pluginClass.getConstructor().newInstance();
             SkAnalyzer.get().getServer().getPluginManager().registerLoadedPlugin(plugin);
             SkAnalyzer.get().getServer().getPluginManager().enablePlugin(plugin);
+            SkAnalyzer.get().getLogger().info("Enabled addon {}", description.getName());
             return plugin;
         } catch (Exception e) {
             SkAnalyzer.get().getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
         }
         return null;
     }
-
 }
