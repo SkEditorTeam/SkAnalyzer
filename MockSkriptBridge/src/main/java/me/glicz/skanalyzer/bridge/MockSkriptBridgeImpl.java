@@ -100,8 +100,10 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public void parseScript(String path) {
         File file = new File(path);
-        if (!file.exists())
+        if (!file.exists() || !file.getName().endsWith(".sk")) {
+            SkAnalyzer.get().getLogger().error("Invalid file path");
             return;
+        }
         AnalyzerCommandSender sender = new AnalyzerCommandSender();
         RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, null).start();
         ScriptLoader.loadScripts(file, logHandler, false).whenComplete((info, throwable) -> {
