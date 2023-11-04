@@ -1,6 +1,7 @@
 package me.glicz.skanalyzer.loader;
 
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
+import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerClassLoader;
@@ -14,6 +15,7 @@ public class AddonsLoader {
     public static final File USER_HOME = new File(System.getProperty("user.home"));
     public static final File ADDONS = new File(USER_HOME, "SkAnalyzer/addons");
     private static JavaPlugin skript;
+    @Getter
     private static MockSkriptBridge mockSkriptBridge;
 
     public static void loadAddons() {
@@ -48,7 +50,4 @@ public class AddonsLoader {
         return null;
     }
 
-    public static MockSkriptBridge getMockSkriptBridge() {
-        return mockSkriptBridge;
-    }
 }

@@ -2,6 +2,7 @@ package me.glicz.skanalyzer;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
 
+@Getter
 public class SkAnalyzer {
     private static SkAnalyzer instance;
     private final AnalyzerServer server;
@@ -45,14 +47,6 @@ public class SkAnalyzer {
 
     public static SkAnalyzer get() {
         return instance;
-    }
-
-    public AnalyzerServer getServer() {
-        return server;
-    }
-
-    public Logger getLogger() {
-        return logger;
     }
 
     private void startReadingInput() {

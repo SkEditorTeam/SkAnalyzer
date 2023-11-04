@@ -2,6 +2,7 @@ package me.glicz.skanalyzer.mockbukkit;
 
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@Getter
 public class AnalyzerServer extends ServerMock {
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
 
@@ -25,12 +27,6 @@ public class AnalyzerServer extends ServerMock {
     @Override
     public @NotNull String getName() {
         return "SkAnalyzer";
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public @NotNull AnalyzerUnsafeValues getUnsafe() {
-        return unsafe;
     }
 
     @SuppressWarnings("DataFlowIssue")
