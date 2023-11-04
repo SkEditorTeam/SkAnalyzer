@@ -10,9 +10,6 @@ repositories {
 }
 
 dependencies {
-    compileOnly(project(":MockSkript")) {
-        exclude("*", "*")
-    }
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
     api("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")
@@ -37,9 +34,8 @@ tasks {
         manifest.attributes["Main-Class"] = "me.glicz.skanalyzer.SkAnalyzer"
         manifest.attributes["Specification-Version"] = version
 
-        dependsOn(project(":MockSkriptBridge").tasks.jar)
-
         subprojects.forEach { subproject ->
+            dependsOn(subproject.tasks.jar)
             from(subproject.tasks.jar.get().outputs.files.singleFile) {
                 include("*.jar")
                 rename { "${subproject.name}.jar.embedded" }

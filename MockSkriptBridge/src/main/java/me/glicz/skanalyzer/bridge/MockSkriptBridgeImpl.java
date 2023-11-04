@@ -14,6 +14,7 @@ import ch.njol.skript.structures.StructFunction;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.structure.StructureType;
 import me.glicz.skanalyzer.structure.data.EventData;
+import me.glicz.skanalyzer.structure.data.FunctionData;
 import me.glicz.skanalyzer.structure.data.StructureData;
 import org.bukkit.Bukkit;
 import org.skriptlang.skript.lang.script.Script;
@@ -130,9 +131,10 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                         Signature<?> signature = getFunctionSignature(function);
                         if (signature == null) return;
                         structures.putIfAbsent(StructureType.FUNCTION, new ArrayList<>());
-                        structures.get(StructureType.FUNCTION).add(new StructureData(
+                        structures.get(StructureType.FUNCTION).add(new FunctionData(
                                 function.getEntryContainer().getSource().getLine(),
-                                signature.getName()
+                                signature.getName(),
+                                signature.isLocal()
                         ));
                     }
                 });
