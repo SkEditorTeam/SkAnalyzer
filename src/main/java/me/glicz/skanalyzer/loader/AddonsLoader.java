@@ -16,8 +16,8 @@ import java.util.jar.JarFile;
 public class AddonsLoader {
     public static final File USER_HOME = new File(System.getProperty("user.home"));
     public static final File ADDONS = new File(USER_HOME, "SkAnalyzer/addons");
-    private static final String MOCK_SKRIPT = "MockSkript.jar";
-    private static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
+    public static final String MOCK_SKRIPT = "MockSkript.jar";
+    public static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
     private static JavaPlugin skript;
     @Getter
     private static MockSkriptBridge mockSkriptBridge;

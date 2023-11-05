@@ -71,20 +71,18 @@ public class SkAnalyzer {
     private void extractEmbeddedAddons() {
         logger.info("Extracting embedded addons...");
 
-        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream("MockSkript.jar.embedded")) {
-            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded MockSkript.jar");
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(AddonsLoader.ADDONS, "MockSkript.jar"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream("MockSkriptBridge.jar.embedded")) {
-            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded MockSkriptBridge.jar");
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(AddonsLoader.ADDONS, "MockSkriptBridge.jar"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT);
+        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_BRIDGE);
 
         logger.info("Successfully extracted embedded addons!");
+    }
+
+    private void extractEmbeddedAddon(String name) {
+        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream(name + ".embedded")) {
+            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded %s", name);
+            FileUtils.copyInputStreamToFile(embeddedJar, new File(AddonsLoader.ADDONS, name));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
