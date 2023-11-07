@@ -11,7 +11,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 public class AddonsLoader {
     public static final File USER_HOME = new File(System.getProperty("user.home"));
@@ -22,12 +24,19 @@ public class AddonsLoader {
     @Getter
     private static MockSkriptBridge mockSkriptBridge;
 
+    @SuppressWarnings("UnstableApiUsage")
     public static void loadAddons() {
         if (skript != null)
             throw new RuntimeException("Addons are already loaded!");
         skript = loadAddon(new File(ADDONS, MOCK_SKRIPT));
         mockSkriptBridge = (MockSkriptBridge) loadAddon(new File(ADDONS, MOCK_SKRIPT_BRIDGE));
         FileUtils.listFiles(ADDONS, new String[]{"jar"}, false).forEach(AddonsLoader::loadAddon);
+        SkAnalyzer.get().getLogger().info(
+                "Successfully loaded addons: {}",
+                Arrays.stream(Bukkit.getPluginManager().getPlugins())
+                        .map(plugin -> plugin.getPluginMeta().getName())
+                        .collect(Collectors.joining(", "))
+        );
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -52,7 +61,6 @@ public class AddonsLoader {
             JavaPlugin plugin = (JavaPlugin) pluginClass.getConstructor().newInstance();
             SkAnalyzer.get().getServer().getPluginManager().registerLoadedPlugin(plugin);
             SkAnalyzer.get().getServer().getPluginManager().enablePlugin(plugin);
-            SkAnalyzer.get().getLogger().info("Enabled addon {}", description.getName());
             return plugin;
         } catch (Exception e) {
             SkAnalyzer.get().getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
