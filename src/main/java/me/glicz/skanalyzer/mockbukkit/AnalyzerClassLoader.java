@@ -6,6 +6,7 @@ import com.google.common.io.ByteStreams;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import io.papermc.paper.plugin.provider.classloader.PluginClassLoaderGroup;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,9 +32,11 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
         ClassLoader.registerAsParallelCapable();
     }
 
-    private final PluginClassLoaderGroup classLoaderGroup = new MockBukkitPluginClassLoaderGroup();
+    @Getter(onMethod_ = {@NotNull})
+    private final PluginClassLoaderGroup group = new MockBukkitPluginClassLoaderGroup();
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
-    private final PluginDescriptionFile description;
+    @Getter
+    private final PluginDescriptionFile configuration;
     private final File dataFolder, file;
     private final URL url;
     private final JarFile jarFile;
@@ -41,17 +44,12 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
 
     public AnalyzerClassLoader(ClassLoader parent, PluginDescriptionFile description, File dataFolder, File file, JarFile jarFile) throws Exception {
         super(file.getName(), new URL[]{file.toURI().toURL()}, parent);
-        this.description = description;
+        this.configuration = description;
         this.dataFolder = dataFolder;
         this.file = file;
         this.url = file.toURI().toURL();
         this.jarFile = jarFile;
         this.manifest = jarFile.getManifest();
-    }
-
-    @Override
-    public PluginMeta getConfiguration() {
-        return description;
     }
 
     @Override
@@ -73,7 +71,7 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
         }
 
         if (checkGlobal) {
-            Class<?> result = this.classLoaderGroup.getClassByName(name, resolve, this);
+            Class<?> result = group.getClassByName(name, resolve, this);
             if (result != null)
                 return result;
         }
@@ -136,17 +134,20 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
 
     @Override
     public void init(JavaPlugin plugin) {
-        plugin.init(Bukkit.getServer(), description, dataFolder, file, this, description, PaperPluginLogger.getLogger(getConfiguration()));
+        plugin.init(
+                Bukkit.getServer(),
+                configuration,
+                dataFolder,
+                file,
+                this,
+                configuration,
+                PaperPluginLogger.getLogger((PluginMeta) getConfiguration())
+        );
     }
 
     @Override
     public @Nullable JavaPlugin getPlugin() {
         return null;
-    }
-
-    @Override
-    public @NotNull PluginClassLoaderGroup getGroup() {
-        return classLoaderGroup;
     }
 
     @Override

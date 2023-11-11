@@ -11,8 +11,10 @@ import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.structures.StructCommand;
 import ch.njol.skript.structures.StructFunction;
+import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.structure.StructureType;
 import me.glicz.skanalyzer.structure.data.EventData;
+import me.glicz.skanalyzer.structure.data.FunctionData;
 import me.glicz.skanalyzer.structure.data.StructureData;
 import org.bukkit.Bukkit;
 import org.skriptlang.skript.lang.script.Script;
@@ -79,20 +81,18 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 Skript.getAddonInstance().loadClasses(basePackage + ".economy");
                 Skript.getAddonInstance().loadClasses(basePackage + ".chat");
                 Skript.getAddonInstance().loadClasses(basePackage + ".permission");
-                System.out.println("Force loaded Vault hook.");
+                SkAnalyzer.get().getLogger().info("Force loaded Vault hook");
             } catch (IOException e) {
-                System.out.println("Something went wrong while trying to force load Vault hook");
-                e.printStackTrace(System.out);
+                SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load Vault hook", e);
             }
         }
         if (args.contains("--forceRegionsHook")) {
             try {
                 String basePackage = RegionsPlugin.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage);
-                System.out.println("Force loaded Regions hook.");
+                SkAnalyzer.get().getLogger().info("Force loaded regions hook");
             } catch (IOException e) {
-                System.out.println("Something went wrong while trying to force load Regions hook");
-                e.printStackTrace(System.out);
+                SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load regions hook", e);
             }
         }
     }
@@ -100,11 +100,17 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public void parseScript(String path) {
         File file = new File(path);
-        if (!file.exists())
+        if (!file.exists() || !file.getName().endsWith(".sk")) {
+            SkAnalyzer.get().getLogger().error("Invalid file path");
             return;
+        }
         AnalyzerCommandSender sender = new AnalyzerCommandSender();
         RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, null).start();
-        ScriptLoader.loadScripts(file, logHandler, false).thenRun(() -> {
+        ScriptLoader.loadScripts(file, logHandler, false).whenComplete((info, throwable) -> {
+            if (throwable != null) {
+                SkAnalyzer.get().getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
+                return;
+            }
             Map<StructureType, List<StructureData>> structures = new HashMap<>();
             Script script = ScriptLoader.getScript(file);
             if (script != null) {
@@ -131,9 +137,10 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                         Signature<?> signature = getFunctionSignature(function);
                         if (signature == null) return;
                         structures.putIfAbsent(StructureType.FUNCTION, new ArrayList<>());
-                        structures.get(StructureType.FUNCTION).add(new StructureData(
+                        structures.get(StructureType.FUNCTION).add(new FunctionData(
                                 function.getEntryContainer().getSource().getLine(),
-                                signature.getName()
+                                signature.getName(),
+                                signature.isLocal()
                         ));
                     }
                 });

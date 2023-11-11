@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="PlainLogger" target="SYSTEM_OUT">
+            <PatternLayout pattern="%msg%n"/>
+        </Console>
+        <Async name="AsyncPlain">
+            <AppenderRef ref="PlainLogger"/>
+        </Async>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{[%d{HH:mm:ss} %level]: [%logger] %msg%n%xEx{full}}"/>
+        </Console>
+        <Async name="AsyncConsole">
+            <AppenderRef ref="Console"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="PlainLogger" additivity="false">
+            <AppenderRef ref="AsyncPlain"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="AsyncConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>

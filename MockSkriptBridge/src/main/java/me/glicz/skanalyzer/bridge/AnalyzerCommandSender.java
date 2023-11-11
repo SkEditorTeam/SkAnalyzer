@@ -3,6 +3,7 @@ package me.glicz.skanalyzer.bridge;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.structure.StructureType;
 import me.glicz.skanalyzer.structure.data.StructureData;
 import org.bukkit.command.MessageCommandSender;
@@ -45,7 +46,7 @@ public class AnalyzerCommandSender implements MessageCommandSender {
             });
         });
 
-        System.out.println(jsonObject);
+        SkAnalyzer.get().getLogger().info(jsonObject);
     }
 
     private JsonObject getKeyObject(JsonObject jsonObject, String key) {

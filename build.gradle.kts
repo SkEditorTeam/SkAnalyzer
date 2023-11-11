@@ -10,14 +10,13 @@ repositories {
 }
 
 dependencies {
-    compileOnly(project(":MockSkript")) {
-        exclude("*", "*")
-    }
-    api("com.github.seeseemelk:MockBukkit-v1.20:3.9.0")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
+    api("com.github.seeseemelk:MockBukkit-v1.20:3.44.0")
     implementation("org.apache.logging.log4j:log4j-core:3.0.0-alpha1")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
     implementation("commons-io:commons-io:2.14.0")
     implementation("commons-lang:commons-lang:2.6")
-    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
 
 java {
@@ -35,9 +34,8 @@ tasks {
         manifest.attributes["Main-Class"] = "me.glicz.skanalyzer.SkAnalyzer"
         manifest.attributes["Specification-Version"] = version
 
-        dependsOn(project(":MockSkriptBridge").tasks.jar)
-
         subprojects.forEach { subproject ->
+            dependsOn(subproject.tasks.jar)
             from(subproject.tasks.jar.get().outputs.files.singleFile) {
                 include("*.jar")
                 rename { "${subproject.name}.jar.embedded" }

@@ -2,9 +2,12 @@ package me.glicz.skanalyzer;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,24 +15,28 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Scanner;
 
+@Getter
 public class SkAnalyzer {
     private static SkAnalyzer instance;
     private final AnalyzerServer server;
+    private final Logger logger;
 
     private SkAnalyzer(List<String> args) {
         Preconditions.checkArgument(instance == null, "SkAnalyzer instance is already set!");
         instance = this;
 
+        logger = LogManager.getLogger(args.contains("--enablePlainLogger") ? "PlainLogger" : "SkAnalyzer");
+
         System.out.printf("SkAnalyzer v%s - simple Skript parser. Created by Glicz.%n", getClass().getPackage().getSpecificationVersion());
         extractEmbeddedAddons();
-        System.out.println("Enabling...");
+        logger.info("Enabling...");
 
         server = MockBukkit.mock(new AnalyzerServer());
         AddonsLoader.loadAddons();
         AddonsLoader.getMockSkriptBridge().parseArgs(args);
 
         server.startTicking();
-        System.out.println("Successfully enabled. Have fun!");
+        logger.info("Successfully enabled. Have fun!");
 
         startReadingInput();
     }
@@ -40,10 +47,6 @@ public class SkAnalyzer {
 
     public static SkAnalyzer get() {
         return instance;
-    }
-
-    public AnalyzerServer getServer() {
-        return server;
     }
 
     private void startReadingInput() {
@@ -66,22 +69,20 @@ public class SkAnalyzer {
     }
 
     private void extractEmbeddedAddons() {
-        System.out.println("Extracting embedded addons...");
+        logger.info("Extracting embedded addons...");
 
-        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream("MockSkript.jar.embedded")) {
-            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded MockSkript.jar");
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(AddonsLoader.ADDONS, "MockSkript.jar"));
+        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT);
+        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_BRIDGE);
+
+        logger.info("Successfully extracted embedded addons!");
+    }
+
+    private void extractEmbeddedAddon(String name) {
+        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream(name + ".embedded")) {
+            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded %s", name);
+            FileUtils.copyInputStreamToFile(embeddedJar, new File(AddonsLoader.ADDONS, name));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream("MockSkriptBridge.jar.embedded")) {
-            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded MockSkriptBridge.jar");
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(AddonsLoader.ADDONS, "MockSkriptBridge.jar"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println("Successfully extracted embedded addons!");
     }
 }
