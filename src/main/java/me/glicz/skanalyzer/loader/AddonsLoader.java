@@ -34,7 +34,7 @@ public class AddonsLoader {
         SkAnalyzer.get().getLogger().info(
                 "Successfully loaded addons: {}",
                 Arrays.stream(Bukkit.getPluginManager().getPlugins())
-                        .map(plugin -> plugin.getPluginMeta().getName())
+                        .map(plugin -> plugin.getPluginMeta().getDisplayName())
                         .collect(Collectors.joining(", "))
         );
     }

@@ -2,7 +2,7 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="PlainLogger" target="SYSTEM_OUT">
-            <PatternLayout pattern="%msg%n"/>
+            <PatternLayout pattern="%level: %msg%n"/>
         </Console>
         <Async name="AsyncPlain">
             <AppenderRef ref="PlainLogger"/>
