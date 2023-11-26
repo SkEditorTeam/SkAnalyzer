@@ -20,7 +20,6 @@ import me.glicz.skanalyzer.structure.ScriptStructure;
 import me.glicz.skanalyzer.structure.data.CommandData;
 import me.glicz.skanalyzer.structure.data.EventData;
 import me.glicz.skanalyzer.structure.data.FunctionData;
-import me.glicz.skanalyzer.structure.data.StructureData;
 import org.apache.commons.lang3.StringUtils;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -81,7 +80,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     }
 
     private ScriptStructure handleParsedScript(File file) {
-        List<StructureData> commandDataList = new ArrayList<>();
+        List<CommandData> commandDataList = new ArrayList<>();
         List<EventData> eventDataList = new ArrayList<>();
         List<FunctionData> functionDataList = new ArrayList<>();
         Script script = ScriptLoader.getScript(file);

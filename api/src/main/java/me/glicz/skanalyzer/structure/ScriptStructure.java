@@ -1,14 +1,14 @@
 package me.glicz.skanalyzer.structure;
 
+import me.glicz.skanalyzer.structure.data.CommandData;
 import me.glicz.skanalyzer.structure.data.EventData;
 import me.glicz.skanalyzer.structure.data.FunctionData;
-import me.glicz.skanalyzer.structure.data.StructureData;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
 import java.util.List;
 
-public record ScriptStructure(List<StructureData> commandDataList, List<EventData> eventDataList,
+public record ScriptStructure(List<CommandData> commandDataList, List<EventData> eventDataList,
                               List<FunctionData> functionDataList) {
     @Override
     @Unmodifiable
@@ -24,7 +24,7 @@ public record ScriptStructure(List<StructureData> commandDataList, List<EventDat
 
     @Override
     @Unmodifiable
-    public List<StructureData> commandDataList() {
+    public List<CommandData> commandDataList() {
         return Collections.unmodifiableList(commandDataList);
     }
 }
