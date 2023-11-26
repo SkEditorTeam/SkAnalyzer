@@ -11,187 +11,117 @@ import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.structures.StructCommand;
 import ch.njol.skript.structures.StructFunction;
+import me.glicz.skanalyzer.AnalyzerFlag;
+import me.glicz.skanalyzer.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.SkAnalyzer;
-import me.glicz.skanalyzer.structure.StructureType;
+import me.glicz.skanalyzer.bridge.util.ReflectionUtil;
+import me.glicz.skanalyzer.structure.ScriptStructure;
 import me.glicz.skanalyzer.structure.data.EventData;
 import me.glicz.skanalyzer.structure.data.FunctionData;
 import me.glicz.skanalyzer.structure.data.StructureData;
-import org.bukkit.Bukkit;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
-    private static final Field scriptCommandField, exprField, skriptEventInfoField, structureField;
-
-    static {
-        Field tempScriptCommandField = null;
-        try {
-            tempScriptCommandField = StructCommand.class.getDeclaredField("scriptCommand");
-            tempScriptCommandField.setAccessible(true);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-        scriptCommandField = tempScriptCommandField;
-
-        Field tempExprField = null;
-        try {
-            tempExprField = SkriptEvent.class.getDeclaredField("expr");
-            tempExprField.setAccessible(true);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-        exprField = tempExprField;
-
-        Field tempSkriptEventInfo = null;
-        try {
-            tempSkriptEventInfo = SkriptEvent.class.getDeclaredField("skriptEventInfo");
-            tempSkriptEventInfo.setAccessible(true);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-        skriptEventInfoField = tempSkriptEventInfo;
-
-        Field tempStructureField = null;
-        try {
-            tempStructureField = StructFunction.class.getDeclaredField("signature");
-            tempStructureField.setAccessible(true);
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-        structureField = tempStructureField;
+    public MockSkriptBridgeImpl(SkAnalyzer skAnalyzer) {
+        super(skAnalyzer);
+        parseFlags();
     }
 
-    public MockSkriptBridgeImpl() {
-        if (!Bukkit.getName().equals("SkAnalyzer"))
-            throw new RuntimeException("MockSkriptBridge only supports SkAnalyzer.");
-    }
-
-    @Override
-    public void parseArgs(List<String> args) {
-        if (args.contains("--forceVaultHook")) {
+    public void parseFlags() {
+        if (skAnalyzer.getFlags().contains(AnalyzerFlag.FORCE_VAULT_HOOK)) {
             try {
                 String basePackage = VaultHook.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage + ".economy");
                 Skript.getAddonInstance().loadClasses(basePackage + ".chat");
                 Skript.getAddonInstance().loadClasses(basePackage + ".permission");
-                SkAnalyzer.get().getLogger().info("Force loaded Vault hook");
+                skAnalyzer.getLogger().info("Force loaded Vault hook");
             } catch (IOException e) {
-                SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load Vault hook", e);
+                skAnalyzer.getLogger().error("Something went wrong while trying to force load Vault hook", e);
             }
         }
-        if (args.contains("--forceRegionsHook")) {
+        if (skAnalyzer.getFlags().contains(AnalyzerFlag.FORCE_REGIONS_HOOK)) {
             try {
                 String basePackage = RegionsPlugin.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage);
-                SkAnalyzer.get().getLogger().info("Force loaded regions hook");
+                skAnalyzer.getLogger().info("Force loaded regions hook");
             } catch (IOException e) {
-                SkAnalyzer.get().getLogger().error("Something went wrong while trying to force load regions hook", e);
+                skAnalyzer.getLogger().error("Something went wrong while trying to force load regions hook", e);
             }
         }
     }
 
     @Override
-    public void parseScript(String path) {
+    public CompletableFuture<ScriptAnalyzeResult> parseScript(String path) {
         File file = new File(path);
         if (!file.exists() || !file.getName().endsWith(".sk")) {
-            SkAnalyzer.get().getLogger().error("Invalid file path");
-            return;
+            skAnalyzer.getLogger().error("Invalid file path");
+            return CompletableFuture.failedFuture(new InvalidPathException(path, "Provided file doesn't end with '.sk'"));
         }
-        AnalyzerCommandSender sender = new AnalyzerCommandSender();
+        AnalyzerCommandSender sender = new AnalyzerCommandSender(skAnalyzer);
         RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, null).start();
-        ScriptLoader.loadScripts(file, logHandler, false).whenComplete((info, throwable) -> {
-            if (throwable != null) {
-                SkAnalyzer.get().getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
-                return;
-            }
-            Map<StructureType, List<StructureData>> structures = new HashMap<>();
-            Script script = ScriptLoader.getScript(file);
-            if (script != null) {
-                script.getStructures().forEach(structure -> {
-                    if (structure instanceof StructCommand command) {
-                        ScriptCommand scriptCommand = getScriptCommand(command);
-                        if (scriptCommand == null) return;
-                        structures.putIfAbsent(StructureType.COMMAND, new ArrayList<>());
-                        structures.get(StructureType.COMMAND).add(new StructureData(
-                                command.getEntryContainer().getSource().getLine(),
-                                scriptCommand.getName()
-                        ));
-                    } else if (structure instanceof SkriptEvent event) {
-                        SkriptEventInfo<?> eventInfo = getEventInfo(event);
-                        if (eventInfo == null) return;
-                        structures.putIfAbsent(StructureType.EVENT, new ArrayList<>());
-                        structures.get(StructureType.EVENT).add(new EventData(
-                                event.getEntryContainer().getSource().getLine(),
-                                getEventExpression(event),
-                                eventInfo.getId(),
-                                event.getEventPriority()
-                        ));
-                    } else if (structure instanceof StructFunction function) {
-                        Signature<?> signature = getFunctionSignature(function);
-                        if (signature == null) return;
-                        structures.putIfAbsent(StructureType.FUNCTION, new ArrayList<>());
-                        structures.get(StructureType.FUNCTION).add(new FunctionData(
-                                function.getEntryContainer().getSource().getLine(),
-                                signature.getName(),
-                                signature.isLocal()
-                        ));
+        return ScriptLoader.loadScripts(file, logHandler, false)
+                .handle((info, throwable) -> {
+                    if (throwable != null) {
+                        skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
+                        return CompletableFuture.failedFuture(new RuntimeException(throwable));
                     }
-                });
-                ScriptLoader.unloadScript(script);
-            }
-            sender.finish(Map.of(getCanonicalPath(file).replace('\\', '/'), structures));
-            logHandler.close();
-        });
+                    return CompletableFuture.completedFuture(info);
+                })
+                .thenApply(info -> sender.finish(file, handleParsedScript(file)));
     }
 
-    private String getCanonicalPath(File file) {
-        try {
-            return file.getCanonicalPath();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private ScriptStructure handleParsedScript(File file) {
+        List<StructureData> commandDataList = new ArrayList<>();
+        List<EventData> eventDataList = new ArrayList<>();
+        List<FunctionData> functionDataList = new ArrayList<>();
+        Script script = ScriptLoader.getScript(file);
+        if (script != null) {
+            script.getStructures().forEach(structure -> {
+                if (structure instanceof StructCommand command) {
+                    ScriptCommand scriptCommand = ReflectionUtil.getScriptCommand(command);
+                    if (scriptCommand == null) return;
+                    commandDataList.add(new StructureData(
+                            command.getEntryContainer().getSource().getLine(),
+                            scriptCommand.getName()
+                    ));
+                } else if (structure instanceof SkriptEvent event) {
+                    SkriptEventInfo<?> eventInfo = ReflectionUtil.getEventInfo(event);
+                    if (eventInfo == null) return;
+                    eventDataList.add(new EventData(
+                            event.getEntryContainer().getSource().getLine(),
+                            ReflectionUtil.getEventExpression(event),
+                            eventInfo.getId(),
+                            event.getEventPriority()
+                    ));
+                } else if (structure instanceof StructFunction function) {
+                    Signature<?> signature = ReflectionUtil.getFunctionSignature(function);
+                    if (signature == null) return;
+                    String returnType = null;
+                    if (signature.getReturnType() != null)
+                        returnType = signature.getReturnType().getName().getSingular();
+                    functionDataList.add(new FunctionData(
+                            function.getEntryContainer().getSource().getLine(),
+                            signature.getName(),
+                            signature.isLocal(),
+                            Arrays.stream(signature.getParameters())
+                                    .map(parameter -> Map.entry(parameter.getName(), parameter.getType().getName().getSingular()))
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                            returnType
+                    ));
+                }
+            });
+            ScriptLoader.unloadScript(script);
         }
-    }
-
-    private ScriptCommand getScriptCommand(StructCommand command) {
-        try {
-            return (ScriptCommand) scriptCommandField.get(command);
-        } catch (Throwable e) {
-            e.printStackTrace(System.out);
-            return null;
-        }
-    }
-
-    private String getEventExpression(SkriptEvent event) {
-        try {
-            return (String) exprField.get(event);
-        } catch (Throwable e) {
-            e.printStackTrace(System.out);
-            return null;
-        }
-    }
-
-    private SkriptEventInfo<?> getEventInfo(SkriptEvent event) {
-        try {
-            return (SkriptEventInfo<?>) skriptEventInfoField.get(event);
-        } catch (Throwable e) {
-            e.printStackTrace(System.out);
-            return null;
-        }
-    }
-
-    private Signature<?> getFunctionSignature(StructFunction function) {
-        try {
-            return (Signature<?>) structureField.get(function);
-        } catch (Throwable e) {
-            e.printStackTrace(System.out);
-            return null;
-        }
+        return new ScriptStructure(commandDataList, eventDataList, functionDataList);
     }
 }

@@ -31,14 +31,11 @@ tasks {
     }
 
     shadowJar {
-        manifest.attributes["Main-Class"] = "me.glicz.skanalyzer.SkAnalyzer"
-        manifest.attributes["Specification-Version"] = version
-
-        subprojects.forEach { subproject ->
-            dependsOn(subproject.tasks.jar)
-            from(subproject.tasks.jar.get().outputs.files.singleFile) {
+        listOf(project(":MockSkript"), project(":MockSkriptBridge")).forEach { addon ->
+            dependsOn(addon.tasks.jar)
+            from(addon.tasks.jar.get().outputs.files.singleFile) {
                 include("*.jar")
-                rename { "${subproject.name}.jar.embedded" }
+                rename { "${addon.name}.jar.embedded" }
             }
         }
 

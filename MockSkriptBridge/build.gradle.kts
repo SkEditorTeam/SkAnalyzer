@@ -9,10 +9,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly(rootProject)
+    compileOnly(project(":api"))
     compileOnly(project(":MockSkript")) {
         exclude("*", "*")
     }
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
 }
 
 java {

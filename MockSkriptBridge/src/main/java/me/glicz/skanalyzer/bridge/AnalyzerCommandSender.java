@@ -3,58 +3,77 @@ package me.glicz.skanalyzer.bridge;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import lombok.RequiredArgsConstructor;
+import me.glicz.skanalyzer.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.SkAnalyzer;
-import me.glicz.skanalyzer.structure.StructureType;
+import me.glicz.skanalyzer.error.ScriptError;
+import me.glicz.skanalyzer.structure.ScriptStructure;
 import me.glicz.skanalyzer.structure.data.StructureData;
 import org.bukkit.command.MessageCommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
 
+@RequiredArgsConstructor
 public class AnalyzerCommandSender implements MessageCommandSender {
     private final List<String> messages = new ArrayList<>();
     private final Gson gson = new Gson();
+    private final SkAnalyzer skAnalyzer;
 
     @Override
     public void sendMessage(@NotNull String message) {
         messages.add(message);
     }
 
-    public void finish(Map<String, Map<StructureType, List<StructureData>>> structures) {
+    public ScriptAnalyzeResult finish(File file, ScriptStructure structure) {
         JsonObject jsonObject = new JsonObject();
+        JsonObject fileObject = new JsonObject();
 
-        messages.forEach(message -> gson.fromJson(message, JsonObject.class).asMap().forEach((key, value) -> {
-            JsonObject keyObject = getKeyObject(jsonObject, key);
+        List<ScriptError> scriptErrors = new ArrayList<>();
 
-            JsonArray errors = keyObject.getAsJsonArray("errors");
+        messages.forEach(message -> {
+            JsonObject error = gson.fromJson(message, JsonObject.class);
+
+            JsonArray errors = fileObject.getAsJsonArray("errors");
             if (errors == null) {
                 errors = new JsonArray();
-                keyObject.add("errors", errors);
+                fileObject.add("errors", errors);
             }
-            errors.add(value);
-        }));
+            errors.add(error);
 
-        structures.forEach((key, value) -> {
-            JsonObject keyObject = getKeyObject(jsonObject, key);
-
-            value.forEach((structureType, structureValues) -> {
-                JsonArray structuresArray = new JsonArray();
-                structureValues.forEach(structureData -> structuresArray.add(gson.toJsonTree(structureData)));
-                keyObject.add(structureType.name().toLowerCase() + "s", structuresArray);
-            });
+            scriptErrors.add(new ScriptError(
+                    error.get("line").getAsInt(),
+                    error.get("message").getAsString(),
+                    Level.parse(error.get("level").getAsString())
+            ));
         });
 
-        SkAnalyzer.get().getLogger().info(jsonObject);
+        parseStructureDataList(fileObject, "commands", structure.commandDataList());
+        parseStructureDataList(fileObject, "events", structure.eventDataList());
+        parseStructureDataList(fileObject, "functions", structure.functionDataList());
+
+        jsonObject.add(getCanonicalPath(file).replace('\\', '/'), fileObject);
+
+        skAnalyzer.getLogger().info(jsonObject);
+
+        return new ScriptAnalyzeResult(scriptErrors, structure);
     }
 
-    private JsonObject getKeyObject(JsonObject jsonObject, String key) {
-        JsonObject keyObject = jsonObject.getAsJsonObject(key);
-        if (keyObject == null) {
-            keyObject = new JsonObject();
-            jsonObject.add(key, keyObject);
+    private String getCanonicalPath(File file) {
+        try {
+            return file.getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return keyObject;
+    }
+
+    private void parseStructureDataList(JsonObject jsonObject, String type, List<? extends StructureData> structureDataList) {
+        JsonArray structuresArray = new JsonArray();
+        structureDataList.forEach(structureData -> structuresArray.add(gson.toJsonTree(structureData)));
+        jsonObject.add(type, structuresArray);
     }
 }
