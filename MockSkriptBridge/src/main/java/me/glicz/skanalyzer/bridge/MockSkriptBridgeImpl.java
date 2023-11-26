@@ -2,6 +2,7 @@ package me.glicz.skanalyzer.bridge;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
@@ -16,18 +17,17 @@ import me.glicz.skanalyzer.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.util.ReflectionUtil;
 import me.glicz.skanalyzer.structure.ScriptStructure;
+import me.glicz.skanalyzer.structure.data.CommandData;
 import me.glicz.skanalyzer.structure.data.EventData;
 import me.glicz.skanalyzer.structure.data.FunctionData;
 import me.glicz.skanalyzer.structure.data.StructureData;
+import org.apache.commons.lang3.StringUtils;
 import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -90,9 +90,23 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 if (structure instanceof StructCommand command) {
                     ScriptCommand scriptCommand = ReflectionUtil.getScriptCommand(command);
                     if (scriptCommand == null) return;
-                    commandDataList.add(new StructureData(
+                    commandDataList.add(new CommandData(
                             command.getEntryContainer().getSource().getLine(),
-                            scriptCommand.getName()
+                            scriptCommand.getName(),
+                            scriptCommand.getAliases(),
+                            StringUtils.defaultIfEmpty(ReflectionUtil.getCommandPermission(scriptCommand), null),
+                            StringUtils.defaultIfEmpty(ReflectionUtil.getCommandDescription(scriptCommand), null),
+                            scriptCommand.getPrefix(),
+                            StringUtils.defaultIfEmpty(ReflectionUtil.getCommandUsage(scriptCommand), null),
+                            scriptCommand.getArguments().stream()
+                                    .map(argument -> {
+                                        ClassInfo<?> argumentType = ReflectionUtil.getArgumentType(argument);
+                                        if (argumentType != null)
+                                            return argumentType.getName().getSingular();
+                                        return null;
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .toList()
                     ));
                 } else if (structure instanceof SkriptEvent event) {
                     SkriptEventInfo<?> eventInfo = ReflectionUtil.getEventInfo(event);

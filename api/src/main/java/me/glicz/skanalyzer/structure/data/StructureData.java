@@ -1,6 +1,6 @@
 package me.glicz.skanalyzer.structure.data;
 
-public sealed class StructureData permits EventData, FunctionData {
+public sealed class StructureData permits CommandData, EventData, FunctionData {
     private final int line;
     private final String value;
 
