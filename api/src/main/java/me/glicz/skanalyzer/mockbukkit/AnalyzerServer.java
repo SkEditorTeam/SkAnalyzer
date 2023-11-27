@@ -48,4 +48,9 @@ public class AnalyzerServer extends ServerMock {
     public @NotNull BlockData createBlockData(Material material, String data) {
         return createBlockData(material);
     }
+
+    @Override
+    public boolean isStopping() {
+        return false;
+    }
 }
