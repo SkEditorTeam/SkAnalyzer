@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Getter
 public class SkAnalyzer {
-    public static final String WORKING_DIR_ENV = "skanalyzer.workingDir";
+    public static final String WORKING_DIR_PROPERTY = "skanalyzer.workingDir";
     private final EnumSet<AnalyzerFlag> flags;
     private final File workingDirectory;
     private final Logger logger;
@@ -89,7 +89,7 @@ public class SkAnalyzer {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
         private AnalyzerFlag[] flags = {};
-        private File workingDirectory = Optional.ofNullable(System.getenv(WORKING_DIR_ENV))
+        private File workingDirectory = Optional.ofNullable(System.getProperty(WORKING_DIR_PROPERTY))
                 .map(File::new)
                 .orElse(null);
 
