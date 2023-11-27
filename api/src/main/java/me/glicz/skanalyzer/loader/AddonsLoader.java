@@ -90,7 +90,7 @@ public class AddonsLoader {
             if (skript != null)
                 classLoader.getGroup().add((ConfiguredPluginClassLoader) skript.getClass().getClassLoader());
             return classLoader.loadClass(description.getMainClass(), true, false, false);
-        } catch (Exception e) {
+        } catch (Exception | ExceptionInInitializerError e) {
             skAnalyzer.getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
         }
         return null;
