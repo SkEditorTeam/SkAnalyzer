@@ -35,7 +35,8 @@ public class SkAnalyzer {
     private final AddonsLoader addonsLoader;
 
     private SkAnalyzer(AnalyzerFlag[] flags, File workingDirectory) {
-        this.flags = EnumSet.copyOf(List.of(flags));
+        this.flags = EnumSet.noneOf(AnalyzerFlag.class);
+        this.flags.addAll(List.of(flags));
         this.workingDirectory = Objects.requireNonNullElse(workingDirectory, AddonsLoader.ADDONS);
         this.logger = LogManager.getLogger(getFlags().contains(AnalyzerFlag.ENABLE_PLAIN_LOGGER) ? "PlainLogger" : "SkAnalyzer");
 
