@@ -89,52 +89,70 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 if (structure instanceof StructCommand command) {
                     ScriptCommand scriptCommand = ReflectionUtil.getScriptCommand(command);
                     if (scriptCommand == null) return;
-                    commandDataList.add(new CommandData(
-                            command.getEntryContainer().getSource().getLine(),
-                            scriptCommand.getName(),
-                            scriptCommand.getAliases(),
-                            StringUtils.defaultIfEmpty(ReflectionUtil.getCommandPermission(scriptCommand), null),
-                            StringUtils.defaultIfEmpty(ReflectionUtil.getCommandDescription(scriptCommand), null),
-                            scriptCommand.getPrefix(),
-                            StringUtils.defaultIfEmpty(ReflectionUtil.getCommandUsage(scriptCommand), null),
-                            scriptCommand.getArguments().stream()
-                                    .map(argument -> {
-                                        ClassInfo<?> argumentType = ReflectionUtil.getArgumentType(argument);
-                                        if (argumentType != null)
-                                            return argumentType.getName().getSingular();
-                                        return null;
-                                    })
-                                    .filter(Objects::nonNull)
-                                    .toList()
-                    ));
+                    commandDataList.add(handleCommand(command, scriptCommand));
                 } else if (structure instanceof SkriptEvent event) {
                     SkriptEventInfo<?> eventInfo = ReflectionUtil.getEventInfo(event);
                     if (eventInfo == null) return;
-                    eventDataList.add(new EventData(
-                            event.getEntryContainer().getSource().getLine(),
-                            ReflectionUtil.getEventExpression(event),
-                            eventInfo.getId(),
-                            event.getEventPriority()
-                    ));
+                    eventDataList.add(handleEvent(event, eventInfo));
                 } else if (structure instanceof StructFunction function) {
                     Signature<?> signature = ReflectionUtil.getFunctionSignature(function);
                     if (signature == null) return;
-                    String returnType = null;
-                    if (signature.getReturnType() != null)
-                        returnType = signature.getReturnType().getName().getSingular();
-                    functionDataList.add(new FunctionData(
-                            function.getEntryContainer().getSource().getLine(),
-                            signature.getName(),
-                            signature.isLocal(),
-                            Arrays.stream(signature.getParameters())
-                                    .map(parameter -> Map.entry(parameter.getName(), parameter.getType().getName().getSingular()))
-                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
-                            returnType
-                    ));
+                    functionDataList.add(handleFunction(function, signature));
                 }
             });
             ScriptLoader.unloadScript(script);
         }
         return new ScriptStructure(commandDataList, eventDataList, functionDataList);
+    }
+
+    private CommandData handleCommand(StructCommand command, ScriptCommand scriptCommand) {
+        return new CommandData(
+                command.getEntryContainer().getSource().getLine(),
+                scriptCommand.getName(),
+                scriptCommand.getAliases(),
+                StringUtils.defaultIfEmpty(ReflectionUtil.getCommandPermission(scriptCommand), null),
+                StringUtils.defaultIfEmpty(ReflectionUtil.getCommandDescription(scriptCommand), null),
+                scriptCommand.getPrefix(),
+                StringUtils.defaultIfEmpty(ReflectionUtil.getCommandUsage(scriptCommand), null),
+                scriptCommand.getArguments().stream()
+                        .map(argument -> {
+                            ClassInfo<?> argumentType = ReflectionUtil.getArgumentType(argument);
+                            if (argumentType != null)
+                                return argumentType.getName().getSingular();
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .toList()
+        );
+    }
+
+    private EventData handleEvent(SkriptEvent event, SkriptEventInfo<?> eventInfo) {
+        return new EventData(
+                event.getEntryContainer().getSource().getLine(),
+                ReflectionUtil.getEventExpression(event),
+                eventInfo.getId(),
+                event.getEventPriority()
+        );
+    }
+
+    private FunctionData handleFunction(StructFunction function, Signature<?> signature) {
+        String returnType = null;
+        if (signature.getReturnType() != null)
+            returnType = signature.getReturnType().getName().getSingular();
+
+        return new FunctionData(
+                function.getEntryContainer().getSource().getLine(),
+                signature.getName(),
+                signature.isLocal(),
+                Arrays.stream(signature.getParameters())
+                        .map(parameter -> Map.entry(parameter.getName(), parameter.getType().getName().getSingular()))
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (s, s2) -> s,
+                                LinkedHashMap::new
+                        )),
+                returnType
+        );
     }
 }
