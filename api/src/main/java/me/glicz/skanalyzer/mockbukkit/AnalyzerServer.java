@@ -15,6 +15,7 @@ import java.util.TimerTask;
 public class AnalyzerServer extends ServerMock {
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
     private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
+    private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
 
     public void startTicking() {
         new Timer().scheduleAtFixedRate(new TimerTask() {
