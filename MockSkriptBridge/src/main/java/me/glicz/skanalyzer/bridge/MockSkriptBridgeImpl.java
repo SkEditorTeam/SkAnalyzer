@@ -130,7 +130,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         return new EventData(
                 event.getEntryContainer().getSource().getLine(),
                 ReflectionUtil.getEventExpression(event),
-                eventInfo.getId(),
+                Objects.requireNonNullElse(eventInfo.getDocumentationID(), eventInfo.getId()),
                 event.getEventPriority()
         );
     }
