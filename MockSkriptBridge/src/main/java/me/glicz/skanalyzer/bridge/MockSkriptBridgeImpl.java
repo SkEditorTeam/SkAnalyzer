@@ -118,7 +118,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                         .map(argument -> {
                             ClassInfo<?> argumentType = ReflectionUtil.getArgumentType(argument);
                             if (argumentType != null)
-                                return argumentType.getName().getSingular();
+                                return argumentType.getCodeName();
                             return null;
                         })
                         .filter(Objects::nonNull)
@@ -138,14 +138,14 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     private FunctionData handleFunction(StructFunction function, Signature<?> signature) {
         String returnType = null;
         if (signature.getReturnType() != null)
-            returnType = signature.getReturnType().getName().getSingular();
+            returnType = signature.getReturnType().getCodeName();
 
         return new FunctionData(
                 function.getEntryContainer().getSource().getLine(),
                 signature.getName(),
                 signature.isLocal(),
                 Arrays.stream(signature.getParameters())
-                        .map(parameter -> Map.entry(parameter.getName(), parameter.getType().getName().getSingular()))
+                        .map(parameter -> Map.entry(parameter.getName(), parameter.getType().getCodeName()))
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
                                 Map.Entry::getValue,
