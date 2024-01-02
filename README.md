@@ -20,11 +20,11 @@ Simply run SkAnalyzer in your command prompt and enter paths to your scripts
 You might need to see the ![wiki](https://github.com/SkEditorPlus/SkAnalyzer/wiki) for additional features
 
 ## Compiling
-After cloning this repository, open command prompt inside it and run
+To clone the repository with all the submodules, open command prompt and run
 ```
-git submodule init
+git clone https://github.com/SkEditorTeam/SkAnalyzer.git --recurse-submodules
 ```
-and after that
+and after that, run this command in SkAnalyzer folder
 ```
 ./gradlew shadowJar
 ``` 
