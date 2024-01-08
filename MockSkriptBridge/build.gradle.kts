@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     compileOnly(project(":api"))
-    compileOnly(project(":MockSkript")) {
+    compileOnly(project(":MockSkript", "shadow")) {
         exclude("*", "*")
     }
     compileOnly("org.projectlombok:lombok:1.18.30")
