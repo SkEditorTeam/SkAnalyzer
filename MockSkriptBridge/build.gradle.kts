@@ -33,4 +33,5 @@ tasks {
 
 bukkit {
     main = "me.glicz.skanalyzer.bridge.MockSkriptBridgeImpl"
+    depend = listOf("Skript")
 }

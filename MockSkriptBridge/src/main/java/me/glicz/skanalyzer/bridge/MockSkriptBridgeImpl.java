@@ -33,6 +33,10 @@ import java.util.stream.Collectors;
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
     public MockSkriptBridgeImpl(SkAnalyzer skAnalyzer) {
         super(skAnalyzer);
+    }
+
+    @Override
+    public void onLoad() {
         parseFlags();
     }
 

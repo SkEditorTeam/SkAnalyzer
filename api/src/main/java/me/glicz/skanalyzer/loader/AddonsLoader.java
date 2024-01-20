@@ -7,12 +7,13 @@ import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerClassLoader;
 import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -22,64 +23,93 @@ public class AddonsLoader {
     public static final File ADDONS = new File(USER_HOME, "SkAnalyzer/addons");
     public static final String MOCK_SKRIPT = "MockSkript.jar";
     public static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
+
+    private static final Map<String, JavaPlugin> addons = new HashMap<>();
+
     private final SkAnalyzer skAnalyzer;
     private JavaPlugin skript;
     @Getter
     private MockSkriptBridge mockSkriptBridge;
 
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({"deprecation"})
     public void loadAddons() {
         if (skript != null)
             throw new RuntimeException("Addons are already loaded!");
-        skript = loadSimpleAddon(new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT));
-        mockSkriptBridge = loadMockSkriptBridge();
-        FileUtils.listFiles(skAnalyzer.getWorkingDirectory(), new String[]{"jar"}, false).forEach(this::loadSimpleAddon);
+
+        skript = Objects.requireNonNull(initSimpleAddon(new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT)));
+        loadAddon(skript);
+        skAnalyzer.getServer().getPluginManager().enablePlugin(skript);
+
+        mockSkriptBridge = Objects.requireNonNull(initMockSkriptBridge());
+        loadAddon(mockSkriptBridge);
+        skAnalyzer.getServer().getPluginManager().enablePlugin(mockSkriptBridge);
+
+        FileUtils.listFiles(skAnalyzer.getWorkingDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
+
+        addons.values().forEach(addon -> {
+            try {
+                loadAddon(addon);
+            } catch (NullPointerException e) {
+                skAnalyzer.getLogger().error("Something went wrong while trying to load %s".formatted(addon.getName()), e);
+                addons.remove(addon.getName());
+            }
+        });
+
+        addons.values().forEach(addon -> skAnalyzer.getServer().getPluginManager().enablePlugin(addon));
+
         skAnalyzer.getLogger().info(
                 "Successfully loaded addons: {}",
-                Arrays.stream(Bukkit.getPluginManager().getPlugins())
-                        .map(plugin -> plugin.getPluginMeta().getDisplayName())
+                addons.values().stream()
+                        .map(plugin -> plugin.getDescription().getFullName())
                         .collect(Collectors.joining(", "))
         );
     }
 
-    private JavaPlugin loadSimpleAddon(File file) {
-        Class<?> pluginClass = loadAddon(file);
+    private JavaPlugin initSimpleAddon(File file) {
+        Class<?> pluginClass = initAddon(file);
+
         if (pluginClass == null) return null;
+
         try {
             JavaPlugin plugin = (JavaPlugin) pluginClass.getConstructor().newInstance();
-            skAnalyzer.getServer().getPluginManager().registerLoadedPlugin(plugin);
-            skAnalyzer.getServer().getPluginManager().enablePlugin(plugin);
+            addons.putIfAbsent(plugin.getName(), plugin);
             return plugin;
         } catch (Exception e) {
-            skAnalyzer.getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
+            skAnalyzer.getLogger().error("Something went wrong while trying to init %s".formatted(file.getPath()), e);
         }
+
         return null;
     }
 
-    private MockSkriptBridge loadMockSkriptBridge() {
+    private MockSkriptBridge initMockSkriptBridge() {
         File file = new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT_BRIDGE);
-        Class<?> pluginClass = loadAddon(file);
+        Class<?> pluginClass = initAddon(file);
+
         if (pluginClass == null) return null;
+
         try {
             MockSkriptBridge plugin = (MockSkriptBridge) pluginClass.getConstructor(SkAnalyzer.class).newInstance(skAnalyzer);
-            skAnalyzer.getServer().getPluginManager().registerLoadedPlugin(plugin);
-            skAnalyzer.getServer().getPluginManager().enablePlugin(plugin);
+            addons.putIfAbsent(plugin.getName(), plugin);
             return plugin;
         } catch (Exception e) {
-            skAnalyzer.getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
+            skAnalyzer.getLogger().error("Something went wrong while trying to init %s".formatted(file.getPath()), e);
         }
+
         return null;
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private Class<?> loadAddon(File file) {
+    private Class<?> initAddon(File file) {
         if (skript != null && file.getName().equals(MOCK_SKRIPT)) return null;
         if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE)) return null;
+
         try {
             JarFile jarFile = new JarFile(file);
             PluginDescriptionFile description = new PluginDescriptionFile(jarFile.getInputStream(jarFile.getEntry("plugin.yml")));
-            if (Bukkit.getServer().getPluginManager().isPluginEnabled(description.getName()))
+
+            if (addons.containsKey(description.getName()))
                 throw new RuntimeException("Plugin named '%s' is already loaded".formatted(description.getName()));
+
             AnalyzerClassLoader classLoader = new AnalyzerClassLoader(
                     SkAnalyzer.class.getClassLoader(),
                     description,
@@ -87,12 +117,41 @@ public class AddonsLoader {
                     file,
                     jarFile
             );
+
             if (skript != null)
                 classLoader.getGroup().add((ConfiguredPluginClassLoader) skript.getClass().getClassLoader());
+
             return classLoader.loadClass(description.getMainClass(), true, false, false);
         } catch (Exception | ExceptionInInitializerError e) {
-            skAnalyzer.getLogger().error("Something went wrong while trying to load %s".formatted(file.getPath()), e);
+            skAnalyzer.getLogger().error("Something went wrong while trying to init %s".formatted(file.getPath()), e);
         }
+
         return null;
+    }
+
+    @SuppressWarnings({"deprecation", "UnstableApiUsage"})
+    private void loadAddon(JavaPlugin addon) {
+        if (skAnalyzer.getServer().getPluginManager().getPlugin(addon.getName()) != null) return;
+
+        AnalyzerClassLoader classLoader = (AnalyzerClassLoader) addon.getClass().getClassLoader();
+
+        addon.getDescription().getDepend().forEach(depend -> {
+            if (!addons.containsKey(depend))
+                throw new NullPointerException("Missing dependency: " + depend);
+
+            if (depend.equals("Skript"))
+                return;
+
+            classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(depend).getClass().getClassLoader());
+        });
+
+        addon.getDescription().getSoftDepend().forEach(softDepend -> {
+            if (!addons.containsKey(softDepend) || softDepend.equals("Skript"))
+                return;
+
+            classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(softDepend).getClass().getClassLoader());
+        });
+
+        skAnalyzer.getServer().getPluginManager().registerLoadedPlugin(addon);
     }
 }
