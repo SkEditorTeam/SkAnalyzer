@@ -10,8 +10,10 @@ import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -27,18 +29,22 @@ import java.util.concurrent.CompletableFuture;
 
 @Getter
 public class SkAnalyzer {
+    public static final String LOGGER_TYPE_PROPERTY = "skanalyzer.loggerType";
     public static final String WORKING_DIR_PROPERTY = "skanalyzer.workingDir";
     private final EnumSet<AnalyzerFlag> flags;
+    private final LoggerType loggerType;
     private final File workingDirectory;
     private final Logger logger;
     private final AnalyzerServer server;
     private final AddonsLoader addonsLoader;
 
-    private SkAnalyzer(AnalyzerFlag[] flags, File workingDirectory) {
+    private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, File workingDirectory) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
+        this.loggerType = loggerType;
         this.workingDirectory = Objects.requireNonNullElse(workingDirectory, AddonsLoader.ADDONS);
-        this.logger = LogManager.getLogger(getFlags().contains(AnalyzerFlag.ENABLE_PLAIN_LOGGER) ? "PlainLogger" : "SkAnalyzer");
+        this.logger = LogManager.getLogger(loggerType.getLoggerName());
+        Configurator.setLevel(logger, loggerType.getLoggerLevel());
 
         logger.info("Enabling...");
 
@@ -90,6 +96,9 @@ public class SkAnalyzer {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
         private AnalyzerFlag[] flags = {};
+        private LoggerType loggerType = Optional.ofNullable(System.getProperty(LOGGER_TYPE_PROPERTY))
+                .map(loggerType -> EnumUtils.getEnumIgnoreCase(LoggerType.class, loggerType))
+                .orElse(LoggerType.NORMAL);
         private File workingDirectory = Optional.ofNullable(System.getProperty(WORKING_DIR_PROPERTY))
                 .map(File::new)
                 .orElse(null);
@@ -104,7 +113,7 @@ public class SkAnalyzer {
         }
 
         public SkAnalyzer build() {
-            return new SkAnalyzer(flags, workingDirectory);
+            return new SkAnalyzer(flags, loggerType, workingDirectory);
         }
     }
 }

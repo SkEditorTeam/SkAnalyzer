@@ -8,8 +8,7 @@ import java.util.Map;
 @AllArgsConstructor
 public enum AnalyzerFlag {
     FORCE_VAULT_HOOK("--forceVaultHook"),
-    FORCE_REGIONS_HOOK("--forceRegionsHook"),
-    ENABLE_PLAIN_LOGGER("--enablePlainLogger");
+    FORCE_REGIONS_HOOK("--forceRegionsHook");
 
     private static final Map<String, AnalyzerFlag> ARG_TO_FLAG = new HashMap<>();
 
