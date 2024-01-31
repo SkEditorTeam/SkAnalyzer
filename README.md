@@ -27,8 +27,8 @@ You might need to see the [wiki](https://github.com/SkEditorTeam/SkAnalyzer/wiki
 In Java you can simply create `SkAnalyzer` using `SkAnalyzerBuilder`, for example:
 ```java
 SkAnalyzer.builder()
-    .flags(AnalyzerFlag.FORCE_VAULT_HOOK, AnalyzerFlag.FORCE_REGIONS_HOOK, AnalyzerFlag.ENABLE_PLAIN_LOGGER)
-    .build()
+    .flags(AnalyzerFlag.FORCE_VAULT_HOOK, AnalyzerFlag.FORCE_REGIONS_HOOK)
+    .build();
 ```
 </details>
 
@@ -40,15 +40,26 @@ In other languages you can use [SkAnalyzerBridge](https://github.com/SkEditorTea
 C# example:
 ```cs
 [DllImport("SkAnalyzerBridge.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-static extern void Init(byte[] javaHome, byte[] analyzerJar);
+static extern void InitJava(byte[] javaHome, byte[] analyzerJar);
 [DllImport("SkAnalyzerBridge.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-static extern void Parse(byte[] path);
+static extern void InitAnalyzer(byte analyzerFlags, byte loggerType, byte[] workingDir);
+[DllImport("SkAnalyzerBridge.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
+static extern IntPtr Parse(byte[] path);
 [DllImport("SkAnalyzerBridge.dll", CallingConvention = CallingConvention.StdCall)]
 static extern void Exit();
 
 var javaHome = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JAVA_HOME")!).ToArray();
-Init(javaHome, "SkAnalyzer.jar"u8.ToArray());
-Parse("SkAnalyzerTest.sk"u8.ToArray());
+InitJava(javaHome, "SkAnalyzer.jar"u8.ToArray());
+/*
+flag 1 - ForceVaultHook
+flag 2 - ForceRegionsHook
+
+logger 0 - Disabled
+logger 1 - Normal
+logger 2 - Plain
+*/
+InitAnalyzer(1 | 2, 1, []);
+var jsonResult = Marshal.PtrToStringUTF8(Parse("SkAnalyzerTest.sk"u8.ToArray()));
 Exit();
 ```
 </details>
