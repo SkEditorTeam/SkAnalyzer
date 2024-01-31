@@ -60,7 +60,7 @@ public class AnalyzerCommandSender implements MessageCommandSender {
 
         skAnalyzer.getLogger().info(jsonObject);
 
-        return new ScriptAnalyzeResult(scriptErrors, structure);
+        return new ScriptAnalyzeResult(jsonObject.toString(), scriptErrors, structure);
     }
 
     private String getCanonicalPath(File file) {

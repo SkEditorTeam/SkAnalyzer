@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.Collections;
 import java.util.List;
 
-public record ScriptAnalyzeResult(List<ScriptError> errors, ScriptStructure structure) {
+public record ScriptAnalyzeResult(String jsonResult, List<ScriptError> errors, ScriptStructure structure) {
     @Override
     @Unmodifiable
     public List<ScriptError> errors() {
