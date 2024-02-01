@@ -11,6 +11,7 @@ import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.log.RedirectingLogHandler;
 import ch.njol.skript.structures.StructCommand;
+import ch.njol.skript.structures.StructEvent;
 import ch.njol.skript.structures.StructFunction;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.ScriptAnalyzeResult;
@@ -94,10 +95,10 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                     ScriptCommand scriptCommand = ReflectionUtil.getScriptCommand(command);
                     if (scriptCommand == null) return;
                     commandDataList.add(handleCommand(command, scriptCommand));
-                } else if (structure instanceof SkriptEvent event) {
-                    SkriptEventInfo<?> eventInfo = ReflectionUtil.getEventInfo(event);
+                } else if (structure instanceof StructEvent event) {
+                    SkriptEventInfo<?> eventInfo = ReflectionUtil.getEventInfo(event.getSkriptEvent());
                     if (eventInfo == null) return;
-                    eventDataList.add(handleEvent(event, eventInfo));
+                    eventDataList.add(handleEvent(event.getSkriptEvent(), eventInfo));
                 } else if (structure instanceof StructFunction function) {
                     Signature<?> signature = ReflectionUtil.getFunctionSignature(function);
                     if (signature == null) return;
