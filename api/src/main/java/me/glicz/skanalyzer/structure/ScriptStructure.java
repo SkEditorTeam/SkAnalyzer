@@ -7,24 +7,27 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public record ScriptStructure(List<CommandData> commandDataList, List<EventData> eventDataList,
-                              List<FunctionData> functionDataList) {
+                              List<FunctionData> functionDataList, Map<String, String> options) {
     @Override
-    @Unmodifiable
-    public List<EventData> eventDataList() {
+    public @Unmodifiable List<EventData> eventDataList() {
         return Collections.unmodifiableList(eventDataList);
     }
 
     @Override
-    @Unmodifiable
-    public List<FunctionData> functionDataList() {
+    public @Unmodifiable List<FunctionData> functionDataList() {
         return Collections.unmodifiableList(functionDataList);
     }
 
     @Override
-    @Unmodifiable
-    public List<CommandData> commandDataList() {
+    public @Unmodifiable List<CommandData> commandDataList() {
         return Collections.unmodifiableList(commandDataList);
+    }
+
+    @Override
+    public @Unmodifiable Map<String, String> options() {
+        return Collections.unmodifiableMap(options);
     }
 }

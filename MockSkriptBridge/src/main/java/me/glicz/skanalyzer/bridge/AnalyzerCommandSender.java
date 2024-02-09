@@ -55,6 +55,7 @@ public class AnalyzerCommandSender implements MessageCommandSender {
         parseStructureDataList(fileObject, "commands", structure.commandDataList());
         parseStructureDataList(fileObject, "events", structure.eventDataList());
         parseStructureDataList(fileObject, "functions", structure.functionDataList());
+        fileObject.add("options", gson.toJsonTree(structure.options()));
 
         jsonObject.add(getCanonicalPath(file).replace('\\', '/'), fileObject);
 

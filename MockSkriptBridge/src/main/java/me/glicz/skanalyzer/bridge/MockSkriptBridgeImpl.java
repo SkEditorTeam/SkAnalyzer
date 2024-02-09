@@ -10,9 +10,7 @@ import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.function.Signature;
 import ch.njol.skript.log.RedirectingLogHandler;
-import ch.njol.skript.structures.StructCommand;
-import ch.njol.skript.structures.StructEvent;
-import ch.njol.skript.structures.StructFunction;
+import ch.njol.skript.structures.*;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.SkAnalyzer;
@@ -88,6 +86,8 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         List<CommandData> commandDataList = new ArrayList<>();
         List<EventData> eventDataList = new ArrayList<>();
         List<FunctionData> functionDataList = new ArrayList<>();
+        Map<String, String> options = new HashMap<>();
+
         Script script = ScriptLoader.getScript(file);
         if (script != null) {
             script.getStructures().forEach(structure -> {
@@ -105,9 +105,16 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                     functionDataList.add(handleFunction(function, signature));
                 }
             });
+
+            StructOptions.OptionsData optionsData = script.getData(StructOptions.OptionsData.class);
+            if (optionsData != null) {
+                options.putAll(optionsData.getOptions());
+            }
+
             ScriptLoader.unloadScript(script);
         }
-        return new ScriptStructure(commandDataList, eventDataList, functionDataList);
+
+        return new ScriptStructure(commandDataList, eventDataList, functionDataList, options);
     }
 
     private CommandData handleCommand(StructCommand command, ScriptCommand scriptCommand) {
