@@ -9,12 +9,16 @@ import ch.njol.skript.hooks.regions.RegionsPlugin;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptEventInfo;
 import ch.njol.skript.lang.function.Signature;
-import ch.njol.skript.log.RedirectingLogHandler;
-import ch.njol.skript.structures.*;
+import ch.njol.skript.structures.StructCommand;
+import ch.njol.skript.structures.StructEvent;
+import ch.njol.skript.structures.StructFunction;
+import ch.njol.skript.structures.StructOptions;
 import me.glicz.skanalyzer.AnalyzerFlag;
-import me.glicz.skanalyzer.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.SkAnalyzer;
+import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
 import me.glicz.skanalyzer.bridge.util.ReflectionUtil;
+import me.glicz.skanalyzer.result.ScriptAnalyzeResult;
+import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
 import me.glicz.skanalyzer.structure.ScriptStructure;
 import me.glicz.skanalyzer.structure.data.CommandData;
 import me.glicz.skanalyzer.structure.data.EventData;
@@ -63,14 +67,14 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     }
 
     @Override
-    public CompletableFuture<ScriptAnalyzeResult> parseScript(String path) {
+    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path) {
         File file = new File(path);
         if (!file.exists() || !file.getName().endsWith(".sk")) {
             skAnalyzer.getLogger().error("Invalid file path");
             return CompletableFuture.failedFuture(new InvalidPathException(path, "Provided file doesn't end with '.sk'"));
         }
-        AnalyzerCommandSender sender = new AnalyzerCommandSender(skAnalyzer);
-        RedirectingLogHandler logHandler = new RedirectingLogHandler(sender, null).start();
+
+        CachingLogHandler logHandler = new CachingLogHandler().start();
         return ScriptLoader.loadScripts(file, logHandler, false)
                 .handle((info, throwable) -> {
                     if (throwable != null) {
@@ -79,7 +83,18 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                     }
                     return CompletableFuture.completedFuture(info);
                 })
-                .thenApply(info -> sender.finish(file, handleParsedScript(file)));
+                .thenApply(info -> new ScriptAnalyzeResults(buildAnalyzeResults(logHandler)));
+    }
+
+    private Map<File, ScriptAnalyzeResult> buildAnalyzeResults(CachingLogHandler logHandler) {
+        return logHandler.scriptErrors().entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> new ScriptAnalyzeResult(
+                        entry.getKey(),
+                        entry.getValue(),
+                        handleParsedScript(entry.getKey())
+                )
+        ));
     }
 
     private ScriptStructure handleParsedScript(File file) {
@@ -129,8 +144,9 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 scriptCommand.getArguments().stream()
                         .map(argument -> {
                             ClassInfo<?> argumentType = ReflectionUtil.getArgumentType(argument);
-                            if (argumentType != null)
+                            if (argumentType != null) {
                                 return argumentType.getCodeName();
+                            }
                             return null;
                         })
                         .filter(Objects::nonNull)
@@ -149,8 +165,9 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
 
     private FunctionData handleFunction(StructFunction function, Signature<?> signature) {
         String returnType = null;
-        if (signature.getReturnType() != null)
+        if (signature.getReturnType() != null) {
             returnType = signature.getReturnType().getCodeName();
+        }
 
         return new FunctionData(
                 function.getEntryContainer().getSource().getLine(),

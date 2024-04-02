@@ -13,8 +13,9 @@ public enum AnalyzerFlag {
     private static final Map<String, AnalyzerFlag> ARG_TO_FLAG = new HashMap<>();
 
     static {
-        for (AnalyzerFlag flag : values())
+        for (AnalyzerFlag flag : values()) {
             ARG_TO_FLAG.put(flag.arg, flag);
+        }
     }
 
     private final String arg;

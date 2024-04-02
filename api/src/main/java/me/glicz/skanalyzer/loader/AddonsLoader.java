@@ -33,8 +33,9 @@ public class AddonsLoader {
 
     @SuppressWarnings({"deprecation"})
     public void loadAddons() {
-        if (skript != null)
+        if (skript != null) {
             throw new RuntimeException("Addons are already loaded!");
+        }
 
         skript = Objects.requireNonNull(initSimpleAddon(new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT)));
         loadAddon(skript);
@@ -107,8 +108,9 @@ public class AddonsLoader {
             JarFile jarFile = new JarFile(file);
             PluginDescriptionFile description = new PluginDescriptionFile(jarFile.getInputStream(jarFile.getEntry("plugin.yml")));
 
-            if (addons.containsKey(description.getName()))
+            if (addons.containsKey(description.getName())) {
                 throw new RuntimeException("Plugin named '%s' is already loaded".formatted(description.getName()));
+            }
 
             AnalyzerClassLoader classLoader = new AnalyzerClassLoader(
                     SkAnalyzer.class.getClassLoader(),
@@ -118,8 +120,9 @@ public class AddonsLoader {
                     jarFile
             );
 
-            if (skript != null)
+            if (skript != null) {
                 classLoader.getGroup().add((ConfiguredPluginClassLoader) skript.getClass().getClassLoader());
+            }
 
             return classLoader.loadClass(description.getMainClass(), true, false, false);
         } catch (Exception | ExceptionInInitializerError e) {
@@ -136,18 +139,21 @@ public class AddonsLoader {
         AnalyzerClassLoader classLoader = (AnalyzerClassLoader) addon.getClass().getClassLoader();
 
         addon.getDescription().getDepend().forEach(depend -> {
-            if (!addons.containsKey(depend))
+            if (!addons.containsKey(depend)) {
                 throw new NullPointerException("Missing dependency: " + depend);
+            }
 
-            if (depend.equals("Skript"))
+            if (depend.equals("Skript")) {
                 return;
+            }
 
             classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(depend).getClass().getClassLoader());
         });
 
         addon.getDescription().getSoftDepend().forEach(softDepend -> {
-            if (!addons.containsKey(softDepend) || softDepend.equals("Skript"))
+            if (!addons.containsKey(softDepend) || softDepend.equals("Skript")) {
                 return;
+            }
 
             classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(softDepend).getClass().getClassLoader());
         });

@@ -65,15 +65,17 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
     private Class<?> loadClass0(String name, boolean resolve, boolean checkGlobal) throws ClassNotFoundException {
         try {
             Class<?> result = super.loadClass(name, resolve);
-            if (checkGlobal || result.getClassLoader() == this)
+            if (checkGlobal || result.getClassLoader() == this) {
                 return result;
+            }
         } catch (ClassNotFoundException ignored) {
         }
 
         if (checkGlobal) {
             Class<?> result = group.getClassByName(name, resolve, this);
-            if (result != null)
+            if (result != null) {
                 return result;
+            }
         }
 
         throw new ClassNotFoundException(name);
@@ -104,15 +106,18 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
                     String pkgName = name.substring(0, dot);
                     if (getDefinedPackage(pkgName) == null) {
                         try {
-                            if (manifest != null)
+                            if (manifest != null) {
                                 definePackage(pkgName, manifest, url);
-                            else definePackage(
-                                    pkgName, null, null, null,
-                                    null, null, null, null
-                            );
+                            } else {
+                                definePackage(
+                                        pkgName, null, null, null,
+                                        null, null, null, null
+                                );
+                            }
                         } catch (IllegalArgumentException ex) {
-                            if (getDefinedPackage(pkgName) == null)
+                            if (getDefinedPackage(pkgName) == null) {
                                 throw new IllegalStateException("Cannot find package " + pkgName);
+                            }
                         }
                     }
                 }
@@ -123,8 +128,9 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
                 result = defineClass(name, classBytes, 0, classBytes.length, source);
             }
 
-            if (result == null)
+            if (result == null) {
                 result = super.findClass(name);
+            }
 
             classes.put(name, result);
         }

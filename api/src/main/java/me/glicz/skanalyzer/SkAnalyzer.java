@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
+import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
@@ -69,8 +70,11 @@ public class SkAnalyzer {
         return EnumSet.copyOf(flags);
     }
 
-    public CompletableFuture<ScriptAnalyzeResult> parseScript(String path) {
-        return addonsLoader.getMockSkriptBridge().parseScript(path);
+    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path) {
+        return addonsLoader.getMockSkriptBridge().parseScript(path).thenApply(result -> {
+            logger.info(result.jsonResult());
+            return result;
+        });
     }
 
     private void extractEmbeddedAddons() {

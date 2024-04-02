@@ -30,8 +30,9 @@ public class Main {
                     if (scanner.hasNext()) {
                         String line = scanner.nextLine();
                         if (line != null) {
-                            if (line.trim().equals("exit"))
+                            if (line.trim().equals("exit")) {
                                 System.exit(0);
+                            }
                             skAnalyzer.parseScript(line);
                         }
                     }

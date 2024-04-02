@@ -34,14 +34,16 @@ public class AnalyzerServer extends ServerMock {
     @SuppressWarnings("DataFlowIssue")
     @Override
     public @NotNull BlockData createBlockData(String data) {
-        if (data.contains(":"))
+        if (data.contains(":")) {
             data = data.split(":")[1];
+        }
         String rawMaterial = (data.indexOf('[') == -1)
                 ? data
                 : data.substring(0, data.indexOf('['));
         Material material = Material.getMaterial(rawMaterial.toUpperCase());
-        if (material == null)
+        if (material == null) {
             return null;
+        }
         return createBlockData(material);
     }
 
