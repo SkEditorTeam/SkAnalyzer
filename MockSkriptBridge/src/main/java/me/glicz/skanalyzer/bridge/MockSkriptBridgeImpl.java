@@ -67,9 +67,9 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     }
 
     @Override
-    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path) {
+    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load) {
         File file = new File(path);
-        if (!file.exists() || !file.getName().endsWith(".sk")) {
+        if (!file.exists() || (!file.getName().endsWith(".sk") && !(file.isDirectory() && load))) {
             skAnalyzer.getLogger().error("Invalid file path");
             return CompletableFuture.failedFuture(new InvalidPathException(path, "Provided file doesn't end with '.sk'"));
         }
@@ -83,7 +83,34 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                     }
                     return CompletableFuture.completedFuture(info);
                 })
-                .thenApply(info -> new ScriptAnalyzeResults(buildAnalyzeResults(logHandler)));
+                .thenApply(info -> {
+                    ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(logHandler));
+                    if (!load) {
+                        unloadScript(path);
+                    }
+                    return results;
+                });
+    }
+
+    @Override
+    public boolean unloadScript(String path) {
+        File file = new File(path);
+        if (!file.exists() || !file.getName().endsWith(".sk")) {
+            skAnalyzer.getLogger().error("Invalid file path");
+            return false;
+        }
+
+        Script script = ScriptLoader.getScript(file);
+        if (script != null) {
+            ScriptLoader.unloadScript(script);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void unloadAllScripts() {
+        ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
     }
 
     private Map<File, ScriptAnalyzeResult> buildAnalyzeResults(CachingLogHandler logHandler) {

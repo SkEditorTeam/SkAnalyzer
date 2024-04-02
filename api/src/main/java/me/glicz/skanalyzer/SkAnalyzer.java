@@ -71,10 +71,22 @@ public class SkAnalyzer {
     }
 
     public CompletableFuture<ScriptAnalyzeResults> parseScript(String path) {
-        return addonsLoader.getMockSkriptBridge().parseScript(path).thenApply(result -> {
+        return parseScript(path, false);
+    }
+
+    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load) {
+        return addonsLoader.getMockSkriptBridge().parseScript(path, load).thenApply(result -> {
             logger.info(result.jsonResult());
             return result;
         });
+    }
+
+    public boolean unloadScript(String path) {
+        return addonsLoader.getMockSkriptBridge().unloadScript(path);
+    }
+
+    public void unloadAllScripts() {
+        addonsLoader.getMockSkriptBridge().unloadAllScripts();
     }
 
     private void extractEmbeddedAddons() {

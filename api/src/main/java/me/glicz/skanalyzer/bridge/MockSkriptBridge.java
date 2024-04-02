@@ -11,5 +11,9 @@ import java.util.concurrent.CompletableFuture;
 public abstract class MockSkriptBridge extends JavaPlugin {
     protected final SkAnalyzer skAnalyzer;
 
-    public abstract CompletableFuture<ScriptAnalyzeResults> parseScript(String path);
+    public abstract CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load);
+
+    public abstract boolean unloadScript(String path);
+
+    public abstract void unloadAllScripts();
 }

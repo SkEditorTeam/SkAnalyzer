@@ -1,7 +1,12 @@
 package me.glicz.skanalyzer.structure.data;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
 import java.util.Map;
 
+@Getter
+@Accessors(fluent = true)
 public final class FunctionData extends StructureData {
     private final boolean local;
     private final Map<String, String> parameters;

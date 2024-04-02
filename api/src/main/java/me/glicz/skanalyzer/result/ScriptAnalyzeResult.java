@@ -13,8 +13,7 @@ public record ScriptAnalyzeResult(File file, List<ScriptError> errors, ScriptStr
     private static final Gson GSON = new Gson();
 
     @Override
-    @Unmodifiable
-    public List<ScriptError> errors() {
+    public @Unmodifiable List<ScriptError> errors() {
         return List.copyOf(errors);
     }
 
