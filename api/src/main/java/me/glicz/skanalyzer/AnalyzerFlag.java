@@ -8,7 +8,9 @@ import java.util.Map;
 @AllArgsConstructor
 public enum AnalyzerFlag {
     FORCE_VAULT_HOOK("--forceVaultHook"),
-    FORCE_REGIONS_HOOK("--forceRegionsHook");
+    FORCE_REGIONS_HOOK("--forceRegionsHook"),
+    SKIP_EXTRACTING_ADDONS("--skipExtractingAddons"),
+    ;
 
     private static final Map<String, AnalyzerFlag> ARG_TO_FLAG = new HashMap<>();
 

@@ -87,6 +87,14 @@ public class SkAnalyzer {
     }
 
     private void extractEmbeddedAddons() {
+        if (flags.contains(AnalyzerFlag.SKIP_EXTRACTING_ADDONS)) {
+            logger.warn("{} flag is present! This means that default embedded addons (and Skript) won't be extracted. " +
+                            "If you're not sure what may it cause, remove it immediately!",
+                    AnalyzerFlag.SKIP_EXTRACTING_ADDONS.name()
+            );
+            return;
+        }
+
         logger.info("Extracting embedded addons...");
 
         extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT);
