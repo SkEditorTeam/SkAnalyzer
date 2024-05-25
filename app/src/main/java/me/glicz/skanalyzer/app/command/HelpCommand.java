@@ -9,8 +9,8 @@ public class HelpCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        app.commandRegistry().getCommands().forEach(command -> {
-            app.skAnalyzer().getLogger().info("{} - {}", command.name, command.description);
-        });
+        app.commandRegistry().getCommands().forEach(command ->
+                app.skAnalyzer().getLogger().info("{} - {}", command.name, command.description)
+        );
     }
 }
