@@ -24,11 +24,11 @@ public class SkAnalyzerApp {
                 .build();
 
         this.commandRegistry = new CommandRegistry();
-        this.commandRegistry.register("exit", new ExitCommand());
-        this.commandRegistry.register("parse", new ParseCommand(skAnalyzer));
-        this.commandRegistry.register("load", new LoadCommand(skAnalyzer));
-        this.commandRegistry.register("parse", new ParseCommand(skAnalyzer));
-        this.commandRegistry.register("unload", new UnloadCommand(skAnalyzer));
+        this.commandRegistry.register(new ExitCommand(skAnalyzer));
+        this.commandRegistry.register(new ParseCommand(skAnalyzer));
+        this.commandRegistry.register(new LoadCommand(skAnalyzer));
+        this.commandRegistry.register(new ParseCommand(skAnalyzer));
+        this.commandRegistry.register(new UnloadCommand(skAnalyzer));
 
         startReadingInput();
     }

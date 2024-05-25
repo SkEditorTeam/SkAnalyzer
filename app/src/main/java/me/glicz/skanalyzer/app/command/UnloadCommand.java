@@ -1,11 +1,11 @@
 package me.glicz.skanalyzer.app.command;
 
-import lombok.AllArgsConstructor;
 import me.glicz.skanalyzer.SkAnalyzer;
 
-@AllArgsConstructor
-public class UnloadCommand implements Command {
-    private SkAnalyzer skAnalyzer;
+public class UnloadCommand extends Command {
+    public UnloadCommand(SkAnalyzer skAnalyzer) {
+        super(skAnalyzer, "unload", "Unloads specified script(s)");
+    }
 
     @Override
     public void execute(String[] args) {

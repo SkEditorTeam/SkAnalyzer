@@ -1,11 +1,11 @@
 package me.glicz.skanalyzer.app.command;
 
-import lombok.AllArgsConstructor;
 import me.glicz.skanalyzer.SkAnalyzer;
 
-@AllArgsConstructor
-public class LoadCommand implements Command {
-    private final SkAnalyzer skAnalyzer;
+public class LoadCommand extends Command {
+    public LoadCommand(SkAnalyzer skAnalyzer) {
+        super(skAnalyzer, "load", "Loads specified script(s)");
+    }
 
     @Override
     public void execute(String[] args) {

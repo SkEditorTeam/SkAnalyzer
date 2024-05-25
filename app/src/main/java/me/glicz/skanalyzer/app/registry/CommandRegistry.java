@@ -9,8 +9,8 @@ import java.util.Optional;
 public class CommandRegistry {
     private final Map<String, Command> commandMap = new HashMap<>();
 
-    public void register(String name, Command command) {
-        commandMap.put(name, command);
+    public void register(Command command) {
+        commandMap.put(command.name(), command);
     }
 
     public Optional<Command> getCommand(String name) {
