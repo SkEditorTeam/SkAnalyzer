@@ -1,5 +1,7 @@
 package me.glicz.skanalyzer.app;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.app.command.ExitCommand;
@@ -12,6 +14,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
+@Getter
+@Accessors(fluent = true)
 public class SkAnalyzerApp {
     private final SkAnalyzer skAnalyzer;
     private final CommandRegistry commandRegistry;
@@ -24,11 +28,11 @@ public class SkAnalyzerApp {
                 .build();
 
         this.commandRegistry = new CommandRegistry();
-        this.commandRegistry.register(new ExitCommand(skAnalyzer));
-        this.commandRegistry.register(new ParseCommand(skAnalyzer));
-        this.commandRegistry.register(new LoadCommand(skAnalyzer));
-        this.commandRegistry.register(new ParseCommand(skAnalyzer));
-        this.commandRegistry.register(new UnloadCommand(skAnalyzer));
+        this.commandRegistry.register(new ExitCommand(this));
+        this.commandRegistry.register(new ParseCommand(this));
+        this.commandRegistry.register(new LoadCommand(this));
+        this.commandRegistry.register(new ParseCommand(this));
+        this.commandRegistry.register(new UnloadCommand(this));
 
         startReadingInput();
     }

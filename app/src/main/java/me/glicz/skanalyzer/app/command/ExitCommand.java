@@ -1,10 +1,10 @@
 package me.glicz.skanalyzer.app.command;
 
-import me.glicz.skanalyzer.SkAnalyzer;
+import me.glicz.skanalyzer.app.SkAnalyzerApp;
 
 public class ExitCommand extends Command {
-    public ExitCommand(SkAnalyzer skAnalyzer) {
-        super(skAnalyzer, "exit", "Exits the program");
+    public ExitCommand(SkAnalyzerApp app) {
+        super(app, "exit", "Exits the program");
     }
 
     @Override
