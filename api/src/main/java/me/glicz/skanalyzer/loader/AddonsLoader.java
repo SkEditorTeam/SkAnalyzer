@@ -24,8 +24,7 @@ public class AddonsLoader {
     public static final String MOCK_SKRIPT = "MockSkript.jar";
     public static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
 
-    private static final Map<String, JavaPlugin> addons = new HashMap<>();
-
+    private final Map<String, JavaPlugin> addons = new HashMap<>();
     private final SkAnalyzer skAnalyzer;
     private JavaPlugin skript;
     @Getter
