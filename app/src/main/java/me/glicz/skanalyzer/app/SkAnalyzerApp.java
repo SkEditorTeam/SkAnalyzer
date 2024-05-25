@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
-import me.glicz.skanalyzer.app.command.ExitCommand;
-import me.glicz.skanalyzer.app.command.LoadCommand;
-import me.glicz.skanalyzer.app.command.ParseCommand;
-import me.glicz.skanalyzer.app.command.UnloadCommand;
+import me.glicz.skanalyzer.app.command.*;
 import me.glicz.skanalyzer.app.registry.CommandRegistry;
 
 import java.util.Arrays;
@@ -29,10 +26,13 @@ public class SkAnalyzerApp {
 
         this.commandRegistry = new CommandRegistry();
         this.commandRegistry.register(new ExitCommand(this));
+        this.commandRegistry.register(new HelpCommand(this));
         this.commandRegistry.register(new ParseCommand(this));
         this.commandRegistry.register(new LoadCommand(this));
         this.commandRegistry.register(new ParseCommand(this));
         this.commandRegistry.register(new UnloadCommand(this));
+
+        this.skAnalyzer.getLogger().info("Type 'help' for help.");
 
         startReadingInput();
     }
