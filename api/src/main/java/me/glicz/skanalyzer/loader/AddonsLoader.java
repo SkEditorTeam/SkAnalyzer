@@ -19,10 +19,8 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class AddonsLoader {
-    public static final File USER_HOME = new File(System.getProperty("user.home"));
-    public static final File ADDONS = new File(USER_HOME, "SkAnalyzer/addons");
-    public static final String MOCK_SKRIPT = "MockSkript.jar";
-    public static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
+    public static final String MOCK_SKRIPT_FILE = "MockSkript.jar";
+    public static final String MOCK_SKRIPT_BRIDGE_FILE = "MockSkriptBridge.jar";
 
     private final Map<String, JavaPlugin> addons = new HashMap<>();
     private final SkAnalyzer skAnalyzer;
@@ -30,13 +28,17 @@ public class AddonsLoader {
     @Getter
     private MockSkriptBridge mockSkriptBridge;
 
+    public File getAddonsDirectory() {
+        return new File(skAnalyzer.getWorkingDirectory(), "Addons");
+    }
+
     @SuppressWarnings({"deprecation"})
     public void loadAddons() {
         if (skript != null) {
             throw new RuntimeException("Addons are already loaded!");
         }
 
-        skript = Objects.requireNonNull(initSimpleAddon(new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT)));
+        skript = Objects.requireNonNull(initSimpleAddon(new File(getAddonsDirectory(), MOCK_SKRIPT_FILE)));
         loadAddon(skript);
         skAnalyzer.getServer().getPluginManager().enablePlugin(skript);
 
@@ -44,7 +46,7 @@ public class AddonsLoader {
         loadAddon(mockSkriptBridge);
         skAnalyzer.getServer().getPluginManager().enablePlugin(mockSkriptBridge);
 
-        FileUtils.listFiles(skAnalyzer.getWorkingDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
+        FileUtils.listFiles(getAddonsDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
 
         addons.values().forEach(addon -> {
             try {
@@ -82,7 +84,7 @@ public class AddonsLoader {
     }
 
     private MockSkriptBridge initMockSkriptBridge() {
-        File file = new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT_BRIDGE);
+        File file = new File(getAddonsDirectory(), MOCK_SKRIPT_BRIDGE_FILE);
         Class<?> pluginClass = initAddon(file);
 
         if (pluginClass == null) return null;
@@ -100,8 +102,8 @@ public class AddonsLoader {
 
     @SuppressWarnings("UnstableApiUsage")
     private Class<?> initAddon(File file) {
-        if (skript != null && file.getName().equals(MOCK_SKRIPT)) return null;
-        if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE)) return null;
+        if (skript != null && file.getName().equals(MOCK_SKRIPT_FILE)) return null;
+        if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE_FILE)) return null;
 
         try {
             JarFile jarFile = new JarFile(file);
@@ -114,7 +116,7 @@ public class AddonsLoader {
             AnalyzerClassLoader classLoader = new AnalyzerClassLoader(
                     SkAnalyzer.class.getClassLoader(),
                     description,
-                    new File(skAnalyzer.getWorkingDirectory(), description.getName()),
+                    new File(getAddonsDirectory(), description.getName()),
                     file,
                     jarFile
             );

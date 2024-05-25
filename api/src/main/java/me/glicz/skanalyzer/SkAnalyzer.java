@@ -32,6 +32,9 @@ import java.util.concurrent.CompletableFuture;
 public class SkAnalyzer {
     public static final String LOGGER_TYPE_PROPERTY = "skanalyzer.loggerType";
     public static final String WORKING_DIR_PROPERTY = "skanalyzer.workingDir";
+
+    private static final File USER_HOME_DIR = new File(System.getProperty("user.home"));
+
     private final EnumSet<AnalyzerFlag> flags;
     private final LoggerType loggerType;
     private final File workingDirectory;
@@ -43,7 +46,7 @@ public class SkAnalyzer {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
         this.loggerType = loggerType;
-        this.workingDirectory = Objects.requireNonNullElse(workingDirectory, AddonsLoader.ADDONS);
+        this.workingDirectory = Objects.requireNonNullElse(workingDirectory, new File(USER_HOME_DIR, "SkAnalyzer"));
         this.logger = LogManager.getLogger(loggerType.getLoggerName());
         Configurator.setLevel(logger, loggerType.getLoggerLevel());
 
@@ -51,9 +54,8 @@ public class SkAnalyzer {
 
         this.server = MockBukkit.mock(new AnalyzerServer());
 
-        extractEmbeddedAddons();
-
         this.addonsLoader = new AddonsLoader(this);
+        extractEmbeddedAddons();
         this.addonsLoader.loadAddons();
 
         server.startTicking();
@@ -97,8 +99,8 @@ public class SkAnalyzer {
 
         logger.info("Extracting embedded addons...");
 
-        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT);
-        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_BRIDGE);
+        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_FILE);
+        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_BRIDGE_FILE);
 
         logger.info("Successfully extracted embedded addons!");
     }
@@ -106,7 +108,7 @@ public class SkAnalyzer {
     private void extractEmbeddedAddon(String name) {
         try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream(name + ".embedded")) {
             Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded %s", name);
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(workingDirectory, name));
+            FileUtils.copyInputStreamToFile(embeddedJar, new File(addonsLoader.getAddonsDirectory(), name));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
