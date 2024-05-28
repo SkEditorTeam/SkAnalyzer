@@ -8,17 +8,33 @@ import me.glicz.skanalyzer.app.command.*;
 import me.glicz.skanalyzer.app.registry.CommandRegistry;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
 
 @Getter
 @Accessors(fluent = true)
 public class SkAnalyzerApp {
+    public static final String PARENT_PROCESS_PROPERTY = "skanalyzer.parentProcess";
+
     private final SkAnalyzer skAnalyzer;
     private final CommandRegistry commandRegistry;
 
     public SkAnalyzerApp(String[] args) {
         System.out.printf("SkAnalyzer v%s - simple Skript parser. Created by Glicz.%n", getClass().getPackage().getSpecificationVersion());
+
+        String parentProcess = System.getProperty(PARENT_PROCESS_PROPERTY);
+        if (parentProcess != null) {
+            try {
+                long pid = Long.parseLong(parentProcess);
+                ProcessHandle processHandle = ProcessHandle.of(pid).orElseThrow();
+                processHandle.onExit().thenRun(() ->
+                        System.exit(0)
+                );
+            } catch (NumberFormatException | NoSuchElementException ex) {
+                System.err.printf("Invalid parent process: %s%n", parentProcess);
+            }
+        }
 
         this.skAnalyzer = SkAnalyzer.builder()
                 .flags(parseFlags(args))
