@@ -16,6 +16,7 @@ import ch.njol.skript.structures.StructOptions;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
+import me.glicz.skanalyzer.bridge.util.FilesUtil;
 import me.glicz.skanalyzer.bridge.util.ReflectionUtil;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
@@ -74,17 +76,18 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
             return CompletableFuture.failedFuture(new InvalidPathException(path, "Provided file doesn't end with '.sk'"));
         }
 
+        Set<File> files = FilesUtil.listScripts(file);
         CachingLogHandler logHandler = new CachingLogHandler().start();
-        return ScriptLoader.loadScripts(file, logHandler, false)
+        return ScriptLoader.loadScripts(files, logHandler, false)
                 .handle((info, throwable) -> {
                     if (throwable != null) {
                         skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
-                        return CompletableFuture.failedFuture(new RuntimeException(throwable));
+                        throw new RuntimeException(throwable);
                     }
-                    return CompletableFuture.completedFuture(info);
+                    return info;
                 })
                 .thenApply(info -> {
-                    ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(logHandler));
+                    ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(files, logHandler));
                     if (!load) {
                         unloadScript(path);
                     }
@@ -113,13 +116,13 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
     }
 
-    private Map<File, ScriptAnalyzeResult> buildAnalyzeResults(CachingLogHandler logHandler) {
-        return logHandler.scriptErrors().entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> new ScriptAnalyzeResult(
-                        entry.getKey(),
-                        entry.getValue(),
-                        handleParsedScript(entry.getKey())
+    private Map<File, ScriptAnalyzeResult> buildAnalyzeResults(Set<File> files, CachingLogHandler logHandler) {
+        return files.stream().collect(Collectors.toMap(
+                Function.identity(),
+                file -> new ScriptAnalyzeResult(
+                        file,
+                        logHandler.scriptErrors(file),
+                        handleParsedScript(file)
                 )
         ));
     }

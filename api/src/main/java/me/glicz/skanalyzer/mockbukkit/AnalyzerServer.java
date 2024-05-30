@@ -31,18 +31,14 @@ public class AnalyzerServer extends ServerMock {
         return "SkAnalyzer";
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
     public @NotNull BlockData createBlockData(String data) {
-        if (data.contains(":")) {
-            data = data.split(":")[1];
-        }
         String rawMaterial = (data.indexOf('[') == -1)
                 ? data
                 : data.substring(0, data.indexOf('['));
-        Material material = Material.getMaterial(rawMaterial.toUpperCase());
+        Material material = Material.matchMaterial(rawMaterial);
         if (material == null) {
-            return null;
+            throw new IllegalArgumentException();
         }
         return createBlockData(material);
     }

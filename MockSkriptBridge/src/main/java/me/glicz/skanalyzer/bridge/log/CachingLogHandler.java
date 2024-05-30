@@ -12,16 +12,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CachingLogHandler extends LogHandler {
     private final Map<File, List<ScriptError>> scriptErrors = new HashMap<>();
 
-    public @Unmodifiable Map<File, List<ScriptError>> scriptErrors() {
-        return Map.copyOf(scriptErrors.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                entry -> List.copyOf(entry.getValue())
-        )));
+    public @Unmodifiable List<ScriptError> scriptErrors(File file) {
+        if (scriptErrors.containsKey(file)) {
+            return List.copyOf(scriptErrors.get(file));
+        }
+        return List.of();
     }
 
     @Override
