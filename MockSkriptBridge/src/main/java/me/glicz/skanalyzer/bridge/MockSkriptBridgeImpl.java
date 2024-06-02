@@ -2,7 +2,6 @@ package me.glicz.skanalyzer.bridge;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
@@ -17,7 +16,6 @@ import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
 import me.glicz.skanalyzer.bridge.util.FilesUtil;
-import me.glicz.skanalyzer.bridge.util.ReflectionUtil;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
 import me.glicz.skanalyzer.structure.ScriptStructure;
@@ -78,7 +76,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
 
         Set<File> files = FilesUtil.listScripts(file);
         CachingLogHandler logHandler = new CachingLogHandler().start();
-        return ScriptLoader.loadScripts(files, logHandler, false)
+        return ScriptLoader.loadScripts(files, logHandler)
                 .handle((info, throwable) -> {
                     if (throwable != null) {
                         skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
@@ -137,15 +135,14 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         if (script != null) {
             script.getStructures().forEach(structure -> {
                 if (structure instanceof StructCommand command) {
-                    ScriptCommand scriptCommand = ReflectionUtil.getScriptCommand(command);
+                    ScriptCommand scriptCommand = command.scriptCommand;
                     if (scriptCommand == null) return;
                     commandDataList.add(handleCommand(command, scriptCommand));
                 } else if (structure instanceof StructEvent event) {
-                    SkriptEventInfo<?> eventInfo = ReflectionUtil.getEventInfo(event.getSkriptEvent());
-                    if (eventInfo == null) return;
+                    SkriptEventInfo<?> eventInfo = event.getSkriptEvent().skriptEventInfo;
                     eventDataList.add(handleEvent(event.getSkriptEvent(), eventInfo));
                 } else if (structure instanceof StructFunction function) {
-                    Signature<?> signature = ReflectionUtil.getFunctionSignature(function);
+                    Signature<?> signature = function.signature;
                     if (signature == null) return;
                     functionDataList.add(handleFunction(function, signature));
                 }
@@ -167,19 +164,12 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 command.getEntryContainer().getSource().getLine(),
                 scriptCommand.getName(),
                 scriptCommand.getAliases(),
-                StringUtils.defaultIfEmpty(ReflectionUtil.getCommandPermission(scriptCommand), null),
-                StringUtils.defaultIfEmpty(ReflectionUtil.getCommandDescription(scriptCommand), null),
+                StringUtils.defaultIfEmpty(scriptCommand.permission, null),
+                StringUtils.defaultIfEmpty(scriptCommand.description, null),
                 scriptCommand.getPrefix(),
-                StringUtils.defaultIfEmpty(ReflectionUtil.getCommandUsage(scriptCommand), null),
+                StringUtils.defaultIfEmpty(scriptCommand.usage, null),
                 scriptCommand.getArguments().stream()
-                        .map(argument -> {
-                            ClassInfo<?> argumentType = ReflectionUtil.getArgumentType(argument);
-                            if (argumentType != null) {
-                                return argumentType.getCodeName();
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull)
+                        .map(argument -> argument.type.getCodeName())
                         .toList()
         );
     }
@@ -187,7 +177,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     private EventData handleEvent(SkriptEvent event, SkriptEventInfo<?> eventInfo) {
         return new EventData(
                 event.getEntryContainer().getSource().getLine(),
-                ReflectionUtil.getEventExpression(event),
+                event.expr,
                 Objects.requireNonNullElse(eventInfo.getDocumentationID(), eventInfo.getId()),
                 event.getEventPriority()
         );
