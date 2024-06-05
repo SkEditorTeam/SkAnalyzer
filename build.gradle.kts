@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("com.github.johnrengelman.shadow") version "8.1.1" apply false
+    id("io.github.goooler.shadow") version "8.1.7" apply false
 }
 
 configure(subprojects.filter { it.name != "MockSkript" }) {
@@ -13,13 +13,13 @@ configure(subprojects.filter { it.name != "MockSkript" }) {
     }
 
     java {
-        toolchain.languageVersion = JavaLanguageVersion.of(17)
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
     }
 
     tasks {
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()
-            options.release = 17
+            options.release = 21
             dependsOn(clean)
         }
     }
