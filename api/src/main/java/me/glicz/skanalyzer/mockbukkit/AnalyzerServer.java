@@ -1,5 +1,6 @@
 package me.glicz.skanalyzer.mockbukkit;
 
+import be.seeseemelk.mockbukkit.AsyncCatcher;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
 import lombok.Getter;
@@ -11,6 +12,8 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 @Getter
 public class AnalyzerServer extends ServerMock {
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
@@ -18,6 +21,7 @@ public class AnalyzerServer extends ServerMock {
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
     private final SkAnalyzer skAnalyzer;
     private final AddonsLoader addonsLoader;
+    private int playerCounter = 0;
 
     public AnalyzerServer(SkAnalyzer skAnalyzer) {
         this.skAnalyzer = skAnalyzer;
@@ -78,5 +82,15 @@ public class AnalyzerServer extends ServerMock {
     @Override
     public boolean isStopping() {
         return false;
+    }
+
+    @Override
+    public @NotNull AnalyzerPlayer addPlayer() {
+        AsyncCatcher.catchOp("player add");
+
+        AnalyzerPlayer player = new AnalyzerPlayer(this, "Player" + playerCounter++, UUID.randomUUID());
+        addPlayer(player);
+
+        return player;
     }
 }

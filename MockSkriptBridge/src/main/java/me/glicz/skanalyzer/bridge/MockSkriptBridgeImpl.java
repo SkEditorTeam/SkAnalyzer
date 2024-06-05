@@ -2,6 +2,7 @@ package me.glicz.skanalyzer.bridge;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
     private Executor mainThreadExecutor;
+    private SkriptAddon skriptAddon;
 
     public MockSkriptBridgeImpl(SkAnalyzer skAnalyzer) {
         super(skAnalyzer);
@@ -49,6 +51,13 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public void onEnable() {
         mainThreadExecutor = getServer().getScheduler().getMainThreadExecutor(this);
+
+        skriptAddon = Skript.registerAddon(this);
+        try {
+            skriptAddon.loadClasses("me.glicz.skanalyzer.bridge.sktest");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void parseFlags() {
