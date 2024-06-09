@@ -30,10 +30,13 @@ import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
+    private Executor mainThreadExecutor;
+
     public MockSkriptBridgeImpl(SkAnalyzer skAnalyzer) {
         super(skAnalyzer);
     }
@@ -41,6 +44,11 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public void onLoad() {
         parseFlags();
+    }
+
+    @Override
+    public void onEnable() {
+        mainThreadExecutor = getServer().getScheduler().getMainThreadExecutor(this);
     }
 
     public void parseFlags() {
@@ -75,22 +83,28 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         }
 
         Set<File> files = FilesUtil.listScripts(file);
-        CachingLogHandler logHandler = new CachingLogHandler().start();
-        return ScriptLoader.loadScripts(files, logHandler)
-                .handle((info, throwable) -> {
-                    if (throwable != null) {
-                        skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
-                        throw new RuntimeException(throwable);
-                    }
-                    return info;
-                })
-                .thenApply(info -> {
-                    ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(files, logHandler));
-                    if (!load) {
-                        unloadScript(path);
-                    }
-                    return results;
-                });
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    CachingLogHandler logHandler = new CachingLogHandler().start();
+                    return ScriptLoader.loadScripts(files, logHandler)
+                            .handle((info, throwable) -> {
+                                if (throwable != null) {
+                                    skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
+                                    throw new RuntimeException(throwable);
+                                }
+                                return info;
+                            })
+                            .thenApply(info -> {
+                                ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(files, logHandler));
+                                if (!load) {
+                                    unloadScript(path);
+                                }
+                                return results;
+                            })
+                            .join();
+                },
+                mainThreadExecutor
+        );
     }
 
     @Override

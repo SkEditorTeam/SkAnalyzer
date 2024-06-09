@@ -39,8 +39,7 @@ public class SkAnalyzer {
     private final LoggerType loggerType;
     private final File workingDirectory;
     private final Logger logger;
-    private final AnalyzerServer server;
-    private final AddonsLoader addonsLoader;
+    private AnalyzerServer server;
 
     private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, File workingDirectory) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
@@ -49,22 +48,38 @@ public class SkAnalyzer {
         this.workingDirectory = Objects.requireNonNullElse(workingDirectory, new File(USER_HOME_DIR, "SkAnalyzer"));
         this.logger = LogManager.getLogger(loggerType.getLoggerName());
         Configurator.setLevel(logger, loggerType.getLoggerLevel());
-
-        logger.info("Enabling...");
-
-        this.server = MockBukkit.mock(new AnalyzerServer());
-
-        this.addonsLoader = new AddonsLoader(this);
-        extractEmbeddedAddons();
-        this.addonsLoader.loadAddons();
-
-        server.startTicking();
-        logger.info("Successfully enabled. Have fun!");
     }
 
     @Contract(" -> new")
     public static @NotNull Builder builder() {
         return new Builder();
+    }
+
+    public CompletableFuture<Void> start() {
+        logger.info("Enabling...");
+
+        return buildServer().thenAccept(server -> {
+            this.server = server;
+            logger.info("Successfully enabled. Have fun!");
+        });
+    }
+
+    private CompletableFuture<AnalyzerServer> buildServer() {
+        CompletableFuture<AnalyzerServer> future = new CompletableFuture<>();
+
+        Thread thread = new Thread(() -> {
+            AnalyzerServer server = MockBukkit.mock(new AnalyzerServer(this));
+
+            extractEmbeddedAddons(server.getAddonsLoader());
+            server.getAddonsLoader().loadAddons();
+
+            future.complete(server);
+
+            server.startTicking();
+        }, "Server Thread");
+        thread.start();
+
+        return future;
     }
 
     @Unmodifiable
@@ -77,18 +92,18 @@ public class SkAnalyzer {
     }
 
     public CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load) {
-        return addonsLoader.getMockSkriptBridge().parseScript(path, load);
+        return server.getAddonsLoader().getMockSkriptBridge().parseScript(path, load);
     }
 
     public boolean unloadScript(String path) {
-        return addonsLoader.getMockSkriptBridge().unloadScript(path);
+        return server.getAddonsLoader().getMockSkriptBridge().unloadScript(path);
     }
 
     public void unloadAllScripts() {
-        addonsLoader.getMockSkriptBridge().unloadAllScripts();
+        server.getAddonsLoader().getMockSkriptBridge().unloadAllScripts();
     }
 
-    private void extractEmbeddedAddons() {
+    private void extractEmbeddedAddons(AddonsLoader addonsLoader) {
         if (flags.contains(AnalyzerFlag.SKIP_EXTRACTING_ADDONS)) {
             logger.warn("{} flag is present! This means that default embedded addons (and Skript) won't be extracted. " +
                             "If you're not sure what may it cause, remove it immediately!",
@@ -99,13 +114,13 @@ public class SkAnalyzer {
 
         logger.info("Extracting embedded addons...");
 
-        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_FILE);
-        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_BRIDGE_FILE);
+        extractEmbeddedAddon(addonsLoader, AddonsLoader.MOCK_SKRIPT_FILE);
+        extractEmbeddedAddon(addonsLoader, AddonsLoader.MOCK_SKRIPT_BRIDGE_FILE);
 
         logger.info("Successfully extracted embedded addons!");
     }
 
-    private void extractEmbeddedAddon(String name) {
+    private void extractEmbeddedAddon(AddonsLoader addonsLoader, String name) {
         try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream(name + ".embedded")) {
             Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded %s", name);
             FileUtils.copyInputStreamToFile(embeddedJar, new File(addonsLoader.getAddonsDirectory(), name));
