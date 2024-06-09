@@ -18,7 +18,7 @@ public class UnloadCommand extends Command {
             app.skAnalyzer().unloadAllScripts();
             app.skAnalyzer().getLogger().info("Successfully unloaded all scripts");
         } else {
-            if (app.skAnalyzer().unloadScript(args[0])) {
+            if (app.skAnalyzer().unloadScript(String.join(" ", args))) {
                 app.skAnalyzer().getLogger().info("Successfully unloaded this script");
             }
         }
