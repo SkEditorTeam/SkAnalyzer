@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerClassLoader;
+import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,6 +25,7 @@ public class AddonsLoader {
 
     private final Map<String, JavaPlugin> addons = new HashMap<>();
     private final SkAnalyzer skAnalyzer;
+    private final AnalyzerServer server;
     private JavaPlugin skript;
     @Getter
     private MockSkriptBridge mockSkriptBridge;
@@ -40,11 +42,11 @@ public class AddonsLoader {
 
         skript = Objects.requireNonNull(initSimpleAddon(new File(getAddonsDirectory(), MOCK_SKRIPT_FILE)));
         loadAddon(skript);
-        skAnalyzer.getServer().getPluginManager().enablePlugin(skript);
+        server.getPluginManager().enablePlugin(skript);
 
         mockSkriptBridge = Objects.requireNonNull(initMockSkriptBridge());
         loadAddon(mockSkriptBridge);
-        skAnalyzer.getServer().getPluginManager().enablePlugin(mockSkriptBridge);
+        server.getPluginManager().enablePlugin(mockSkriptBridge);
 
         FileUtils.listFiles(getAddonsDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
 
@@ -57,7 +59,7 @@ public class AddonsLoader {
             }
         });
 
-        addons.values().forEach(addon -> skAnalyzer.getServer().getPluginManager().enablePlugin(addon));
+        addons.values().forEach(addon -> server.getPluginManager().enablePlugin(addon));
 
         skAnalyzer.getLogger().info(
                 "Successfully loaded addons: {}",
@@ -135,7 +137,7 @@ public class AddonsLoader {
 
     @SuppressWarnings({"deprecation", "UnstableApiUsage"})
     private void loadAddon(JavaPlugin addon) {
-        if (skAnalyzer.getServer().getPluginManager().getPlugin(addon.getName()) != null) return;
+        if (server.getPluginManager().getPlugin(addon.getName()) != null) return;
 
         AnalyzerClassLoader classLoader = (AnalyzerClassLoader) addon.getClass().getClassLoader();
 
@@ -159,6 +161,6 @@ public class AddonsLoader {
             classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(softDepend).getClass().getClassLoader());
         });
 
-        skAnalyzer.getServer().getPluginManager().registerLoadedPlugin(addon);
+        server.getPluginManager().registerLoadedPlugin(addon);
     }
 }

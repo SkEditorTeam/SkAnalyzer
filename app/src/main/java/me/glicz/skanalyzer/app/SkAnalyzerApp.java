@@ -39,18 +39,20 @@ public class SkAnalyzerApp {
         this.skAnalyzer = SkAnalyzer.builder()
                 .flags(parseFlags(args))
                 .build();
-
         this.commandRegistry = new CommandRegistry();
-        this.commandRegistry.register(new ExitCommand(this));
-        this.commandRegistry.register(new HelpCommand(this));
-        this.commandRegistry.register(new ParseCommand(this));
-        this.commandRegistry.register(new LoadCommand(this));
-        this.commandRegistry.register(new ParseCommand(this));
-        this.commandRegistry.register(new UnloadCommand(this));
 
-        this.skAnalyzer.getLogger().info("Type 'help' for help.");
+        this.skAnalyzer.start().thenRun(() -> {
+            this.commandRegistry.register(new ExitCommand(this));
+            this.commandRegistry.register(new HelpCommand(this));
+            this.commandRegistry.register(new ParseCommand(this));
+            this.commandRegistry.register(new LoadCommand(this));
+            this.commandRegistry.register(new ParseCommand(this));
+            this.commandRegistry.register(new UnloadCommand(this));
 
-        startReadingInput();
+            this.skAnalyzer.getLogger().info("Type 'help' for help.");
+
+            startReadingInput();
+        });
     }
 
     public static void main(String[] args) {
