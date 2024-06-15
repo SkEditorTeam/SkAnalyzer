@@ -30,6 +30,7 @@ public class ExprNewPlayerMock extends SimpleExpression<PlayerMock> {
             );
 
             e.registerPlayerMock(player);
+            e.registerWorldMock(player.getWorld());
 
             return new PlayerMock[]{player};
         }
