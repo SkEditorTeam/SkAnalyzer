@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.bridge.sktest.structure;
+package me.glicz.skanalyzer.bridge.sktest.event;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
