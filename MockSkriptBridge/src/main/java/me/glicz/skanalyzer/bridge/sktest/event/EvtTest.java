@@ -4,22 +4,27 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Literal;
 import ch.njol.skript.lang.SkriptEvent;
 import ch.njol.skript.lang.SkriptParser;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import me.glicz.skanalyzer.bridge.sktest.SkTestLogger;
 import me.glicz.skanalyzer.bridge.sktest.bukkit.event.TestEvent;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
-public class EvtTest extends SkriptEvent {
+@Getter
+@Accessors(fluent = true)
+public class EvtTest extends SkriptEvent implements SkTestLogger {
     static {
         Skript.registerEvent("*Test", EvtTest.class, TestEvent.class, "test %-string%");
     }
 
-    private String name = null;
+    private String testName = null;
 
     @Override
     public boolean init(Literal<?> @NotNull [] args, int matchedPattern, SkriptParser.@NotNull ParseResult parseResult) {
-        this.name = (String) args[0].getSingle();
+        this.testName = (String) args[0].getSingle();
         return true;
     }
 
@@ -34,15 +39,15 @@ public class EvtTest extends SkriptEvent {
 
     @Override
     public boolean postLoad() {
-        System.out.println("Running test: " + name);
+        testLog("Running test");
 
-        TestEvent event = new TestEvent((AnalyzerServer) Bukkit.getServer());
+        TestEvent event = new TestEvent((AnalyzerServer) Bukkit.getServer(), testName);
 
         boolean result = trigger.forceExecute(event);
         if (result) {
-            System.out.println("Test succeeded: " + name);
+            testLog("Test succeeded");
         } else {
-            System.out.println("Test failed: " + name);
+            testLog("Test failed");
         }
 
         event.postTest();
@@ -62,6 +67,6 @@ public class EvtTest extends SkriptEvent {
 
     @Override
     public @NotNull String toString(Event event, boolean debug) {
-        return "test " + name;
+        return "test " + testName;
     }
 }

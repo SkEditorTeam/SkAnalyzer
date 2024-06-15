@@ -5,6 +5,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import me.glicz.skanalyzer.bridge.sktest.bukkit.event.TestEvent;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +25,9 @@ public class EffDebug extends Effect {
 
     @Override
     protected void execute(@NotNull Event event) {
-        System.out.println("debug: " + text.getSingle(event));
+        if (event instanceof TestEvent e) {
+            e.testLog(text.getSingle(event));
+        }
     }
 
     @Override

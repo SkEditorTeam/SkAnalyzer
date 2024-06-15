@@ -47,6 +47,7 @@ public class SkAnalyzerApp {
             this.commandRegistry.register(new ParseCommand(this));
             this.commandRegistry.register(new LoadCommand(this));
             this.commandRegistry.register(new ParseCommand(this));
+            this.commandRegistry.register(new TestCommand(this));
             this.commandRegistry.register(new UnloadCommand(this));
 
             this.skAnalyzer.getLogger().info("Type 'help' for help.");

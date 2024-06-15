@@ -25,7 +25,9 @@ public class ExprNewPlayerMock extends SimpleExpression<PlayerMock> {
     @Override
     protected PlayerMock @NotNull [] get(@NotNull Event event) {
         if (event instanceof TestEvent e) {
-            AnalyzerPlayer player = e.getServer().addPlayer();
+            AnalyzerPlayer player = e.server().addPlayer((p, message) ->
+                    e.testLog("%s received: (%s) %s", p.getName(), message.type(), message.rawValue())
+            );
 
             e.registerPlayerMock(player);
 

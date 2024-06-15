@@ -28,7 +28,7 @@ public class ExprNewWorldMock extends SimpleExpression<WorldMock> {
     @Override
     protected WorldMock @NotNull [] get(@NotNull Event event) {
         if (event instanceof TestEvent e) {
-            WorldMock worldMock = e.getServer().addSimpleWorld(name.getSingle(event));
+            WorldMock worldMock = e.server().addSimpleWorld(name.getSingle(event));
 
             e.registerWorldMock(worldMock);
 

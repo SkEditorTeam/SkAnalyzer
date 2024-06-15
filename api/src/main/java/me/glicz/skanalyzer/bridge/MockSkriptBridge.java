@@ -13,6 +13,8 @@ public abstract class MockSkriptBridge extends JavaPlugin {
 
     public abstract CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load);
 
+    public abstract void testScripts(String path);
+
     public abstract boolean unloadScript(String path);
 
     public abstract void unloadAllScripts();
