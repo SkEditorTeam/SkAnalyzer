@@ -208,8 +208,6 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
             if (optionsData != null) {
                 options.putAll(optionsData.getOptions());
             }
-
-            ScriptLoader.unloadScript(script);
         }
 
         return new ScriptStructure(commandDataList, eventDataList, functionDataList, options);
