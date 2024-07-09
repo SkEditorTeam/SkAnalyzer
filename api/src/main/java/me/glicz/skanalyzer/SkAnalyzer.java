@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
+import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,32 +32,22 @@ import java.util.concurrent.CompletableFuture;
 public class SkAnalyzer {
     public static final String LOGGER_TYPE_PROPERTY = "skanalyzer.loggerType";
     public static final String WORKING_DIR_PROPERTY = "skanalyzer.workingDir";
+
+    private static final File USER_HOME_DIR = new File(System.getProperty("user.home"));
+
     private final EnumSet<AnalyzerFlag> flags;
     private final LoggerType loggerType;
     private final File workingDirectory;
     private final Logger logger;
-    private final AnalyzerServer server;
-    private final AddonsLoader addonsLoader;
+    private AnalyzerServer server;
 
     private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, File workingDirectory) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
         this.loggerType = loggerType;
-        this.workingDirectory = Objects.requireNonNullElse(workingDirectory, AddonsLoader.ADDONS);
+        this.workingDirectory = Objects.requireNonNullElse(workingDirectory, new File(USER_HOME_DIR, "SkAnalyzer"));
         this.logger = LogManager.getLogger(loggerType.getLoggerName());
         Configurator.setLevel(logger, loggerType.getLoggerLevel());
-
-        logger.info("Enabling...");
-
-        this.server = MockBukkit.mock(new AnalyzerServer());
-
-        extractEmbeddedAddons();
-
-        this.addonsLoader = new AddonsLoader(this);
-        this.addonsLoader.loadAddons();
-
-        server.startTicking();
-        logger.info("Successfully enabled. Have fun!");
     }
 
     @Contract(" -> new")
@@ -64,28 +55,75 @@ public class SkAnalyzer {
         return new Builder();
     }
 
+    public CompletableFuture<Void> start() {
+        logger.info("Enabling...");
+
+        return buildServer().thenAccept(server -> {
+            this.server = server;
+            logger.info("Successfully enabled. Have fun!");
+        });
+    }
+
+    private CompletableFuture<AnalyzerServer> buildServer() {
+        CompletableFuture<AnalyzerServer> future = new CompletableFuture<>();
+
+        Thread thread = new Thread(() -> {
+            AnalyzerServer server = MockBukkit.mock(new AnalyzerServer(this));
+
+            extractEmbeddedAddons(server.getAddonsLoader());
+            server.getAddonsLoader().loadAddons();
+
+            future.complete(server);
+
+            server.startTicking();
+        }, "Server Thread");
+        thread.start();
+
+        return future;
+    }
+
     @Unmodifiable
     public EnumSet<AnalyzerFlag> getFlags() {
         return EnumSet.copyOf(flags);
     }
 
-    public CompletableFuture<ScriptAnalyzeResult> parseScript(String path) {
-        return addonsLoader.getMockSkriptBridge().parseScript(path);
+    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path) {
+        return parseScript(path, false);
     }
 
-    private void extractEmbeddedAddons() {
+    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load) {
+        return server.getAddonsLoader().getMockSkriptBridge().parseScript(path, load);
+    }
+
+    public boolean unloadScript(String path) {
+        return server.getAddonsLoader().getMockSkriptBridge().unloadScript(path);
+    }
+
+    public void unloadAllScripts() {
+        server.getAddonsLoader().getMockSkriptBridge().unloadAllScripts();
+    }
+
+    private void extractEmbeddedAddons(AddonsLoader addonsLoader) {
+        if (flags.contains(AnalyzerFlag.SKIP_EXTRACTING_ADDONS)) {
+            logger.warn("{} flag is present! This means that default embedded addons (and Skript) won't be extracted. " +
+                            "If you're not sure what may it cause, remove it immediately!",
+                    AnalyzerFlag.SKIP_EXTRACTING_ADDONS.name()
+            );
+            return;
+        }
+
         logger.info("Extracting embedded addons...");
 
-        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT);
-        extractEmbeddedAddon(AddonsLoader.MOCK_SKRIPT_BRIDGE);
+        extractEmbeddedAddon(addonsLoader, AddonsLoader.MOCK_SKRIPT_FILE);
+        extractEmbeddedAddon(addonsLoader, AddonsLoader.MOCK_SKRIPT_BRIDGE_FILE);
 
         logger.info("Successfully extracted embedded addons!");
     }
 
-    private void extractEmbeddedAddon(String name) {
+    private void extractEmbeddedAddon(AddonsLoader addonsLoader, String name) {
         try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream(name + ".embedded")) {
             Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded %s", name);
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(workingDirectory, name));
+            FileUtils.copyInputStreamToFile(embeddedJar, new File(addonsLoader.getAddonsDirectory(), name));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

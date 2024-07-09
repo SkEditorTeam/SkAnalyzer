@@ -3,27 +3,54 @@ package me.glicz.skanalyzer.mockbukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
 import lombok.Getter;
+import me.glicz.skanalyzer.SkAnalyzer;
+import me.glicz.skanalyzer.loader.AddonsLoader;
+import net.kyori.adventure.util.Ticks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Getter
 public class AnalyzerServer extends ServerMock {
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
     private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
+    private final SkAnalyzer skAnalyzer;
+    private final AddonsLoader addonsLoader;
 
+    public AnalyzerServer(SkAnalyzer skAnalyzer) {
+        this.skAnalyzer = skAnalyzer;
+        this.addonsLoader = new AddonsLoader(skAnalyzer, this);
+    }
+
+    @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
     public void startTicking() {
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
+        try {
+            while (true) {
+                long start = System.currentTimeMillis();
+
                 ((BukkitSchedulerMock) Bukkit.getScheduler()).performOneTick();
+
+                long end = System.currentTimeMillis();
+                long duration = end - start;
+
+                long sleepTime = Ticks.SINGLE_TICK_DURATION_MS - duration;
+                if (sleepTime > 0) {
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException ex) {
+                        skAnalyzer.getLogger().atError()
+                                .withThrowable(ex)
+                                .log("Something went wrong while trying to wait until next tick");
+                    }
+                }
             }
-        }, 50, 50);
+        } catch (Exception ex) {
+            skAnalyzer.getLogger().atError()
+                    .withThrowable(ex)
+                    .log("Something went wrong while trying to tick");
+        }
     }
 
     @Override
@@ -31,17 +58,15 @@ public class AnalyzerServer extends ServerMock {
         return "SkAnalyzer";
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
     public @NotNull BlockData createBlockData(String data) {
-        if (data.contains(":"))
-            data = data.split(":")[1];
         String rawMaterial = (data.indexOf('[') == -1)
                 ? data
                 : data.substring(0, data.indexOf('['));
-        Material material = Material.getMaterial(rawMaterial.toUpperCase());
-        if (material == null)
-            return null;
+        Material material = Material.matchMaterial(rawMaterial);
+        if (material == null) {
+            throw new IllegalArgumentException();
+        }
         return createBlockData(material);
     }
 

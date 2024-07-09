@@ -5,29 +5,25 @@ import me.glicz.skanalyzer.structure.data.EventData;
 import me.glicz.skanalyzer.structure.data.FunctionData;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public record ScriptStructure(List<CommandData> commandDataList, List<EventData> eventDataList,
-                              List<FunctionData> functionDataList, Map<String, String> options) {
-    @Override
-    public @Unmodifiable List<EventData> eventDataList() {
-        return Collections.unmodifiableList(eventDataList);
+public record ScriptStructure(List<CommandData> commands, List<EventData> events,
+                              List<FunctionData> functions, Map<String, String> options) {
+    public @Unmodifiable List<EventData> events() {
+        return List.copyOf(events);
     }
 
-    @Override
-    public @Unmodifiable List<FunctionData> functionDataList() {
-        return Collections.unmodifiableList(functionDataList);
+    public @Unmodifiable List<FunctionData> functions() {
+        return List.copyOf(functions);
     }
 
-    @Override
-    public @Unmodifiable List<CommandData> commandDataList() {
-        return Collections.unmodifiableList(commandDataList);
+    public @Unmodifiable List<CommandData> commands() {
+        return List.copyOf(commands);
     }
 
     @Override
     public @Unmodifiable Map<String, String> options() {
-        return Collections.unmodifiableMap(options);
+        return Map.copyOf(options);
     }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerClassLoader;
+import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,32 +20,35 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class AddonsLoader {
-    public static final File USER_HOME = new File(System.getProperty("user.home"));
-    public static final File ADDONS = new File(USER_HOME, "SkAnalyzer/addons");
-    public static final String MOCK_SKRIPT = "MockSkript.jar";
-    public static final String MOCK_SKRIPT_BRIDGE = "MockSkriptBridge.jar";
+    public static final String MOCK_SKRIPT_FILE = "MockSkript.jar";
+    public static final String MOCK_SKRIPT_BRIDGE_FILE = "MockSkriptBridge.jar";
 
-    private static final Map<String, JavaPlugin> addons = new HashMap<>();
-
+    private final Map<String, JavaPlugin> addons = new HashMap<>();
     private final SkAnalyzer skAnalyzer;
+    private final AnalyzerServer server;
     private JavaPlugin skript;
     @Getter
     private MockSkriptBridge mockSkriptBridge;
 
+    public File getAddonsDirectory() {
+        return new File(skAnalyzer.getWorkingDirectory(), "Addons");
+    }
+
     @SuppressWarnings({"deprecation"})
     public void loadAddons() {
-        if (skript != null)
+        if (skript != null) {
             throw new RuntimeException("Addons are already loaded!");
+        }
 
-        skript = Objects.requireNonNull(initSimpleAddon(new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT)));
+        skript = Objects.requireNonNull(initSimpleAddon(new File(getAddonsDirectory(), MOCK_SKRIPT_FILE)));
         loadAddon(skript);
-        skAnalyzer.getServer().getPluginManager().enablePlugin(skript);
+        server.getPluginManager().enablePlugin(skript);
 
         mockSkriptBridge = Objects.requireNonNull(initMockSkriptBridge());
         loadAddon(mockSkriptBridge);
-        skAnalyzer.getServer().getPluginManager().enablePlugin(mockSkriptBridge);
+        server.getPluginManager().enablePlugin(mockSkriptBridge);
 
-        FileUtils.listFiles(skAnalyzer.getWorkingDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
+        FileUtils.listFiles(getAddonsDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
 
         addons.values().forEach(addon -> {
             try {
@@ -55,7 +59,7 @@ public class AddonsLoader {
             }
         });
 
-        addons.values().forEach(addon -> skAnalyzer.getServer().getPluginManager().enablePlugin(addon));
+        addons.values().forEach(addon -> server.getPluginManager().enablePlugin(addon));
 
         skAnalyzer.getLogger().info(
                 "Successfully loaded addons: {}",
@@ -82,7 +86,7 @@ public class AddonsLoader {
     }
 
     private MockSkriptBridge initMockSkriptBridge() {
-        File file = new File(skAnalyzer.getWorkingDirectory(), MOCK_SKRIPT_BRIDGE);
+        File file = new File(getAddonsDirectory(), MOCK_SKRIPT_BRIDGE_FILE);
         Class<?> pluginClass = initAddon(file);
 
         if (pluginClass == null) return null;
@@ -100,26 +104,28 @@ public class AddonsLoader {
 
     @SuppressWarnings("UnstableApiUsage")
     private Class<?> initAddon(File file) {
-        if (skript != null && file.getName().equals(MOCK_SKRIPT)) return null;
-        if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE)) return null;
+        if (skript != null && file.getName().equals(MOCK_SKRIPT_FILE)) return null;
+        if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE_FILE)) return null;
 
         try {
             JarFile jarFile = new JarFile(file);
             PluginDescriptionFile description = new PluginDescriptionFile(jarFile.getInputStream(jarFile.getEntry("plugin.yml")));
 
-            if (addons.containsKey(description.getName()))
+            if (addons.containsKey(description.getName())) {
                 throw new RuntimeException("Plugin named '%s' is already loaded".formatted(description.getName()));
+            }
 
             AnalyzerClassLoader classLoader = new AnalyzerClassLoader(
                     SkAnalyzer.class.getClassLoader(),
                     description,
-                    new File(skAnalyzer.getWorkingDirectory(), description.getName()),
+                    new File(getAddonsDirectory(), description.getName()),
                     file,
                     jarFile
             );
 
-            if (skript != null)
+            if (skript != null) {
                 classLoader.getGroup().add((ConfiguredPluginClassLoader) skript.getClass().getClassLoader());
+            }
 
             return classLoader.loadClass(description.getMainClass(), true, false, false);
         } catch (Exception | ExceptionInInitializerError e) {
@@ -131,27 +137,30 @@ public class AddonsLoader {
 
     @SuppressWarnings({"deprecation", "UnstableApiUsage"})
     private void loadAddon(JavaPlugin addon) {
-        if (skAnalyzer.getServer().getPluginManager().getPlugin(addon.getName()) != null) return;
+        if (server.getPluginManager().getPlugin(addon.getName()) != null) return;
 
         AnalyzerClassLoader classLoader = (AnalyzerClassLoader) addon.getClass().getClassLoader();
 
         addon.getDescription().getDepend().forEach(depend -> {
-            if (!addons.containsKey(depend))
+            if (!addons.containsKey(depend)) {
                 throw new NullPointerException("Missing dependency: " + depend);
+            }
 
-            if (depend.equals("Skript"))
+            if (depend.equals("Skript")) {
                 return;
+            }
 
             classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(depend).getClass().getClassLoader());
         });
 
         addon.getDescription().getSoftDepend().forEach(softDepend -> {
-            if (!addons.containsKey(softDepend) || softDepend.equals("Skript"))
+            if (!addons.containsKey(softDepend) || softDepend.equals("Skript")) {
                 return;
+            }
 
             classLoader.getGroup().add((ConfiguredPluginClassLoader) addons.get(softDepend).getClass().getClassLoader());
         });
 
-        skAnalyzer.getServer().getPluginManager().registerLoadedPlugin(addon);
+        server.getPluginManager().registerLoadedPlugin(addon);
     }
 }

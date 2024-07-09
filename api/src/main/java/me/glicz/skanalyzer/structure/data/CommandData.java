@@ -1,7 +1,12 @@
 package me.glicz.skanalyzer.structure.data;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
 import java.util.List;
 
+@Getter
+@Accessors(fluent = true)
 public final class CommandData extends StructureData {
     private final List<String> aliases;
     private final String permission;
