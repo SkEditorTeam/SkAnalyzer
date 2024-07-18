@@ -56,15 +56,19 @@ public class SkAnalyzer {
     }
 
     public CompletableFuture<Void> start() {
+        return start(false);
+    }
+
+    public CompletableFuture<Void> start(boolean daemon) {
         logger.info("Enabling...");
 
-        return buildServer().thenAccept(server -> {
+        return buildServer(daemon).thenAccept(server -> {
             this.server = server;
             logger.info("Successfully enabled. Have fun!");
         });
     }
 
-    private CompletableFuture<AnalyzerServer> buildServer() {
+    private CompletableFuture<AnalyzerServer> buildServer(boolean daemon) {
         CompletableFuture<AnalyzerServer> future = new CompletableFuture<>();
 
         Thread thread = new Thread(() -> {
@@ -77,6 +81,7 @@ public class SkAnalyzer {
 
             server.startTicking();
         }, "Server Thread");
+        thread.setDaemon(daemon);
         thread.start();
 
         return future;
