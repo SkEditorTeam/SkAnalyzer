@@ -40,6 +40,7 @@ public class SkAnalyzer {
     private final File workingDirectory;
     private final Logger logger;
     private AnalyzerServer server;
+    private boolean started;
 
     private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, File workingDirectory) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
@@ -60,6 +61,11 @@ public class SkAnalyzer {
     }
 
     public CompletableFuture<Void> start(boolean daemon) {
+        if (started) {
+            return CompletableFuture.failedFuture(new IllegalStateException());
+        }
+
+        started = true;
         logger.info("Enabling...");
 
         return buildServer(daemon).thenAccept(server -> {
