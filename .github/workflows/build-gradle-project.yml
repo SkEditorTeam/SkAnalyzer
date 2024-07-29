@@ -1,0 +1,31 @@
+name: Build & Publish Gradle project
+
+on:
+  push:
+    branches:
+      - main
+      - dev/dev
+
+jobs:
+  build-gradle-project:
+    env:
+      REPO_USER: ${{ secrets.REPO_USERNAME }}
+      REPO_PASS: ${{ secrets.REPO_PASSWORD }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+      - name: Setup JDK 21 for x64
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: corretto
+          architecture: x64
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - name: Run shadowJar and publish with Gradle Wrapper
+        run: ./gradlew app:shadowJar api:publish -ProxymcUsername=${{ env.REPO_USER }} -ProxymcPassword=${{ env.REPO_PASS }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: app/build/libs
