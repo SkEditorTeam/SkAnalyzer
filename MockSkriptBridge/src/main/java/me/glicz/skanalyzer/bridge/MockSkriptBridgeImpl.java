@@ -179,7 +179,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                 StringUtils.defaultIfEmpty(scriptCommand.permission, null),
                 StringUtils.defaultIfEmpty(scriptCommand.description, null),
                 scriptCommand.getPrefix(),
-                StringUtils.defaultIfEmpty(scriptCommand.usage, null),
+                StringUtils.defaultIfEmpty(scriptCommand.usage.getUsage(), null),
                 scriptCommand.getArguments().stream()
                         .map(argument -> argument.type.getCodeName())
                         .toList()

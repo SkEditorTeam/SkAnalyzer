@@ -20,13 +20,14 @@ java {
 tasks {
     jar {
         listOf(project(":MockSkript"), project(":MockSkriptBridge")).forEach { addon ->
-            dependsOn(addon.tasks.clean)
-            val jarTask: DefaultTask =
-                addon.tasks.findByName("shadowJar") as DefaultTask? ?: addon.tasks.jar.get()
-            dependsOn(jarTask)
-            from(jarTask.outputs.files.singleFile) {
-                include("*.jar")
-                rename { "${addon.name}.jar.embedded" }
+            addon.tasks.apply {
+                dependsOn(clean)
+                dependsOn(jar)
+
+                from(jar.get().outputs.files.singleFile) {
+                    include("*.jar")
+                    rename { "${addon.name}.jar.embedded" }
+                }
             }
         }
     }
