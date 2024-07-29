@@ -2,6 +2,7 @@ package me.glicz.skanalyzer.bridge;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
@@ -15,6 +16,7 @@ import ch.njol.skript.structures.StructOptions;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
+import me.glicz.skanalyzer.bridge.log.TestLogHandler;
 import me.glicz.skanalyzer.bridge.util.FilesUtil;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResult;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
     private Executor mainThreadExecutor;
+    private SkriptAddon skriptAddon;
 
     public MockSkriptBridgeImpl(SkAnalyzer skAnalyzer) {
         super(skAnalyzer);
@@ -49,6 +52,13 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public void onEnable() {
         mainThreadExecutor = getServer().getScheduler().getMainThreadExecutor(this);
+
+        skriptAddon = Skript.registerAddon(this);
+        try {
+            skriptAddon.loadClasses("me.glicz.skanalyzer.bridge.sktest");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void parseFlags() {
@@ -97,9 +107,38 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                             .thenApply(info -> {
                                 ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(files, logHandler));
                                 if (!load) {
-                                    unloadScript(path);
+                                    unloadScript0(file);
                                 }
                                 return results;
+                            })
+                            .join();
+                },
+                mainThreadExecutor
+        );
+    }
+
+    @Override
+    public void testScripts(String path) {
+        File file = new File(path);
+        if (!file.exists() || !file.getName().endsWith(".sktest")) {
+            skAnalyzer.getLogger().error("Invalid file path");
+            return;
+        }
+
+        CompletableFuture.supplyAsync(
+                () -> {
+                    TestLogHandler logHandler = new TestLogHandler().start();
+                    return ScriptLoader.loadScripts(file, logHandler)
+                            .handle((info, throwable) -> {
+                                if (throwable != null) {
+                                    skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
+                                    throw new RuntimeException(throwable);
+                                }
+                                return info;
+                            })
+                            .thenApply(info -> {
+                                unloadScript0(file);
+                                return null;
                             })
                             .join();
                 },
@@ -114,7 +153,10 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
             skAnalyzer.getLogger().error("Invalid file path");
             return false;
         }
+        return unloadScript0(file);
+    }
 
+    private boolean unloadScript0(File file) {
         Script script = ScriptLoader.getScript(file);
         if (script != null) {
             ScriptLoader.unloadScript(script);

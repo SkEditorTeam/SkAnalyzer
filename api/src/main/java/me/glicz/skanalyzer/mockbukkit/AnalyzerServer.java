@@ -1,15 +1,20 @@
 package me.glicz.skanalyzer.mockbukkit;
 
+import be.seeseemelk.mockbukkit.AsyncCatcher;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
 import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.loader.AddonsLoader;
+import me.glicz.skanalyzer.util.Message;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
+import java.util.function.BiConsumer;
 
 @Getter
 public class AnalyzerServer extends ServerMock {
@@ -18,6 +23,7 @@ public class AnalyzerServer extends ServerMock {
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
     private final SkAnalyzer skAnalyzer;
     private final AddonsLoader addonsLoader;
+    private int playerCounter = 0;
 
     public AnalyzerServer(SkAnalyzer skAnalyzer) {
         this.skAnalyzer = skAnalyzer;
@@ -78,5 +84,14 @@ public class AnalyzerServer extends ServerMock {
     @Override
     public boolean isStopping() {
         return false;
+    }
+
+    public @NotNull AnalyzerPlayer addPlayer(BiConsumer<AnalyzerPlayer, Message> messageHandler) {
+        AsyncCatcher.catchOp("player add");
+
+        AnalyzerPlayer player = new AnalyzerPlayer(this, "Player" + playerCounter++, UUID.randomUUID(), messageHandler);
+        addPlayer(player);
+
+        return player;
     }
 }

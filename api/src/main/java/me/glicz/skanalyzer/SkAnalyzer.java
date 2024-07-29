@@ -95,6 +95,10 @@ public class SkAnalyzer {
         return server.getAddonsLoader().getMockSkriptBridge().parseScript(path, load);
     }
 
+    public void testScripts(String path) {
+        server.getAddonsLoader().getMockSkriptBridge().testScripts(path);
+    }
+
     public boolean unloadScript(String path) {
         return server.getAddonsLoader().getMockSkriptBridge().unloadScript(path);
     }
