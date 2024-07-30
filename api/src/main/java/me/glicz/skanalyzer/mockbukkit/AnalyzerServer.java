@@ -2,6 +2,7 @@ package me.glicz.skanalyzer.mockbukkit;
 
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
+import be.seeseemelk.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
 import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.loader.AddonsLoader;
@@ -13,9 +14,11 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public class AnalyzerServer extends ServerMock {
-    private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
-    private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
+    private final AnalyzerScheduler scheduler = new AnalyzerScheduler();
+    private final FoliaAsyncScheduler foliaAsyncScheduler = new FoliaAsyncScheduler(scheduler);
+    private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
+    private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
     private final SkAnalyzer skAnalyzer;
     private final AddonsLoader addonsLoader;
 
