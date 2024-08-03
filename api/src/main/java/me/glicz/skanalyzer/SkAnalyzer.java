@@ -11,13 +11,13 @@ import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
 import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.mockbukkit.mockbukkit.MockBukkit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,11 @@ public class SkAnalyzer {
 
     private static final File USER_HOME_DIR = new File(System.getProperty("user.home"));
 
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+    }
+
     private final EnumSet<AnalyzerFlag> flags;
     private final LoggerType loggerType;
     private final File workingDirectory;
@@ -46,9 +51,9 @@ public class SkAnalyzer {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
         this.loggerType = loggerType;
+        this.loggerType.loadConfiguration();
         this.workingDirectory = Objects.requireNonNullElse(workingDirectory, new File(USER_HOME_DIR, "SkAnalyzer"));
-        this.logger = LogManager.getLogger(loggerType.getLoggerName());
-        Configurator.setLevel(logger, loggerType.getLoggerLevel());
+        this.logger = LoggerFactory.getLogger("SkAnalyzer");
     }
 
     @Contract(" -> new")

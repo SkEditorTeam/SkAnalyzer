@@ -12,6 +12,8 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
 
+import java.util.logging.Logger;
+
 @Getter
 public class AnalyzerServer extends ServerMock {
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
@@ -19,6 +21,7 @@ public class AnalyzerServer extends ServerMock {
     private final FoliaAsyncScheduler foliaAsyncScheduler = new FoliaAsyncScheduler(scheduler);
     private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
+    private final Logger logger = Logger.getLogger("Server");
     private final SkAnalyzer skAnalyzer;
     private final AddonsLoader addonsLoader;
 
@@ -44,14 +47,14 @@ public class AnalyzerServer extends ServerMock {
                         Thread.sleep(sleepTime);
                     } catch (InterruptedException ex) {
                         skAnalyzer.getLogger().atError()
-                                .withThrowable(ex)
+                                .setCause(ex)
                                 .log("Something went wrong while trying to wait until next tick");
                     }
                 }
             }
         } catch (Exception ex) {
             skAnalyzer.getLogger().atError()
-                    .withThrowable(ex)
+                    .setCause(ex)
                     .log("Something went wrong while trying to tick");
         }
     }
@@ -59,6 +62,11 @@ public class AnalyzerServer extends ServerMock {
     @Override
     public @NotNull String getName() {
         return "SkAnalyzer";
+    }
+
+    @Override
+    public @NotNull Logger getLogger() {
+        return logger;
     }
 
     @Override
