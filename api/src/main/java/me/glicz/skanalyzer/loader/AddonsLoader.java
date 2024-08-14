@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.jar.JarFile;
@@ -50,7 +51,7 @@ public class AddonsLoader {
 
         FileUtils.listFiles(getAddonsDirectory(), new String[]{"jar"}, false).forEach(this::initSimpleAddon);
 
-        addons.values().forEach(addon -> {
+        List.copyOf(addons.values()).forEach(addon -> {
             try {
                 loadAddon(addon);
             } catch (NullPointerException e) {
@@ -59,11 +60,19 @@ public class AddonsLoader {
             }
         });
 
-        addons.values().forEach(addon -> server.getPluginManager().enablePlugin(addon));
+        addons.values().forEach(addon -> {
+            try {
+                server.getPluginManager().enablePlugin(addon);
+            } catch (Exception e) {
+                skAnalyzer.getLogger().error("Something went wrong while trying to enable %s".formatted(addon.getName()), e);
+                server.getPluginManager().disablePlugin(addon);
+            }
+        });
 
         skAnalyzer.getLogger().info(
                 "Successfully loaded addons: {}",
                 addons.values().stream()
+                        .filter(JavaPlugin::isEnabled)
                         .map(plugin -> plugin.getDescription().getFullName())
                         .collect(Collectors.joining(", "))
         );
