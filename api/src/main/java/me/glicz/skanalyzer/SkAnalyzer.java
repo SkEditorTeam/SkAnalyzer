@@ -80,6 +80,8 @@ public class SkAnalyzer {
         Thread thread = new Thread(() -> {
             AnalyzerServer server = MockBukkit.mock(new AnalyzerServer(this));
 
+            server.addSimpleWorld("world");
+
             extractEmbeddedAddons(server.getAddonsLoader());
             server.getAddonsLoader().loadAddons();
 
