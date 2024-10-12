@@ -3,7 +3,7 @@ name: Build & Publish Gradle project
 on:
   push:
     branches:
-      - main
+      - master
       - dev/dev
 
 jobs:
