@@ -15,6 +15,7 @@ dependencies {
     api("org.slf4j:jul-to-slf4j:2.0.13")
     api("commons-io:commons-io:2.14.0")
     api("commons-lang:commons-lang:2.6")
+    api("org.ow2.asm:asm:9.7.1")
 }
 
 java {

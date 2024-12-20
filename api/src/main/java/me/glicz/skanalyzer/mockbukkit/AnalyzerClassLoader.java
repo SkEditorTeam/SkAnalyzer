@@ -6,6 +6,7 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import io.papermc.paper.plugin.provider.classloader.PluginClassLoaderGroup;
 import lombok.Getter;
+import me.glicz.skanalyzer.plugin.rewriter.PluginRewriter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -86,56 +87,68 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
         if (name.startsWith("org.bukkit.") || name.startsWith("net.minecraft.")) {
             throw new ClassNotFoundException(name);
         }
+
         Class<?> result = classes.get(name);
 
-        if (result == null) {
-            String path = name.replace('.', '/').concat(".class");
-            JarEntry entry = jarFile.getJarEntry(path);
-
-            if (entry != null) {
-                byte[] classBytes;
-
-                try (InputStream is = jarFile.getInputStream(entry)) {
-                    classBytes = ByteStreams.toByteArray(is);
-                } catch (IOException ex) {
-                    throw new ClassNotFoundException(name, ex);
-                }
-
-                int dot = name.lastIndexOf('.');
-                if (dot != -1) {
-                    String pkgName = name.substring(0, dot);
-                    if (getDefinedPackage(pkgName) == null) {
-                        try {
-                            if (manifest != null) {
-                                definePackage(pkgName, manifest, url);
-                            } else {
-                                definePackage(
-                                        pkgName, null, null, null,
-                                        null, null, null, null
-                                );
-                            }
-                        } catch (IllegalArgumentException ex) {
-                            if (getDefinedPackage(pkgName) == null) {
-                                throw new IllegalStateException("Cannot find package " + pkgName);
-                            }
-                        }
-                    }
-                }
-
-                CodeSigner[] signers = entry.getCodeSigners();
-                CodeSource source = new CodeSource(url, signers);
-
-                result = defineClass(name, classBytes, 0, classBytes.length, source);
-            }
-
-            if (result == null) {
-                result = super.findClass(name);
-            }
-
-            classes.put(name, result);
+        if (result != null) {
+            return result;
         }
 
+        String path = name.replace('.', '/').concat(".class");
+        JarEntry entry = jarFile.getJarEntry(path);
+
+        if (entry != null) {
+            byte[] classBytes;
+
+            try (InputStream is = jarFile.getInputStream(entry)) {
+                classBytes = PluginRewriter.rewrite(ByteStreams.toByteArray(is));
+            } catch (IOException ex) {
+                throw new ClassNotFoundException(name, ex);
+            }
+
+            int dot = name.lastIndexOf('.');
+            if (dot != -1) {
+                String packageName = name.substring(0, dot);
+
+                definePackage(packageName);
+            }
+
+            CodeSigner[] signers = entry.getCodeSigners();
+            CodeSource source = new CodeSource(url, signers);
+
+            result = defineClass(name, classBytes, 0, classBytes.length, source);
+        }
+
+        if (result == null) {
+            result = super.findClass(name);
+        }
+
+        classes.put(name, result);
+
         return result;
+    }
+
+    private void definePackage(String packageName) {
+        if (getDefinedPackage(packageName) != null) {
+            return;
+        }
+
+        try {
+            if (manifest != null) {
+                definePackage(packageName, manifest, url);
+            } else {
+                definePackage(
+                        packageName, null, null, null,
+                        null, null, null, null
+                );
+            }
+        } catch (IllegalArgumentException ex) {
+            if (getDefinedPackage(packageName) != null) {
+                return;
+            }
+
+            throw new IllegalStateException("Cannot find package " + packageName);
+        }
     }
 
     @Override

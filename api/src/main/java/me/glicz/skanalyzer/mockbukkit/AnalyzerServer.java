@@ -6,7 +6,9 @@ import me.glicz.skanalyzer.loader.AddonsLoader;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.loot.LootTable;
 import org.jetbrains.annotations.NotNull;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
@@ -84,6 +86,11 @@ public class AnalyzerServer extends ServerMock {
     @Override
     public @NotNull BlockData createBlockData(Material material, String data) {
         return createBlockData(material);
+    }
+
+    @Override
+    public LootTable getLootTable(NamespacedKey key) {
+        return null;
     }
 
     @Override
