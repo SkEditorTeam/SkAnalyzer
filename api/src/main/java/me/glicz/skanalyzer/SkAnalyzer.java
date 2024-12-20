@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.File;
@@ -42,18 +41,20 @@ public class SkAnalyzer {
 
     private final EnumSet<AnalyzerFlag> flags;
     private final LoggerType loggerType;
-    private final File workingDirectory;
     private final Logger logger;
+    private final File workingDirectory;
     private AnalyzerServer server;
     private boolean started;
 
     private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, File workingDirectory) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
+
         this.loggerType = loggerType;
         this.loggerType.loadConfiguration();
+        this.logger = loggerType.getLogger();
+
         this.workingDirectory = Objects.requireNonNullElse(workingDirectory, new File(USER_HOME_DIR, "SkAnalyzer"));
-        this.logger = LoggerFactory.getLogger("SkAnalyzer");
     }
 
     @Contract(" -> new")
