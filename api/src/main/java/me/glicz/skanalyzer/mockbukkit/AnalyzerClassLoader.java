@@ -1,6 +1,5 @@
 package me.glicz.skanalyzer.mockbukkit;
 
-import be.seeseemelk.mockbukkit.plugin.MockBukkitPluginClassLoaderGroup;
 import com.destroystokyo.paper.utils.PaperPluginLogger;
 import com.google.common.io.ByteStreams;
 import io.papermc.paper.plugin.configuration.PluginMeta;
@@ -12,6 +11,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mockbukkit.mockbukkit.plugin.MockBukkitPluginClassLoaderGroup;
 
 import java.io.File;
 import java.io.IOException;

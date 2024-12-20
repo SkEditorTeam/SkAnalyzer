@@ -1,6 +1,5 @@
 package me.glicz.skanalyzer;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
 import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -18,6 +17,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.mockbukkit.mockbukkit.MockBukkit;
 
 import java.io.File;
 import java.io.IOException;
