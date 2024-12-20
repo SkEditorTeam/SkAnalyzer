@@ -1,8 +1,8 @@
 package me.glicz.skanalyzer.mockbukkit;
 
-import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;

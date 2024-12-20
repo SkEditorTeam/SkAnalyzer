@@ -1,8 +1,5 @@
 package me.glicz.skanalyzer.mockbukkit;
 
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.scheduler.BukkitSchedulerMock;
-import be.seeseemelk.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
 import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.loader.AddonsLoader;
@@ -11,6 +8,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
+import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
 
 @Getter
 public class AnalyzerServer extends ServerMock {

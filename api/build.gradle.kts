@@ -6,7 +6,7 @@ plugins {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
-    api("com.github.seeseemelk:MockBukkit-v1.20:3.89.0")
+    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.20.1")
     api("org.apache.logging.log4j:log4j-core:3.0.0-alpha1")
     api("org.slf4j:slf4j-simple:2.0.9")
     api("commons-io:commons-io:2.14.0")
