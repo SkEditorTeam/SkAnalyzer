@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
-import me.glicz.skanalyzer.mockbukkit.AnalyzerClassLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
+import me.glicz.skanalyzer.plugin.PluginClassLoader;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -124,7 +124,7 @@ public class AddonsLoader {
                 throw new RuntimeException("Plugin named '%s' is already loaded".formatted(description.getName()));
             }
 
-            AnalyzerClassLoader classLoader = new AnalyzerClassLoader(
+            PluginClassLoader classLoader = new PluginClassLoader(
                     SkAnalyzer.class.getClassLoader(),
                     description,
                     new File(getAddonsDirectory(), description.getName()),
@@ -148,7 +148,7 @@ public class AddonsLoader {
     private void loadAddon(JavaPlugin addon) {
         if (server.getPluginManager().getPlugin(addon.getName()) != null) return;
 
-        AnalyzerClassLoader classLoader = (AnalyzerClassLoader) addon.getClass().getClassLoader();
+        PluginClassLoader classLoader = (PluginClassLoader) addon.getClass().getClassLoader();
 
         addon.getDescription().getDepend().forEach(depend -> {
             if (!addons.containsKey(depend)) {

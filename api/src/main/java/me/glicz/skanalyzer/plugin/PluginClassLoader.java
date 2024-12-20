@@ -1,6 +1,7 @@
-package me.glicz.skanalyzer.mockbukkit;
+package me.glicz.skanalyzer.plugin;
 
 import com.destroystokyo.paper.utils.PaperPluginLogger;
+import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
@@ -28,7 +29,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 @SuppressWarnings("UnstableApiUsage")
-public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPluginClassLoader {
+public class PluginClassLoader extends URLClassLoader implements ConfiguredPluginClassLoader {
     static {
         ClassLoader.registerAsParallelCapable();
     }
@@ -42,8 +43,9 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
     private final URL url;
     private final JarFile jarFile;
     private final Manifest manifest;
+    private JavaPlugin plugin;
 
-    public AnalyzerClassLoader(ClassLoader parent, PluginDescriptionFile description, File dataFolder, File file, JarFile jarFile) throws Exception {
+    public PluginClassLoader(ClassLoader parent, PluginDescriptionFile description, File dataFolder, File file, JarFile jarFile) throws Exception {
         super(file.getName(), new URL[]{file.toURI().toURL()}, parent);
         this.configuration = description;
         this.dataFolder = dataFolder;
@@ -153,7 +155,10 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
 
     @Override
     public void init(JavaPlugin plugin) {
-        plugin.init(
+        Preconditions.checkState(this.plugin == null);
+
+        this.plugin = plugin;
+        this.plugin.init(
                 Bukkit.getServer(),
                 configuration,
                 dataFolder,
@@ -166,7 +171,7 @@ public class AnalyzerClassLoader extends URLClassLoader implements ConfiguredPlu
 
     @Override
     public @Nullable JavaPlugin getPlugin() {
-        return null;
+        return plugin;
     }
 
     @Override
