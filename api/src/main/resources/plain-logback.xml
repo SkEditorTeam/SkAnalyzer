@@ -1,16 +1,39 @@
 <configuration>
-    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <property name="LOG_PATTERN" value="%level [%logger{36}] %msg%n%xEx{full}" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="me.glicz.skanalyzer.logback.filter.LevelFilter">
+            <level>INFO</level>
+            <matcher>LOWER_OR_EQUAL</matcher>
+        </filter>
+    </appender>
+
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <filter class="me.glicz.skanalyzer.logback.filter.LevelFilter">
+            <level>WARN</level>
+            <matcher>HIGHER_OR_EQUAL</matcher>
+        </filter>
+    </appender>
+
+    <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="STDOUT"/>
     </appender>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%level [%logger{36}] %msg%n%xEx{full}</pattern>
-        </encoder>
+    <appender name="ASYNC_STDERR" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDERR"/>
     </appender>
 
     <root level="info">
-        <appender-ref ref="ASYNC"/>
+        <appender-ref ref="ASYNC_STDOUT"/>
+        <appender-ref ref="ASYNC_STDERR"/>
     </root>
 
     <logger name="BukkitSchedulerMock" level="OFF"/>
