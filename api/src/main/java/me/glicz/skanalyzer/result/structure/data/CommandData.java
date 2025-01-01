@@ -1,12 +1,7 @@
-package me.glicz.skanalyzer.structure.data;
-
-import lombok.Getter;
-import lombok.experimental.Accessors;
+package me.glicz.skanalyzer.result.structure.data;
 
 import java.util.List;
 
-@Getter
-@Accessors(fluent = true)
 public final class CommandData extends StructureData {
     private final List<String> aliases;
     private final String permission;
@@ -18,11 +13,35 @@ public final class CommandData extends StructureData {
     public CommandData(int line, String value, List<String> aliases, String permission,
                        String description, String prefix, String usage, List<String> arguments) {
         super(line, value);
-        this.aliases = aliases;
+        this.aliases = List.copyOf(aliases);
         this.permission = permission;
         this.description = description;
         this.prefix = prefix;
         this.usage = usage;
-        this.arguments = arguments;
+        this.arguments = List.copyOf(arguments);
+    }
+
+    public List<String> aliases() {
+        return aliases;
+    }
+
+    public String permission() {
+        return permission;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public String prefix() {
+        return prefix;
+    }
+
+    public String usage() {
+        return usage;
+    }
+
+    public List<String> arguments() {
+        return arguments;
     }
 }

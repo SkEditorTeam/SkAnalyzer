@@ -16,12 +16,12 @@ import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
 import me.glicz.skanalyzer.bridge.util.FilesUtil;
-import me.glicz.skanalyzer.result.ScriptAnalyzeResult;
-import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
-import me.glicz.skanalyzer.structure.ScriptStructure;
-import me.glicz.skanalyzer.structure.data.CommandData;
-import me.glicz.skanalyzer.structure.data.EventData;
-import me.glicz.skanalyzer.structure.data.FunctionData;
+import me.glicz.skanalyzer.result.AnalyzeResult;
+import me.glicz.skanalyzer.result.AnalyzeResults;
+import me.glicz.skanalyzer.result.structure.ScriptStructure;
+import me.glicz.skanalyzer.result.structure.data.CommandData;
+import me.glicz.skanalyzer.result.structure.data.EventData;
+import me.glicz.skanalyzer.result.structure.data.FunctionData;
 import org.apache.commons.lang3.StringUtils;
 import org.skriptlang.skript.lang.script.Script;
 
@@ -67,7 +67,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     }
 
     @Override
-    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load) {
+    public CompletableFuture<AnalyzeResults> parseScript(String path, boolean load) {
         File file = new File(path);
         if (!file.exists() || (!file.getName().endsWith(".sk") && !(file.isDirectory() && load))) {
             skAnalyzer.getLogger().error("Invalid file path");
@@ -85,7 +85,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
                     return info;
                 })
                 .thenApply(info -> {
-                    ScriptAnalyzeResults results = new ScriptAnalyzeResults(buildAnalyzeResults(files, logHandler));
+                    AnalyzeResults results = new AnalyzeResults(buildAnalyzeResults(files, logHandler));
                     if (!load) {
                         unloadScript(path);
                     }
@@ -114,11 +114,10 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         ScriptLoader.unloadScripts(ScriptLoader.getLoadedScripts());
     }
 
-    private Map<File, ScriptAnalyzeResult> buildAnalyzeResults(Set<File> files, CachingLogHandler logHandler) {
+    private Map<File, AnalyzeResult> buildAnalyzeResults(Set<File> files, CachingLogHandler logHandler) {
         return files.stream().collect(Collectors.toMap(
                 Function.identity(),
-                file -> new ScriptAnalyzeResult(
-                        file,
+                file -> new AnalyzeResult(
                         logHandler.scriptErrors(file),
                         handleParsedScript(file)
                 )

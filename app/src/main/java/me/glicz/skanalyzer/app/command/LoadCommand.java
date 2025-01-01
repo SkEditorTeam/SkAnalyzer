@@ -15,7 +15,7 @@ public class LoadCommand extends Command {
         }
 
         app.skAnalyzer().parseScript(String.join(" ", args), true).thenAccept(results ->
-                app.skAnalyzer().getLogger().info(results.jsonResult())
+                app.skAnalyzer().getLogger().info(results.toString())
         );
     }
 }

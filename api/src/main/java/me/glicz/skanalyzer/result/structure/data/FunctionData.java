@@ -1,12 +1,7 @@
-package me.glicz.skanalyzer.structure.data;
-
-import lombok.Getter;
-import lombok.experimental.Accessors;
+package me.glicz.skanalyzer.result.structure.data;
 
 import java.util.Map;
 
-@Getter
-@Accessors(fluent = true)
 public final class FunctionData extends StructureData {
     private final boolean local;
     private final Map<String, String> parameters;
@@ -15,7 +10,19 @@ public final class FunctionData extends StructureData {
     public FunctionData(int line, String value, boolean local, Map<String, String> parameters, String returnType) {
         super(line, value);
         this.local = local;
-        this.parameters = parameters;
+        this.parameters = Map.copyOf(parameters);
         this.returnType = returnType;
+    }
+
+    public boolean local() {
+        return local;
+    }
+
+    public Map<String, String> parameters() {
+        return parameters;
+    }
+
+    public String returnType() {
+        return returnType;
     }
 }

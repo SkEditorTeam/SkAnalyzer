@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.mockbukkit.AnalyzerServer;
-import me.glicz.skanalyzer.result.ScriptAnalyzeResults;
+import me.glicz.skanalyzer.result.AnalyzeResults;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.jetbrains.annotations.Contract;
@@ -106,11 +106,11 @@ public class SkAnalyzer {
         return EnumSet.copyOf(flags);
     }
 
-    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path) {
+    public CompletableFuture<AnalyzeResults> parseScript(String path) {
         return parseScript(path, false);
     }
 
-    public CompletableFuture<ScriptAnalyzeResults> parseScript(String path, boolean load) {
+    public CompletableFuture<AnalyzeResults> parseScript(String path, boolean load) {
         return server.getAddonsLoader().getMockSkriptBridge().parseScript(path, load);
     }
 

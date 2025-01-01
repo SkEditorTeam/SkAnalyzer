@@ -3,7 +3,7 @@ package me.glicz.skanalyzer.bridge.log;
 import ch.njol.skript.log.LogEntry;
 import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.SkriptLogger;
-import me.glicz.skanalyzer.error.ScriptError;
+import me.glicz.skanalyzer.result.ScriptError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 

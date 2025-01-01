@@ -15,7 +15,7 @@ public class ParseCommand extends Command {
         }
 
         app.skAnalyzer().parseScript(String.join(" ", args)).thenAccept(results ->
-                app.skAnalyzer().getLogger().info(results.jsonResult())
+                app.skAnalyzer().getLogger().info(results.toString())
         );
     }
 }

@@ -1,11 +1,7 @@
-package me.glicz.skanalyzer.structure.data;
+package me.glicz.skanalyzer.result.structure.data;
 
-import lombok.Getter;
-import lombok.experimental.Accessors;
 import org.bukkit.event.EventPriority;
 
-@Getter
-@Accessors(fluent = true)
 public final class EventData extends StructureData {
     private final String id;
     private final EventPriority eventPriority;
@@ -14,5 +10,13 @@ public final class EventData extends StructureData {
         super(line, value);
         this.id = id;
         this.eventPriority = eventPriority;
+    }
+
+    public String id() {
+        return id;
+    }
+
+    public EventPriority eventPriority() {
+        return eventPriority;
     }
 }
