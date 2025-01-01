@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.mockbukkit;
+package me.glicz.skanalyzer.server;
 
 import org.bukkit.inventory.ItemStack;
 import org.mockbukkit.mockbukkit.util.UnsafeValuesMock;

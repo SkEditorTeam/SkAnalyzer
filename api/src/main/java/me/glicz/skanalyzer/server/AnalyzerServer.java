@@ -1,8 +1,11 @@
-package me.glicz.skanalyzer.mockbukkit;
+package me.glicz.skanalyzer.server;
 
 import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.loader.AddonsLoader;
+import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
+import me.glicz.skanalyzer.server.scheduler.AnalyzerScheduler;
+import me.glicz.skanalyzer.server.structure.AnalyzerStructureManager;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

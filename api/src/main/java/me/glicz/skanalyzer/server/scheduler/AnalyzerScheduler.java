@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.mockbukkit;
+package me.glicz.skanalyzer.server.scheduler;
 
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;

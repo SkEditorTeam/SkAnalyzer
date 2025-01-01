@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.mockbukkit;
+package me.glicz.skanalyzer.server.structure;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.structure.Structure;
