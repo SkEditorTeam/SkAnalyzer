@@ -17,15 +17,11 @@ public class LevelFilter extends Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(ILoggingEvent event) {
-        if (!isStarted()) {
+        if (!isStarted() || matcher.predicate.test(event.getLevel(), level)) {
             return FilterReply.NEUTRAL;
         }
 
-        if (matcher.predicate.test(event.getLevel(), level)) {
-            return FilterReply.NEUTRAL;
-        } else {
-            return FilterReply.DENY;
-        }
+        return FilterReply.DENY;
     }
 
     @Override

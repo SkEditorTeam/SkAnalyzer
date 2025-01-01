@@ -12,7 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.loot.LootTable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
@@ -65,17 +65,17 @@ public class AnalyzerServer extends ServerMock {
     }
 
     @Override
-    public @NotNull String getName() {
+    public String getName() {
         return "SkAnalyzer";
     }
 
     @Override
-    public @NotNull Logger getLogger() {
+    public Logger getLogger() {
         return logger;
     }
 
     @Override
-    public @NotNull BlockData createBlockData(String data) {
+    public BlockData createBlockData(String data) {
         String rawMaterial = (data.indexOf('[') == -1)
                 ? data
                 : data.substring(0, data.indexOf('['));
@@ -87,12 +87,12 @@ public class AnalyzerServer extends ServerMock {
     }
 
     @Override
-    public @NotNull BlockData createBlockData(Material material, String data) {
+    public BlockData createBlockData(Material material, String data) {
         return createBlockData(material);
     }
 
     @Override
-    public LootTable getLootTable(NamespacedKey key) {
+    public @Nullable LootTable getLootTable(NamespacedKey key) {
         return null;
     }
 

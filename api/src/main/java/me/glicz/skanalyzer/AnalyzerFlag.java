@@ -1,6 +1,7 @@
 package me.glicz.skanalyzer;
 
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public enum AnalyzerFlag {
 
     private final String arg;
 
-    public static AnalyzerFlag getByArg(String arg) {
+    public static @Nullable AnalyzerFlag getByArg(String arg) {
         return ARG_TO_FLAG.get(arg);
     }
 }

@@ -10,6 +10,8 @@ import me.glicz.skanalyzer.server.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -27,9 +29,9 @@ public class AddonsLoader {
     private final Map<String, JavaPlugin> addons = new HashMap<>();
     private final SkAnalyzer skAnalyzer;
     private final AnalyzerServer server;
-    private JavaPlugin skript;
+    private @MonotonicNonNull JavaPlugin skript;
     @Getter
-    private MockSkriptBridge mockSkriptBridge;
+    private @MonotonicNonNull MockSkriptBridge mockSkriptBridge;
 
     public File getAddonsDirectory() {
         return new File(skAnalyzer.getWorkingDirectory(), "Addons");
@@ -78,7 +80,7 @@ public class AddonsLoader {
         );
     }
 
-    private JavaPlugin initSimpleAddon(File file) {
+    private @Nullable JavaPlugin initSimpleAddon(File file) {
         Class<?> pluginClass = initAddon(file);
 
         if (pluginClass == null) return null;
@@ -94,7 +96,7 @@ public class AddonsLoader {
         return null;
     }
 
-    private MockSkriptBridge initMockSkriptBridge() {
+    private @Nullable MockSkriptBridge initMockSkriptBridge() {
         File file = new File(getAddonsDirectory(), MOCK_SKRIPT_BRIDGE_FILE);
         Class<?> pluginClass = initAddon(file);
 
@@ -112,7 +114,7 @@ public class AddonsLoader {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private Class<?> initAddon(File file) {
+    private @Nullable Class<?> initAddon(File file) {
         if (skript != null && file.getName().equals(MOCK_SKRIPT_FILE)) return null;
         if (mockSkriptBridge != null && file.getName().equals(MOCK_SKRIPT_BRIDGE_FILE)) return null;
 

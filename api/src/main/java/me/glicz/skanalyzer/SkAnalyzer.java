@@ -11,9 +11,10 @@ import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -43,10 +44,10 @@ public class SkAnalyzer {
     private final LoggerType loggerType;
     private final Logger logger;
     private final File workingDirectory;
-    private AnalyzerServer server;
+    private @MonotonicNonNull AnalyzerServer server;
     private boolean started;
 
-    private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, File workingDirectory) {
+    private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, @Nullable File workingDirectory) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
 
@@ -58,7 +59,7 @@ public class SkAnalyzer {
     }
 
     @Contract(" -> new")
-    public static @NotNull Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -156,7 +157,7 @@ public class SkAnalyzer {
         private LoggerType loggerType = Optional.ofNullable(System.getProperty(LOGGER_TYPE_PROPERTY))
                 .map(loggerType -> EnumUtils.getEnumIgnoreCase(LoggerType.class, loggerType))
                 .orElse(LoggerType.NORMAL);
-        private File workingDirectory = Optional.ofNullable(System.getProperty(WORKING_DIR_PROPERTY))
+        private @Nullable File workingDirectory = Optional.ofNullable(System.getProperty(WORKING_DIR_PROPERTY))
                 .map(File::new)
                 .orElse(null);
 
@@ -164,7 +165,7 @@ public class SkAnalyzer {
             return flags;
         }
 
-        public Builder flags(@NotNull AnalyzerFlag @NotNull ... flags) {
+        public Builder flags(AnalyzerFlag... flags) {
             this.flags = flags;
             return this;
         }

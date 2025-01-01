@@ -11,8 +11,7 @@ import me.glicz.skanalyzer.plugin.rewriter.PluginRewriter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.plugin.MockBukkitPluginClassLoaderGroup;
 
 import java.io.File;
@@ -34,7 +33,7 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
         ClassLoader.registerAsParallelCapable();
     }
 
-    @Getter(onMethod_ = {@NotNull})
+    @Getter
     private final PluginClassLoaderGroup group = new MockBukkitPluginClassLoaderGroup();
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
     @Getter
@@ -42,8 +41,8 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
     private final File dataFolder, file;
     private final URL url;
     private final JarFile jarFile;
-    private final Manifest manifest;
-    private JavaPlugin plugin;
+    private final @Nullable Manifest manifest;
+    private @Nullable JavaPlugin plugin;
 
     public PluginClassLoader(ClassLoader parent, PluginDescriptionFile description, File dataFolder, File file, JarFile jarFile) throws Exception {
         super(file.getName(), new URL[]{file.toURI().toURL()}, parent);
@@ -61,7 +60,7 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
     }
 
     @Override
-    public Class<?> loadClass(@NotNull String name, boolean resolve, boolean checkGlobal, boolean checkLibraries) throws ClassNotFoundException {
+    public Class<?> loadClass(String name, boolean resolve, boolean checkGlobal, boolean checkLibraries) throws ClassNotFoundException {
         return loadClass0(name, resolve, checkGlobal);
     }
 

@@ -1,7 +1,6 @@
 package me.glicz.skanalyzer.server.scheduler;
 
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 
 import java.util.concurrent.Callable;
@@ -10,7 +9,7 @@ import java.util.concurrent.Future;
 
 public class AnalyzerScheduler extends BukkitSchedulerMock {
     @Override
-    public synchronized @NotNull <T> Future<T> callSyncMethod(@NotNull Plugin plugin, @NotNull Callable<T> task) {
+    public synchronized <T> Future<T> callSyncMethod(Plugin plugin, Callable<T> task) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return task.call();
