@@ -67,23 +67,32 @@ public class SkAnalyzerApp {
     }
 
     private void startReadingInput() {
-        Thread thread = new Thread() {
+        Thread thread = new Thread("Command Input Thread") {
             private final Scanner scanner = new Scanner(System.in);
 
             @Override
             public void run() {
                 while (!Thread.interrupted()) {
-                    if (scanner.hasNext()) {
-                        String line = scanner.nextLine();
-                        if (line != null) {
-                            if (line.isBlank()) return;
-
-                            String[] args = line.split(" ");
-                            commandRegistry.getCommand(args[0]).ifPresentOrElse(
-                                    command -> command.execute(Arrays.copyOfRange(args, 1, args.length)),
-                                    () -> skAnalyzer.getLogger().error("Unknown command: {}", args[0])
-                            );
+                    try {
+                        if (!scanner.hasNext()) {
+                            continue;
                         }
+
+                        String line = scanner.nextLine();
+                        if (line == null || line.isBlank()) {
+                            continue;
+                        }
+
+                        String[] args = line.split(" ");
+                        commandRegistry.getCommand(args[0]).ifPresentOrElse(
+                                command -> command.execute(Arrays.copyOfRange(args, 1, args.length)),
+                                () -> skAnalyzer.getLogger().error("Unknown command: {}", args[0])
+                        );
+                    } catch (Exception e) {
+                        skAnalyzer.getLogger().atError()
+                                .addArgument(Thread.currentThread())
+                                .setCause(e)
+                                .log("An exception occurred in {}. You should report this issue immediately.");
                     }
                 }
             }
