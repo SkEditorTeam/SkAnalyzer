@@ -3,6 +3,7 @@ package me.glicz.skanalyzer.server;
 import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.loader.AddonsLoader;
+import me.glicz.skanalyzer.server.command.AnalyzerConsoleCommandSender;
 import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
 import me.glicz.skanalyzer.server.scheduler.AnalyzerScheduler;
 import me.glicz.skanalyzer.server.structure.AnalyzerStructureManager;
@@ -29,6 +30,7 @@ public class AnalyzerServer extends ServerMock {
     private final Logger logger = Logger.getLogger("Server");
     private final SkAnalyzer skAnalyzer;
     private final AddonsLoader addonsLoader;
+    private @Nullable AnalyzerConsoleCommandSender consoleSender;
 
     public AnalyzerServer(SkAnalyzer skAnalyzer) {
         this.skAnalyzer = skAnalyzer;
@@ -69,9 +71,8 @@ public class AnalyzerServer extends ServerMock {
         return "SkAnalyzer";
     }
 
-    @Override
-    public Logger getLogger() {
-        return logger;
+    public AnalyzerConsoleCommandSender getConsoleSender() {
+        return consoleSender != null ? consoleSender : (consoleSender = new AnalyzerConsoleCommandSender());
     }
 
     @Override

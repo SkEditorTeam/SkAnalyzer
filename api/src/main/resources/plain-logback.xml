@@ -1,5 +1,7 @@
 <configuration>
-    <property name="LOG_PATTERN" value="%level [%logger{36}] %msg%n%xEx{full}" />
+    <conversionRule conversionWord="effectiveLogger" converterClass="me.glicz.skanalyzer.logback.converter.EffectiveLoggerConverter"/>
+
+    <property name="LOG_PATTERN" value="%level %effectiveLogger{36}%msg%n%xEx{full}" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
