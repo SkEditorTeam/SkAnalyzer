@@ -32,17 +32,17 @@
         </filter>
     </appender>
 
-    <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="MULTI_APPENDER" class="me.glicz.skanalyzer.logback.appender.MultiAppender">
         <appender-ref ref="STDOUT"/>
-    </appender>
-
-    <appender name="ASYNC_STDERR" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="STDERR"/>
     </appender>
 
+    <appender name="ASYNC_APPENDER" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="MULTI_APPENDER"/>
+    </appender>
+
     <root level="info">
-        <appender-ref ref="ASYNC_STDOUT"/>
-        <appender-ref ref="ASYNC_STDERR"/>
+        <appender-ref ref="ASYNC_APPENDER"/>
     </root>
 
     <logger name="BukkitSchedulerMock" level="OFF"/>
