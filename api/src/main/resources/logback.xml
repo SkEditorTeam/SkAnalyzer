@@ -9,6 +9,7 @@
     <property name="LOG_PATTERN" value="[%d{HH:mm:ss}] %highlight(%-5level) %effectiveLogger{36}%msg%n%xEx{full}"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
         <target>System.out</target>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
@@ -20,6 +21,7 @@
     </appender>
 
     <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
         <target>System.err</target>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>

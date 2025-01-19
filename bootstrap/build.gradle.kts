@@ -28,6 +28,10 @@ tasks{
 
         doFirst {
             workingDir(project.rootDir.resolve("run").apply { mkdirs() })
+
+            if (System.getProperty("idea.active")?.toBoolean() == true) {
+                jvmArgs("-Djansi.passthrough=true")
+            }
         }
     }
 }

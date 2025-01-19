@@ -7,35 +7,29 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
-import org.apache.commons.lang3.EnumUtils;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Getter
 public class SkAnalyzer {
-    public static final String LOGGER_TYPE_PROPERTY = "skanalyzer.loggerType";
-
     private final EnumSet<AnalyzerFlag> flags;
-    private final LoggerType loggerType;
     private final Logger logger;
     private @MonotonicNonNull AnalyzerServer server;
     private boolean started;
 
-    private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType) {
+    private SkAnalyzer(AnalyzerFlag[] flags) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
 
-        this.loggerType = loggerType;
-        this.loggerType.loadConfiguration();
-        this.logger = loggerType.getLogger();
+        this.logger = LoggerFactory.getLogger(getClass().getSimpleName());
     }
 
     @Contract(" -> new")
@@ -107,9 +101,6 @@ public class SkAnalyzer {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
         private AnalyzerFlag[] flags = {};
-        private LoggerType loggerType = Optional.ofNullable(System.getProperty(LOGGER_TYPE_PROPERTY))
-                .map(loggerType -> EnumUtils.getEnumIgnoreCase(LoggerType.class, loggerType))
-                .orElse(LoggerType.NORMAL);
 
         public AnalyzerFlag[] flags() {
             return flags;
@@ -121,7 +112,7 @@ public class SkAnalyzer {
         }
 
         public SkAnalyzer build() {
-            return new SkAnalyzer(flags, loggerType);
+            return new SkAnalyzer(flags);
         }
     }
 }
