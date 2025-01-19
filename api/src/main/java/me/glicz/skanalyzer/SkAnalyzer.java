@@ -1,61 +1,41 @@
 package me.glicz.skanalyzer;
 
-import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import me.glicz.skanalyzer.loader.AddonsLoader;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
-import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Getter
 public class SkAnalyzer {
     public static final String LOGGER_TYPE_PROPERTY = "skanalyzer.loggerType";
-    public static final String WORKING_DIR_PROPERTY = "skanalyzer.workingDir";
-
-    private static final File USER_HOME_DIR = new File(System.getProperty("user.home"));
-
-    static {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-    }
 
     private final EnumSet<AnalyzerFlag> flags;
     private final LoggerType loggerType;
     private final Logger logger;
-    private final File workingDirectory;
     private @MonotonicNonNull AnalyzerServer server;
     private boolean started;
 
-    private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType, @Nullable File workingDirectory) {
+    private SkAnalyzer(AnalyzerFlag[] flags, LoggerType loggerType) {
         this.flags = EnumSet.noneOf(AnalyzerFlag.class);
         this.flags.addAll(List.of(flags));
 
         this.loggerType = loggerType;
         this.loggerType.loadConfiguration();
         this.logger = loggerType.getLogger();
-
-        this.workingDirectory = Objects.requireNonNullElse(workingDirectory, new File(USER_HOME_DIR, "SkAnalyzer"));
     }
 
     @Contract(" -> new")
@@ -89,7 +69,6 @@ public class SkAnalyzer {
 
             server.addSimpleWorld("world");
 
-            extractEmbeddedAddons(server.getAddonsLoader());
             server.getAddonsLoader().loadAddons();
 
             future.complete(server);
@@ -123,32 +102,6 @@ public class SkAnalyzer {
         server.getAddonsLoader().getMockSkriptBridge().unloadAllScripts();
     }
 
-    private void extractEmbeddedAddons(AddonsLoader addonsLoader) {
-        if (flags.contains(AnalyzerFlag.SKIP_EXTRACTING_ADDONS)) {
-            logger.warn("{} flag is present! This means that default embedded addons (and Skript) won't be extracted. " +
-                            "If you're not sure what may it cause, remove it immediately!",
-                    AnalyzerFlag.SKIP_EXTRACTING_ADDONS.name()
-            );
-            return;
-        }
-
-        logger.info("Extracting embedded addons...");
-
-        extractEmbeddedAddon(addonsLoader, AddonsLoader.MOCK_SKRIPT_FILE);
-        extractEmbeddedAddon(addonsLoader, AddonsLoader.MOCK_SKRIPT_BRIDGE_FILE);
-
-        logger.info("Successfully extracted embedded addons!");
-    }
-
-    private void extractEmbeddedAddon(AddonsLoader addonsLoader, String name) {
-        try (InputStream embeddedJar = getClass().getClassLoader().getResourceAsStream(name + ".embedded")) {
-            Preconditions.checkArgument(embeddedJar != null, "Couldn't find embedded %s", name);
-            FileUtils.copyInputStreamToFile(embeddedJar, new File(addonsLoader.getAddonsDirectory(), name));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Data
     @Accessors(fluent = true, chain = true)
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -157,9 +110,6 @@ public class SkAnalyzer {
         private LoggerType loggerType = Optional.ofNullable(System.getProperty(LOGGER_TYPE_PROPERTY))
                 .map(loggerType -> EnumUtils.getEnumIgnoreCase(LoggerType.class, loggerType))
                 .orElse(LoggerType.NORMAL);
-        private @Nullable File workingDirectory = Optional.ofNullable(System.getProperty(WORKING_DIR_PROPERTY))
-                .map(File::new)
-                .orElse(null);
 
         public AnalyzerFlag[] flags() {
             return flags;
@@ -171,7 +121,7 @@ public class SkAnalyzer {
         }
 
         public SkAnalyzer build() {
-            return new SkAnalyzer(flags, loggerType, workingDirectory);
+            return new SkAnalyzer(flags, loggerType);
         }
     }
 }

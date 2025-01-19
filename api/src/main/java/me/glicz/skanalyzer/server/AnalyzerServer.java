@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.util.logging.Logger;
 
@@ -33,6 +34,9 @@ public class AnalyzerServer extends ServerMock {
     private @Nullable AnalyzerConsoleCommandSender consoleSender;
 
     public AnalyzerServer(SkAnalyzer skAnalyzer) {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+
         this.skAnalyzer = skAnalyzer;
         this.addonsLoader = new AddonsLoader(skAnalyzer, this);
     }

@@ -34,7 +34,7 @@ public class AddonsLoader {
     private @MonotonicNonNull MockSkriptBridge mockSkriptBridge;
 
     public File getAddonsDirectory() {
-        return new File(skAnalyzer.getWorkingDirectory(), "Addons");
+        return new File("plugins");
     }
 
     @SuppressWarnings({"deprecation"})

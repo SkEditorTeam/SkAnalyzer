@@ -22,22 +22,6 @@ java {
     withSourcesJar()
 }
 
-tasks {
-    jar {
-        listOf(project(":MockSkript"), project(":MockSkriptBridge")).forEach { addon ->
-            addon.tasks.apply {
-                dependsOn(clean)
-                dependsOn(jar)
-
-                from(jar.get().outputs.files.singleFile) {
-                    include("*.jar")
-                    rename { "${addon.name}.jar.embedded" }
-                }
-            }
-        }
-    }
-}
-
 publishing {
     repositories {
         val repoType = if (version.toString().endsWith("-SNAPSHOT")) "snapshots" else "releases"
@@ -48,7 +32,6 @@ publishing {
     }
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "${rootProject.name.lowercase()}-${project.name.lowercase()}"
             from(components["java"])
         }
     }

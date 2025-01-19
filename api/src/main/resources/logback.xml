@@ -1,7 +1,12 @@
 <configuration>
-    <conversionRule conversionWord="effectiveLogger" converterClass="me.glicz.skanalyzer.logback.converter.EffectiveLoggerConverter"/>
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
 
-    <property name="LOG_PATTERN" value="[%d{HH:mm:ss}] %highlight(%-5level) %effectiveLogger{36}%msg%n%xEx{full}" />
+    <conversionRule conversionWord="effectiveLogger"
+                    converterClass="me.glicz.skanalyzer.logback.converter.EffectiveLoggerConverter"/>
+
+    <property name="LOG_PATTERN" value="[%d{HH:mm:ss}] %highlight(%-5level) %effectiveLogger{36}%msg%n%xEx{full}"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
