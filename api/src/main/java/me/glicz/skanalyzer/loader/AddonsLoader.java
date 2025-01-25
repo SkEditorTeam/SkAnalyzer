@@ -57,7 +57,7 @@ public class AddonsLoader {
             try {
                 loadAddon(addon);
             } catch (NullPointerException e) {
-                skAnalyzer.getLogger().error("Something went wrong while trying to load %s".formatted(addon.getName()), e);
+                addon.getSLF4JLogger().error("Something went wrong while trying to load %s".formatted(addon.getName()), e);
                 addons.remove(addon.getName());
             }
         });
@@ -65,8 +65,8 @@ public class AddonsLoader {
         addons.values().forEach(addon -> {
             try {
                 server.getPluginManager().enablePlugin(addon);
-            } catch (Exception e) {
-                skAnalyzer.getLogger().error("Something went wrong while trying to enable %s".formatted(addon.getName()), e);
+            } catch (Throwable e) {
+                addon.getSLF4JLogger().error("Something went wrong while trying to enable %s".formatted(addon.getName()), e);
                 server.getPluginManager().disablePlugin(addon);
             }
         });

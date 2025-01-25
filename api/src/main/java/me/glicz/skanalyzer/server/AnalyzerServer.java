@@ -13,12 +13,18 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.loot.LootTable;
+import org.bukkit.scoreboard.Criteria;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
+import org.mockbukkit.mockbukkit.scoreboard.CriteriaMock;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Getter
@@ -28,6 +34,9 @@ public class AnalyzerServer extends ServerMock {
     private final FoliaAsyncScheduler foliaAsyncScheduler = new FoliaAsyncScheduler(scheduler);
     private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
+
+    private final Map<String, Criteria> scoreboardCriteria = new HashMap<>();
+
     private final Logger logger = Logger.getLogger("Server");
     private final SkAnalyzer skAnalyzer;
     private final AddonsLoader addonsLoader;
@@ -39,6 +48,8 @@ public class AnalyzerServer extends ServerMock {
 
         this.skAnalyzer = skAnalyzer;
         this.addonsLoader = new AddonsLoader(skAnalyzer, this);
+
+        setPauseWhenEmptyTime(-1);
     }
 
     @SuppressWarnings({"InfiniteLoopStatement", "BusyWait"})
@@ -77,6 +88,15 @@ public class AnalyzerServer extends ServerMock {
 
     public AnalyzerConsoleCommandSender getConsoleSender() {
         return consoleSender != null ? consoleSender : (consoleSender = new AnalyzerConsoleCommandSender());
+    }
+
+    @Override
+    public Criteria getScoreboardCriteria(@NotNull String name) {
+        return scoreboardCriteria.computeIfAbsent(name, CriteriaMock::new);
+    }
+
+    public Map<String, Criteria> getScoreboardCriteria() {
+        return Collections.unmodifiableMap(scoreboardCriteria);
     }
 
     @Override
