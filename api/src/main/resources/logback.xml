@@ -4,7 +4,7 @@
     </contextListener>
 
     <conversionRule conversionWord="effectiveLogger"
-                    converterClass="me.glicz.skanalyzer.logback.converter.EffectiveLoggerConverter"/>
+                    converterClass="me.glicz.skanalyzer.util.logback.converter.EffectiveLoggerConverter"/>
 
     <property name="LOG_PATTERN" value="[%d{HH:mm:ss}] %highlight(%-5level) %effectiveLogger{36}%msg%n%xEx{full}"/>
 
@@ -14,7 +14,7 @@
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
-        <filter class="me.glicz.skanalyzer.logback.filter.LevelFilter">
+        <filter class="me.glicz.skanalyzer.util.logback.filter.LevelFilter">
             <level>INFO</level>
             <matcher>LOWER_OR_EQUAL</matcher>
         </filter>
@@ -26,13 +26,13 @@
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
-        <filter class="me.glicz.skanalyzer.logback.filter.LevelFilter">
+        <filter class="me.glicz.skanalyzer.util.logback.filter.LevelFilter">
             <level>WARN</level>
             <matcher>HIGHER_OR_EQUAL</matcher>
         </filter>
     </appender>
 
-    <appender name="MULTI_APPENDER" class="me.glicz.skanalyzer.logback.appender.MultiAppender">
+    <appender name="MULTI_APPENDER" class="me.glicz.skanalyzer.util.logback.appender.MultiAppender">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="STDERR"/>
     </appender>

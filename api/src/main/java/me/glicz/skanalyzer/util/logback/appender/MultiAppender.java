@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.logback.appender;
+package me.glicz.skanalyzer.util.logback.appender;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;

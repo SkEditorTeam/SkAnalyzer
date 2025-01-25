@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.logback.converter;
+package me.glicz.skanalyzer.util.logback.converter;
 
 import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;

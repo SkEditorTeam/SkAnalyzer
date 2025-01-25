@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.logback.filter;
+package me.glicz.skanalyzer.util.logback.filter;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;

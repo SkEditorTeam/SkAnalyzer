@@ -1,4 +1,4 @@
 @NullMarked
-package me.glicz.skanalyzer.logback.filter;
+package me.glicz.skanalyzer.util.logback.filter;
 
 import org.jspecify.annotations.NullMarked;
