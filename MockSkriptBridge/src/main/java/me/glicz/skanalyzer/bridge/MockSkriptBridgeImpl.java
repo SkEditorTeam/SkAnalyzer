@@ -12,8 +12,7 @@ import ch.njol.skript.structures.StructCommand;
 import ch.njol.skript.structures.StructEvent;
 import ch.njol.skript.structures.StructFunction;
 import ch.njol.skript.structures.StructOptions;
-import me.glicz.skanalyzer.AnalyzerFlag;
-import me.glicz.skanalyzer.SkAnalyzer;
+import me.glicz.skanalyzer.AnalyzerHookType;
 import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
 import me.glicz.skanalyzer.bridge.util.FilesUtil;
 import me.glicz.skanalyzer.result.AnalyzeResult;
@@ -34,34 +33,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
-    public MockSkriptBridgeImpl(SkAnalyzer skAnalyzer) {
-        super(skAnalyzer);
-    }
-
     @Override
-    public void onLoad() {
-        parseFlags();
-    }
-
-    public void parseFlags() {
-        if (skAnalyzer.getFlags().contains(AnalyzerFlag.FORCE_VAULT_HOOK)) {
-            try {
+    public void forceLoadHook(AnalyzerHookType type) throws IOException {
+        switch (type) {
+            case VAULT -> {
                 String basePackage = VaultHook.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage + ".economy");
                 Skript.getAddonInstance().loadClasses(basePackage + ".chat");
                 Skript.getAddonInstance().loadClasses(basePackage + ".permission");
-                skAnalyzer.getLogger().info("Force loaded Vault hook");
-            } catch (IOException e) {
-                skAnalyzer.getLogger().error("Something went wrong while trying to force load Vault hook", e);
             }
-        }
-        if (skAnalyzer.getFlags().contains(AnalyzerFlag.FORCE_REGIONS_HOOK)) {
-            try {
+            case REGIONS -> {
                 String basePackage = RegionsPlugin.class.getPackage().getName();
                 Skript.getAddonInstance().loadClasses(basePackage);
-                skAnalyzer.getLogger().info("Force loaded regions hook");
-            } catch (IOException e) {
-                skAnalyzer.getLogger().error("Something went wrong while trying to force load regions hook", e);
             }
         }
     }
@@ -70,35 +53,29 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     public CompletableFuture<AnalyzeResults> parseScript(String path, boolean load) {
         File file = new File(path);
         if (!file.exists() || (!file.getName().endsWith(".sk") && !(file.isDirectory() && load))) {
-            skAnalyzer.getLogger().error("Invalid file path");
-            return CompletableFuture.failedFuture(new InvalidPathException(path, "Provided file doesn't end with '.sk'"));
+            return CompletableFuture.failedFuture(new InvalidPathException(path, "provided file doesn't end with '.sk'"));
         }
 
         Set<File> files = FilesUtil.listScripts(file);
-        CachingLogHandler logHandler = new CachingLogHandler().start();
-        return ScriptLoader.loadScripts(files, logHandler)
-                .handle((info, throwable) -> {
-                    if (throwable != null) {
-                        skAnalyzer.getLogger().error("Something went wrong while trying to parse '%s'".formatted(path), throwable);
-                        throw new RuntimeException(throwable);
-                    }
-                    return info;
-                })
-                .thenApply(info -> {
-                    AnalyzeResults results = new AnalyzeResults(buildAnalyzeResults(files, logHandler));
-                    if (!load) {
-                        unloadScript(path);
-                    }
-                    return results;
-                });
+
+        try (CachingLogHandler logHandler = new CachingLogHandler().start()) {
+            return ScriptLoader.loadScripts(files, logHandler)
+                    .thenApply(info -> {
+                        AnalyzeResults results = new AnalyzeResults(buildAnalyzeResults(files, logHandler));
+                        if (!load) {
+                            unloadScript(path);
+                        }
+
+                        return results;
+                    });
+        }
     }
 
     @Override
     public boolean unloadScript(String path) {
         File file = new File(path);
         if (!file.exists() || !file.getName().endsWith(".sk")) {
-            skAnalyzer.getLogger().error("Invalid file path");
-            return false;
+            throw new InvalidPathException(path, "provided file doesn't end with '.sk'");
         }
 
         Script script = ScriptLoader.getScript(file);
@@ -106,6 +83,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
             ScriptLoader.unloadScript(script);
             return true;
         }
+
         return false;
     }
 

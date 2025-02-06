@@ -2,7 +2,7 @@ package me.glicz.skanalyzer.server;
 
 import lombok.Getter;
 import me.glicz.skanalyzer.SkAnalyzer;
-import me.glicz.skanalyzer.loader.AddonsLoader;
+import me.glicz.skanalyzer.plugin.loader.AnalyzerPluginLoader;
 import me.glicz.skanalyzer.server.command.AnalyzerConsoleCommandSender;
 import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
 import me.glicz.skanalyzer.server.scheduler.AnalyzerScheduler;
@@ -39,7 +39,7 @@ public class AnalyzerServer extends ServerMock {
 
     private final Logger logger = Logger.getLogger("Server");
     private final SkAnalyzer skAnalyzer;
-    private final AddonsLoader addonsLoader;
+    private final AnalyzerPluginLoader pluginLoader;
     private @Nullable AnalyzerConsoleCommandSender consoleSender;
 
     public AnalyzerServer(SkAnalyzer skAnalyzer) {
@@ -47,7 +47,7 @@ public class AnalyzerServer extends ServerMock {
         SLF4JBridgeHandler.install();
 
         this.skAnalyzer = skAnalyzer;
-        this.addonsLoader = new AddonsLoader(skAnalyzer, this);
+        this.pluginLoader = new AnalyzerPluginLoader(this);
 
         setPauseWhenEmptyTime(-1);
     }

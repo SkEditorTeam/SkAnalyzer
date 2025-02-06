@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
+import org.bukkit.plugin.PluginLoadOrder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
@@ -14,9 +16,12 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import static java.util.Objects.requireNonNull;
 
 @Getter
 public class SkAnalyzer {
@@ -61,9 +66,22 @@ public class SkAnalyzer {
         Thread thread = new Thread(() -> {
             AnalyzerServer server = MockBukkit.mock(new AnalyzerServer(this));
 
+            server.getPluginLoader().initPlugins();
+            server.getPluginLoader().loadPlugins();
+
+            if (flags.contains(AnalyzerFlag.FORCE_VAULT_HOOK)) {
+                forceLoadHook(AnalyzerHookType.VAULT);
+            }
+
+            if (flags.contains(AnalyzerFlag.FORCE_REGIONS_HOOK)) {
+                forceLoadHook(AnalyzerHookType.REGIONS);
+            }
+
+            server.getPluginLoader().enablePlugins(PluginLoadOrder.STARTUP);
+
             server.addSimpleWorld("world");
 
-            server.getAddonsLoader().loadAddons();
+            server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
 
             future.complete(server);
 
@@ -75,9 +93,27 @@ public class SkAnalyzer {
         return future;
     }
 
+    private void forceLoadHook(AnalyzerHookType type) {
+        String name = switch (type) {
+            case VAULT -> "Vault";
+            case REGIONS -> "regions";
+        };
+
+        try {
+            mockSkriptBridge().forceLoadHook(type);
+            getLogger().info("Successfully force loaded {} hook", name);
+        } catch (IOException e) {
+            getLogger().error("Something went wrong while trying to force load {} hook", name, e);
+        }
+    }
+
     @Unmodifiable
     public EnumSet<AnalyzerFlag> getFlags() {
         return EnumSet.copyOf(flags);
+    }
+
+    private MockSkriptBridge mockSkriptBridge() {
+        return requireNonNull(server.getServicesManager().getRegistration(MockSkriptBridge.class)).getProvider();
     }
 
     public CompletableFuture<AnalyzeResults> parseScript(String path) {
@@ -85,15 +121,15 @@ public class SkAnalyzer {
     }
 
     public CompletableFuture<AnalyzeResults> parseScript(String path, boolean load) {
-        return server.getAddonsLoader().getMockSkriptBridge().parseScript(path, load);
+        return mockSkriptBridge().parseScript(path, load);
     }
 
     public boolean unloadScript(String path) {
-        return server.getAddonsLoader().getMockSkriptBridge().unloadScript(path);
+        return mockSkriptBridge().unloadScript(path);
     }
 
     public void unloadAllScripts() {
-        server.getAddonsLoader().getMockSkriptBridge().unloadAllScripts();
+        mockSkriptBridge().unloadAllScripts();
     }
 
     @Data

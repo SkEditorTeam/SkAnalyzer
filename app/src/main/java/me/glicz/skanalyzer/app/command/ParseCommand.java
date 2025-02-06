@@ -1,21 +1,17 @@
 package me.glicz.skanalyzer.app.command;
 
 import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.result.AnalyzeResults;
 
-public class ParseCommand extends Command {
+import java.util.concurrent.CompletableFuture;
+
+public class ParseCommand extends AbstractParseCommand {
     public ParseCommand(SkAnalyzerApp app) {
         super(app, "parse", "Parses specified script");
     }
 
     @Override
-    public void execute(String[] args) {
-        if (args.length < 1) {
-            app.skAnalyzer().getLogger().error("You need to specify file path");
-            return;
-        }
-
-        app.skAnalyzer().parseScript(String.join(" ", args)).thenAccept(results ->
-                app.skAnalyzer().getLogger().info(results.toString())
-        );
+    protected CompletableFuture<AnalyzeResults> parseScript(String path) {
+        return app.skAnalyzer().parseScript(path, false);
     }
 }

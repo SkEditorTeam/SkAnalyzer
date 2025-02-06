@@ -20,6 +20,7 @@ dependencies {
     api("commons-io:commons-io:2.18.0")
     api("commons-lang:commons-lang:2.6")
     api("org.ow2.asm:asm:9.7.1")
+    api("org.jgrapht:jgrapht-core:1.5.2")
 }
 
 java {

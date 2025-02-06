@@ -12,6 +12,6 @@ dependencies {
 }
 
 bukkit {
-    main = "me.glicz.skanalyzer.bridge.MockSkriptBridgeImpl"
+    main = "me.glicz.skanalyzer.bridge.MockSkriptBridgePlugin"
     depend = listOf("Skript")
 }
