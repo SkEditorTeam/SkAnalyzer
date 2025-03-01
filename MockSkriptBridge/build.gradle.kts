@@ -7,8 +7,8 @@ dependencies {
     compileOnly(project(":MockSkript", "shadow")) {
         exclude("*", "*")
     }
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
 }
 
 bukkit {

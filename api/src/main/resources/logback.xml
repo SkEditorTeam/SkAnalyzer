@@ -4,7 +4,7 @@
     </contextListener>
 
     <conversionRule conversionWord="effectiveLogger"
-                    converterClass="me.glicz.skanalyzer.util.logback.converter.EffectiveLoggerConverter"/>
+                    class="me.glicz.skanalyzer.util.logback.converter.EffectiveLoggerConverter"/>
 
     <property name="LOG_PATTERN" value="[%d{HH:mm:ss}] %highlight(%-5level) %effectiveLogger{36}%msg%n%xEx{full}"/>
 
