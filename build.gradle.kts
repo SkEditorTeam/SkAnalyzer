@@ -1,8 +1,3 @@
-plugins {
-    id("java")
-    id("io.github.goooler.shadow") version "8.1.7" apply false
-}
-
 configure(subprojects.filter { it.name != "MockSkript" }) {
     plugins.apply("java")
 
@@ -12,7 +7,7 @@ configure(subprojects.filter { it.name != "MockSkript" }) {
         maven("https://repo.papermc.io/repository/maven-public/")
     }
 
-    java {
+    extensions.configure<JavaPluginExtension> {
         toolchain.languageVersion = JavaLanguageVersion.of(21)
     }
 
@@ -20,7 +15,7 @@ configure(subprojects.filter { it.name != "MockSkript" }) {
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()
             options.release = 21
-            dependsOn(clean)
+            dependsOn("clean")
         }
     }
 }
