@@ -25,9 +25,9 @@ jobs:
           architecture: x64
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-      - name: Run shadowJar and publish with Gradle Wrapper
-        run: ./gradlew app:shadowJar api:publish -ProxymcUsername=${{ env.REPO_USER }} -ProxymcPassword=${{ env.REPO_PASS }}
+      - name: Run jar and publish with Gradle Wrapper
+        run: ./gradlew bootstrap:jar skanalyzer-api:publish -ProxymcUsername=${{ env.REPO_USER }} -ProxymcPassword=${{ env.REPO_PASS }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: app/build/libs
+          path: bootstrap/build/libs
