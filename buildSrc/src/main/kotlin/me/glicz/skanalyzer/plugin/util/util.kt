@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.plugin.utils
+package me.glicz.skanalyzer.plugin.util
 
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import java.security.MessageDigest

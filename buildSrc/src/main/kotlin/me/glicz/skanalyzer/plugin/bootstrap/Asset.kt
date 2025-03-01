@@ -1,6 +1,6 @@
 package me.glicz.skanalyzer.plugin.bootstrap
 
-import me.glicz.skanalyzer.plugin.utils.stringHash
+import me.glicz.skanalyzer.plugin.util.stringHash
 import java.io.File
 
 abstract class Asset(val hash: ByteArray, val id: String, val path: String, protected val file: File) {
@@ -18,7 +18,7 @@ abstract class Asset(val hash: ByteArray, val id: String, val path: String, prot
 
 abstract class Assets<T : Asset>(val name: String, val list: List<T>) {
     fun write(metaInf: File) {
-        val assetsDir = metaInf.resolve(name);
+        val assetsDir = metaInf.resolve(name)
 
         metaInf.resolve("$name.list")
             .apply { createNewFile() }

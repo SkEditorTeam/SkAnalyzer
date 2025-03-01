@@ -2,12 +2,15 @@ package me.glicz.skanalyzer.plugin
 
 import me.glicz.skanalyzer.plugin.task.ProcessLibraries
 import me.glicz.skanalyzer.plugin.task.ProcessPlugins
-import me.glicz.skanalyzer.plugin.utils.plugin
-import me.glicz.skanalyzer.plugin.utils.runtimeClasspath
+import me.glicz.skanalyzer.plugin.util.plugin
+import me.glicz.skanalyzer.plugin.util.runtimeClasspath
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.registering
+import org.gradle.kotlin.dsl.withType
 
 class SkAnalyzerPlugin : Plugin<Project> {
     override fun apply(project: Project) {
