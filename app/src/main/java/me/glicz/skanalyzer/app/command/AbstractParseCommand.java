@@ -5,6 +5,7 @@ import me.glicz.skanalyzer.result.AnalyzeResults;
 
 import java.nio.file.InvalidPathException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 abstract class AbstractParseCommand extends Command {
     public AbstractParseCommand(SkAnalyzerApp app, String name, String description) {
@@ -25,6 +26,10 @@ abstract class AbstractParseCommand extends Command {
                         app.skAnalyzer().getLogger().info(results.toString())
                 )
                 .exceptionally(throwable -> {
+                    if (throwable instanceof CompletionException e) {
+                        throwable = e.getCause();
+                    }
+
                     if (throwable instanceof InvalidPathException e) {
                         app.skAnalyzer().getLogger().atError()
                                 .addArgument(path)
