@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.requireNonNull;
@@ -31,9 +30,7 @@ public class SkAnalyzer {
     private boolean started;
 
     private SkAnalyzer(AnalyzerFlag[] flags) {
-        this.flags = EnumSet.noneOf(AnalyzerFlag.class);
-        this.flags.addAll(List.of(flags));
-
+        this.flags = flags.length > 0 ? EnumSet.of(flags[0], flags) : EnumSet.noneOf(AnalyzerFlag.class);
         this.logger = LoggerFactory.getLogger(getClass().getSimpleName());
     }
 
