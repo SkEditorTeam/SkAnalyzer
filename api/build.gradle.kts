@@ -7,7 +7,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
 
-    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.34.0") {
+    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.46.4") {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
