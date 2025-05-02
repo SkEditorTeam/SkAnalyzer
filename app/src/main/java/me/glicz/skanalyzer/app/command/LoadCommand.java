@@ -12,6 +12,6 @@ public class LoadCommand extends AbstractParseCommand {
 
     @Override
     protected CompletableFuture<AnalyzeResults> parseScript(String path) {
-        return app.skAnalyzer().parseScript(path, true);
+        return app.skAnalyzer().loadScript(path);
     }
 }

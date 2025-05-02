@@ -12,6 +12,6 @@ public class ParseCommand extends AbstractParseCommand {
 
     @Override
     protected CompletableFuture<AnalyzeResults> parseScript(String path) {
-        return app.skAnalyzer().parseScript(path, false);
+        return app.skAnalyzer().parseScript(path);
     }
 }

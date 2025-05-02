@@ -1,18 +1,29 @@
 package me.glicz.skanalyzer.result.structure.data;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 public final class CommandData extends StructureData {
     private final List<String> aliases;
-    private final String permission;
-    private final String description;
+    private final @Nullable String permission;
+    private final @Nullable String description;
     private final String prefix;
-    private final String usage;
+    private final @Nullable String usage;
     private final List<String> arguments;
 
-    public CommandData(int line, String value, List<String> aliases, String permission,
-                       String description, String prefix, String usage, List<String> arguments) {
+    public CommandData(
+            int line,
+            String value,
+            List<String> aliases,
+            @Nullable String permission,
+            @Nullable String description,
+            String prefix,
+            @Nullable String usage,
+            List<String> arguments
+    ) {
         super(line, value);
+
         this.aliases = List.copyOf(aliases);
         this.permission = permission;
         this.description = description;
@@ -25,11 +36,11 @@ public final class CommandData extends StructureData {
         return aliases;
     }
 
-    public String permission() {
+    public @Nullable String permission() {
         return permission;
     }
 
-    public String description() {
+    public @Nullable String description() {
         return description;
     }
 
@@ -37,7 +48,7 @@ public final class CommandData extends StructureData {
         return prefix;
     }
 
-    public String usage() {
+    public @Nullable String usage() {
         return usage;
     }
 

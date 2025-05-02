@@ -2,8 +2,6 @@ package me.glicz.skanalyzer.app.command;
 
 import me.glicz.skanalyzer.app.SkAnalyzerApp;
 
-import java.nio.file.InvalidPathException;
-
 public class UnloadCommand extends Command {
     public UnloadCommand(SkAnalyzerApp app) {
         super(app, "unload", "Unloads specified script(s)");
@@ -28,11 +26,19 @@ public class UnloadCommand extends Command {
             if (app.skAnalyzer().unloadScript(path)) {
                 app.skAnalyzer().getLogger().info("Successfully unloaded this script");
             }
-        } catch (InvalidPathException e) {
+        } catch (Throwable throwable) {
+            if (throwable instanceof IllegalArgumentException e) {
+                app.skAnalyzer().getLogger().atError()
+                        .addArgument(e.getMessage())
+                        .addArgument(path)
+                        .log("Invalid argument: {} ({})");
+                return;
+            }
+
             app.skAnalyzer().getLogger().atError()
                     .addArgument(path)
-                    .addArgument(e.getMessage())
-                    .log("Invalid file path ('{}'): {}");
+                    .setCause(throwable)
+                    .log("Something went wrong while trying to unload '{}'");
         }
     }
 }

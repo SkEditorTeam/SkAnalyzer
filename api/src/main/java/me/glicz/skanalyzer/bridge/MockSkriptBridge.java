@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class MockSkriptBridge {
     public abstract void forceLoadHook(AnalyzerHookType type) throws IOException;
 
-    public abstract CompletableFuture<AnalyzeResults> parseScript(String path, boolean load);
+    public abstract CompletableFuture<AnalyzeResults> loadScript(String path);
 
     public abstract boolean unloadScript(String path);
 

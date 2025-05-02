@@ -59,11 +59,8 @@ public class SkAnalyzerApp {
         new SkAnalyzerApp(args);
     }
 
-    private AnalyzerFlag[] parseFlags(String[] args) {
-        return Arrays.stream(args)
-                .map(AnalyzerFlag::getByArg)
-                .filter(Objects::nonNull)
-                .toArray(AnalyzerFlag[]::new);
+    private static AnalyzerFlag[] parseFlags(String[] args) {
+        return Arrays.stream(args).map(AnalyzerFlag::getByArg).filter(Objects::nonNull).toArray(AnalyzerFlag[]::new);
     }
 
     private void startReadingInput() {

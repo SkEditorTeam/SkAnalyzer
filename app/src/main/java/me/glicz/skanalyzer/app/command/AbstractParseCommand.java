@@ -3,7 +3,6 @@ package me.glicz.skanalyzer.app.command;
 import me.glicz.skanalyzer.app.SkAnalyzerApp;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 
-import java.nio.file.InvalidPathException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -30,11 +29,11 @@ abstract class AbstractParseCommand extends Command {
                         throwable = e.getCause();
                     }
 
-                    if (throwable instanceof InvalidPathException e) {
+                    if (throwable instanceof IllegalArgumentException e) {
                         app.skAnalyzer().getLogger().atError()
-                                .addArgument(path)
                                 .addArgument(e.getMessage())
-                                .log("Invalid file path ('{}'): {}");
+                                .addArgument(path)
+                                .log("Invalid argument: {} ({})");
                         return null;
                     }
 
