@@ -7,7 +7,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
 
-    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.46.4") {
+    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:v4.52.0") {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
@@ -35,6 +35,7 @@ publishing {
             credentials(PasswordCredentials::class)
         }
     }
+
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
