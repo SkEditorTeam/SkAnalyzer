@@ -11,7 +11,7 @@ public final class SetUtils {
     private SetUtils() {
     }
 
-    public static <T, R> Set<R> mapSet(Set<T> set, Function<T, @Nullable R> mapper, Predicate<@Nullable R> predicate) {
+    public static <T, R> Set<R> transformSet(Set<T> set, Function<T, @Nullable R> mapper, Predicate<@Nullable R> predicate) {
         return set.stream().map(mapper).filter(predicate).collect(Collectors.toSet());
     }
 }

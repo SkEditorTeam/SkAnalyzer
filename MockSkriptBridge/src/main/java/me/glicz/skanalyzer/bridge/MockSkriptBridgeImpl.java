@@ -18,8 +18,8 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.Collections.emptySet;
 import static me.glicz.skanalyzer.bridge.util.AnalyzeUtils.toScriptStructure;
-import static me.glicz.skanalyzer.bridge.util.ObjectUtils.mapValue;
-import static me.glicz.skanalyzer.bridge.util.SetUtils.mapSet;
+import static me.glicz.skanalyzer.bridge.util.ObjectUtils.transformValue;
+import static me.glicz.skanalyzer.bridge.util.SetUtils.transformSet;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
@@ -46,7 +46,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         Set<File> scripts = ScriptUtils.listScripts(file);
 
         // unload already loaded scripts
-        ScriptLoader.unloadScripts(mapSet(
+        ScriptLoader.unloadScripts(transformSet(
                 scripts, ScriptLoader::getScript, Objects::nonNull
         ));
 
@@ -77,8 +77,8 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
         }
 
         Set<Script> scripts = file.isDirectory()
-                ? mapSet(ScriptUtils.listScripts(file), ScriptLoader::getScript, Objects::nonNull)
-                : mapValue(ScriptLoader.getScript(file), Collections::singleton, emptySet());
+                ? transformSet(ScriptUtils.listScripts(file), ScriptLoader::getScript, Objects::nonNull)
+                : transformValue(ScriptLoader.getScript(file), Collections::singleton, emptySet());
         if (scripts.isEmpty()) {
             return false;
         }

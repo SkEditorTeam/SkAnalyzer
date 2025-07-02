@@ -21,7 +21,7 @@ import java.util.*;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toMap;
-import static me.glicz.skanalyzer.bridge.util.ObjectUtils.mapValue;
+import static me.glicz.skanalyzer.bridge.util.ObjectUtils.transformValue;
 import static me.glicz.skanalyzer.bridge.util.ObjectUtils.nonNull;
 import static me.glicz.skanalyzer.bridge.util.StringUtils.emptyToNull;
 
@@ -105,7 +105,7 @@ public final class AnalyzeUtils {
                 LinkedHashMap::new
         ));
 
-        String returnType = mapValue(signature.getReturnType(), ClassInfo::getCodeName);
+        String returnType = ObjectUtils.transformValue(signature.getReturnType(), ClassInfo::getCodeName);
 
         return new FunctionData(line, name, local, parameters, returnType);
     }

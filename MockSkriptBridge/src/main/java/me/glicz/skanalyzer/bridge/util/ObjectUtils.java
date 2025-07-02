@@ -13,11 +13,11 @@ public final class ObjectUtils {
         return value != null ? value : defaultValue;
     }
 
-    public static <T, R> @UnknownNullability R mapValue(@Nullable T value, Function<T, R> function) {
-        return mapValue(value, function, null);
+    public static <T, R> @UnknownNullability R transformValue(@Nullable T value, Function<T, R> function) {
+        return transformValue(value, function, null);
     }
 
-    public static <T, R> @UnknownNullability R mapValue(@Nullable T value, Function<T, R> function, @Nullable R defaultValue) {
+    public static <T, R> @UnknownNullability R transformValue(@Nullable T value, Function<T, R> function, @Nullable R defaultValue) {
         return value != null ? function.apply(value) : defaultValue;
     }
 }
