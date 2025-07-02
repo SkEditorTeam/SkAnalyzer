@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class AnalyzerPluginLoader {
     private final Map<String, JavaPlugin> plugins = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger("PluginLoader");
     private final AnalyzerServer server;
-    private ResolvedPluginLoadOrder pluginLoadOrder;
+    private @MonotonicNonNull ResolvedPluginLoadOrder pluginLoadOrder;
 
     public AnalyzerPluginLoader(AnalyzerServer server) {
         this.server = server;

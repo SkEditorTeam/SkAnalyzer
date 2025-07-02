@@ -8,7 +8,6 @@ import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
 import me.glicz.skanalyzer.server.scheduler.AnalyzerScheduler;
 import me.glicz.skanalyzer.server.structure.AnalyzerStructureManager;
 import net.kyori.adventure.util.Ticks;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
@@ -17,7 +16,6 @@ import org.bukkit.scoreboard.Criteria;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
-import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
 import org.mockbukkit.mockbukkit.scoreboard.CriteriaMock;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -58,7 +56,7 @@ public class AnalyzerServer extends ServerMock {
             while (true) {
                 long start = System.currentTimeMillis();
 
-                ((BukkitSchedulerMock) Bukkit.getScheduler()).performOneTick();
+                scheduler.performOneTick();
 
                 long end = System.currentTimeMillis();
                 long duration = end - start;

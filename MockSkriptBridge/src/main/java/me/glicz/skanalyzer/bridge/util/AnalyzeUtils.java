@@ -105,7 +105,7 @@ public final class AnalyzeUtils {
                 LinkedHashMap::new
         ));
 
-        String returnType = ObjectUtils.transformValue(signature.getReturnType(), ClassInfo::getCodeName);
+        String returnType = transformValue(signature.getReturnType(), ClassInfo::getCodeName);
 
         return new FunctionData(line, name, local, parameters, returnType);
     }
