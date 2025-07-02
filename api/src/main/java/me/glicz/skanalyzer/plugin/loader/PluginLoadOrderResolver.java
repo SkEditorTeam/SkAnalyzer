@@ -1,6 +1,7 @@
 package me.glicz.skanalyzer.plugin.loader;
 
 import com.google.common.collect.Multimaps;
+import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jgrapht.Graph;
@@ -30,20 +31,25 @@ class PluginLoadOrderResolver {
 
         for (JavaPlugin plugin : plugins.values()) {
             String name = plugin.getName();
+            PluginMeta pluginMeta = plugin.getPluginMeta();
 
-            for (String depend : plugin.getPluginMeta().getPluginDependencies()) {
+            for (String depend : pluginMeta.getPluginDependencies()) {
+                if (!dependencyGraph.containsVertex(depend)) {
+                    throw new IllegalStateException("Plugin '" + name + "' depends on missing plugin: '" + depend + "'");
+                }
+
                 dependencyGraph.addEdge(depend, name);
                 adjustLoadOrder(name, depend);
             }
 
-            for (String softDepend : plugin.getPluginMeta().getPluginSoftDependencies()) {
+            for (String softDepend : pluginMeta.getPluginSoftDependencies()) {
                 if (dependencyGraph.containsVertex(softDepend)) {
                     dependencyGraph.addEdge(softDepend, name);
                     adjustLoadOrder(name, softDepend);
                 }
             }
 
-            for (String loadBefore : plugin.getPluginMeta().getLoadBeforePlugins()) {
+            for (String loadBefore : pluginMeta.getLoadBeforePlugins()) {
                 if (dependencyGraph.containsVertex(loadBefore)) {
                     dependencyGraph.addEdge(loadBefore, name);
                     adjustLoadOrder(name, loadBefore);

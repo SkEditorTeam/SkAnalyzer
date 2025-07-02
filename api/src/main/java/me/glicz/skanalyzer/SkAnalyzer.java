@@ -8,13 +8,11 @@ import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 import org.mockbukkit.mockbukkit.MockBukkit;
-import org.mockbukkit.mockbukkit.scheduler.BukkitSchedulerMock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +81,7 @@ public class SkAnalyzer {
             server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
 
             // plugins may schedule some task for server start before actual ticking starts
-            ((BukkitSchedulerMock) Bukkit.getScheduler()).performOneTick();
+            server.getScheduler().performOneTick();
 
             future.complete(server);
 
