@@ -13,7 +13,7 @@ SkAnalyzer is a simple Skript parser created for SkEditor
 
 ## Usage
 > [!NOTE]
-> If you want to use SkAnalyzer in your project, please copyright us
+> If you want to use SkAnalyzer in your project, please credit us
 
 ### As app
 Simply run SkAnalyzer in your command prompt and enter paths to your scripts
