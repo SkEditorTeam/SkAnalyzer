@@ -1,5 +1,5 @@
 configure(subprojects.filter { it.name != "MockSkript" }) {
-    plugins.apply("java")
+    apply<JavaPlugin>()
 
     repositories {
         mavenCentral()

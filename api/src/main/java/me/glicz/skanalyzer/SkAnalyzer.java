@@ -39,11 +39,11 @@ public class SkAnalyzer {
         return new Builder();
     }
 
-    public CompletableFuture<Void> start() {
+    public CompletableFuture<AnalyzerServer> start() {
         return start(false);
     }
 
-    public CompletableFuture<Void> start(boolean daemon) {
+    public CompletableFuture<AnalyzerServer> start(boolean daemon) {
         if (started) {
             return CompletableFuture.failedFuture(new IllegalStateException());
         }
@@ -51,20 +51,23 @@ public class SkAnalyzer {
         started = true;
         logger.info("Enabling...");
 
-        return buildServer(daemon).thenAccept(server -> {
-            this.server = server;
-            logger.info("Successfully enabled. Have fun!");
-        });
+        return buildServer(daemon);
     }
 
     private CompletableFuture<AnalyzerServer> buildServer(boolean daemon) {
         CompletableFuture<AnalyzerServer> future = new CompletableFuture<>();
 
         Thread thread = new Thread(() -> {
-            AnalyzerServer server = MockBukkit.mock(new AnalyzerServer(this));
+            server = MockBukkit.mock(new AnalyzerServer(this));
 
             server.getPluginLoader().initPlugins();
             server.getPluginLoader().loadPlugins();
+
+            server.getPluginLoader().enablePlugins(PluginLoadOrder.STARTUP);
+
+            server.addSimpleWorld("world");
+
+            server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
 
             if (flags.contains(AnalyzerFlag.FORCE_VAULT_HOOK)) {
                 forceLoadHook(AnalyzerHookType.VAULT);
@@ -74,15 +77,10 @@ public class SkAnalyzer {
                 forceLoadHook(AnalyzerHookType.REGIONS);
             }
 
-            server.getPluginLoader().enablePlugins(PluginLoadOrder.STARTUP);
-
-            server.addSimpleWorld("world");
-
-            server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
-
             // plugins may schedule some task for server start before actual ticking starts
             server.getScheduler().performOneTick();
 
+            logger.info("Successfully enabled. Have fun!");
             future.complete(server);
 
             server.startTicking();
