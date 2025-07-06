@@ -12,64 +12,36 @@
 SkAnalyzer is a simple Skript parser created for SkEditor
 
 ## Usage
+
 > [!NOTE]
 > If you want to use SkAnalyzer in your project, please credit us
 
 ### As app
+
 Simply run SkAnalyzer in your command prompt and enter paths to your scripts
 
 You might need to see the [wiki](https://github.com/SkEditorTeam/SkAnalyzer/wiki) for additional features
 
 ### As api
-<details>
-<summary>Java</summary>
 
-In Java you can simply create `SkAnalyzer` using `SkAnalyzerBuilder`, for example:
+Simply create `SkAnalyzer` instance using `SkAnalyzerBuilder`, for example:
+
 ```java
 SkAnalyzer.builder()
     .flags(AnalyzerFlag.FORCE_VAULT_HOOK, AnalyzerFlag.FORCE_REGIONS_HOOK)
     .build();
 ```
-</details>
-
-<details>
-<summary>Other languages</summary>
-
-In other languages you can use [SkAnalyzerBridge](https://github.com/SkEditorTeam/SkAnalyzerBridge), however it doesn't have all features
-
-C# example:
-```cs
-[DllImport("SkAnalyzerBridge.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-static extern void InitJava(byte[] javaHome, byte[] analyzerJar);
-[DllImport("SkAnalyzerBridge.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-static extern void InitAnalyzer(byte analyzerFlags, byte loggerType, byte[] workingDir);
-[DllImport("SkAnalyzerBridge.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.StdCall)]
-static extern IntPtr Parse(byte[] path);
-[DllImport("SkAnalyzerBridge.dll", CallingConvention = CallingConvention.StdCall)]
-static extern void Exit();
-
-var javaHome = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JAVA_HOME")!).ToArray();
-InitJava(javaHome, "SkAnalyzer.jar"u8.ToArray());
-/*
-flag 1 - ForceVaultHook
-flag 2 - ForceRegionsHook
-
-logger 0 - Disabled
-logger 1 - Normal
-logger 2 - Plain
-*/
-InitAnalyzer(1 | 2, 1, []);
-var jsonResult = Marshal.PtrToStringUTF8(Parse("SkAnalyzerTest.sk"u8.ToArray()));
-Exit();
-```
-</details>
 
 ## Compiling
+
 To clone the repository with all the submodules, open command prompt and run
-```
+
+```sh
 git clone https://github.com/SkEditorTeam/SkAnalyzer.git --recurse-submodules
 ```
+
 and after that, run this command in SkAnalyzer folder
-```
-./gradlew shadowJar
+
+```sh
+./gradlew bootstrap:jar
 ``` 
