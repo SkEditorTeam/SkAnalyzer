@@ -21,6 +21,11 @@ dependencies {
     api("commons-lang:commons-lang:2.6")
     api("org.ow2.asm:asm:9.7.1")
     api("org.jgrapht:jgrapht-core:1.5.2")
+
+    // some deps used by plugins, but not necessarily but analyzer
+    runtimeOnly("com.googlecode.json-simple:json-simple:1.1.1") {
+        isTransitive = false
+    }
 }
 
 java {
