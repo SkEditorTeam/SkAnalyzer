@@ -1,12 +1,10 @@
 package me.glicz.skanalyzer;
 
-import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@AllArgsConstructor
 public enum AnalyzerFlag {
     FORCE_VAULT_HOOK("--forceVaultHook"),
     FORCE_REGIONS_HOOK("--forceRegionsHook"),
@@ -21,6 +19,11 @@ public enum AnalyzerFlag {
     }
 
     private final String arg;
+
+    AnalyzerFlag(String arg) {
+        this.arg = arg;
+    }
+
 
     public static @Nullable AnalyzerFlag getByArg(String arg) {
         return ARG_TO_FLAG.get(arg);

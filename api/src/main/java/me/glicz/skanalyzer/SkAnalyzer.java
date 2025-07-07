@@ -1,10 +1,5 @@
 package me.glicz.skanalyzer;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.bridge.MockSkriptBridge;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
@@ -18,11 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 
-@Getter
 public class SkAnalyzer {
     private final EnumSet<AnalyzerFlag> flags;
     private final Logger logger;
@@ -37,6 +33,23 @@ public class SkAnalyzer {
     @Contract(" -> new")
     public static Builder builder() {
         return new Builder();
+    }
+
+    @Unmodifiable
+    public Set<AnalyzerFlag> getFlags() {
+        return unmodifiableSet(flags);
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public AnalyzerServer getServer() {
+        return server;
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
     public CompletableFuture<AnalyzerServer> start() {
@@ -105,11 +118,6 @@ public class SkAnalyzer {
         }
     }
 
-    @Unmodifiable
-    public EnumSet<AnalyzerFlag> getFlags() {
-        return EnumSet.copyOf(flags);
-    }
-
     private MockSkriptBridge mockSkriptBridge() {
         return requireNonNull(server.getServicesManager().getRegistration(MockSkriptBridge.class)).getProvider();
     }
@@ -130,14 +138,10 @@ public class SkAnalyzer {
         mockSkriptBridge().unloadAllScripts();
     }
 
-    @Data
-    @Accessors(fluent = true, chain = true)
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Builder {
+    public static final class Builder {
         private AnalyzerFlag[] flags = {};
 
-        public AnalyzerFlag[] flags() {
-            return flags;
+        private Builder() {
         }
 
         public Builder flags(AnalyzerFlag... flags) {

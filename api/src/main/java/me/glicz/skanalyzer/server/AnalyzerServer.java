@@ -1,6 +1,6 @@
 package me.glicz.skanalyzer.server;
 
-import lombok.Getter;
+import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.plugin.loader.AnalyzerPluginLoader;
 import me.glicz.skanalyzer.server.command.AnalyzerConsoleCommandSender;
@@ -12,8 +12,9 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.loot.LootTable;
+import org.bukkit.potion.PotionBrewer;
 import org.bukkit.scoreboard.Criteria;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.structure.StructureManager;
 import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
@@ -25,20 +26,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@Getter
 public class AnalyzerServer extends ServerMock {
-    private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
     private final AnalyzerScheduler scheduler = new AnalyzerScheduler();
-    private final FoliaAsyncScheduler foliaAsyncScheduler = new FoliaAsyncScheduler(scheduler);
-    private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
+    private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
+    private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
+    private final FoliaAsyncScheduler asyncScheduler = new FoliaAsyncScheduler(scheduler);
+
+    private final Logger logger = Logger.getLogger("Server");
+    private @Nullable AnalyzerConsoleCommandSender consoleSender;
 
     private final Map<String, Criteria> scoreboardCriteria = new HashMap<>();
 
-    private final Logger logger = Logger.getLogger("Server");
     private final SkAnalyzer skAnalyzer;
     private final AnalyzerPluginLoader pluginLoader;
-    private @Nullable AnalyzerConsoleCommandSender consoleSender;
 
     public AnalyzerServer(SkAnalyzer skAnalyzer) {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -79,18 +80,39 @@ public class AnalyzerServer extends ServerMock {
         }
     }
 
+    public AnalyzerPluginLoader getPluginLoader() {
+        return pluginLoader;
+    }
+
     @Override
     public String getName() {
         return "SkAnalyzer";
     }
 
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
+    @Override
     public AnalyzerConsoleCommandSender getConsoleSender() {
         return consoleSender != null ? consoleSender : (consoleSender = new AnalyzerConsoleCommandSender());
     }
 
     @Override
-    public Criteria getScoreboardCriteria(@NotNull String name) {
+    public AnalyzerScheduler getScheduler() {
+        return scheduler;
+    }
+
+    @Override
+    public Criteria getScoreboardCriteria(String name) {
         return scoreboardCriteria.computeIfAbsent(name, CriteriaMock::new);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public AnalyzerUnsafeValues getUnsafe() {
+        return unsafe;
     }
 
     public Map<String, Criteria> getScoreboardCriteria() {
@@ -106,6 +128,7 @@ public class AnalyzerServer extends ServerMock {
         if (material == null) {
             throw new IllegalArgumentException();
         }
+
         return createBlockData(material);
     }
 
@@ -120,7 +143,22 @@ public class AnalyzerServer extends ServerMock {
     }
 
     @Override
+    public StructureManager getStructureManager() {
+        return structureManager;
+    }
+
+    @Override
     public boolean isStopping() {
         return false;
+    }
+
+    @Override
+    public PotionBrewer getPotionBrewer() {
+        return potionBrewer;
+    }
+
+    @Override
+    public AsyncScheduler getAsyncScheduler() {
+        return asyncScheduler;
     }
 }

@@ -4,17 +4,23 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
-import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.function.BiPredicate;
 
 import static me.glicz.skanalyzer.util.function.BiPredicates.reversed;
 
-@Setter
 public class LevelFilter extends Filter<ILoggingEvent> {
     private @MonotonicNonNull Level level;
     private @MonotonicNonNull Matcher matcher;
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public void setMatcher(Matcher matcher) {
+        this.matcher = matcher;
+    }
 
     @Override
     public FilterReply decide(ILoggingEvent event) {

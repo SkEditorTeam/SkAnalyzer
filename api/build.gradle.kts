@@ -4,9 +4,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.36")
-    annotationProcessor("org.projectlombok:lombok:1.18.36")
-
     api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.64.0") {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")

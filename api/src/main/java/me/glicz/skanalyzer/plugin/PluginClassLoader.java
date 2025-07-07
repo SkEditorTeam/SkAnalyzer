@@ -6,7 +6,6 @@ import com.google.common.io.ByteStreams;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import io.papermc.paper.plugin.provider.classloader.PluginClassLoaderGroup;
-import lombok.Getter;
 import me.glicz.skanalyzer.plugin.rewriter.PluginRewriter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -33,10 +32,8 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
         ClassLoader.registerAsParallelCapable();
     }
 
-    @Getter
     private final PluginClassLoaderGroup group = new MockBukkitPluginClassLoaderGroup();
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
-    @Getter
     private final PluginDescriptionFile configuration;
     private final File dataFolder, file;
     private final URL url;
@@ -57,6 +54,11 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         return loadClass0(name, resolve, true);
+    }
+
+    @Override
+    public PluginMeta getConfiguration() {
+        return configuration;
     }
 
     @Override
@@ -164,13 +166,18 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
                 file,
                 this,
                 configuration,
-                PaperPluginLogger.getLogger((PluginMeta) getConfiguration())
+                PaperPluginLogger.getLogger(getConfiguration())
         );
     }
 
     @Override
     public @Nullable JavaPlugin getPlugin() {
         return plugin;
+    }
+
+    @Override
+    public @Nullable PluginClassLoaderGroup getGroup() {
+        return group;
     }
 
     @Override
