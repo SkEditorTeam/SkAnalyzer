@@ -1,20 +1,22 @@
 package me.glicz.skanalyzer.plugin.rewriter;
 
-import com.google.common.collect.ImmutableSet;
+import me.glicz.skanalyzer.plugin.rewriter.call.field.FieldCall;
+import me.glicz.skanalyzer.plugin.rewriter.call.field.ParticleConstantsRewriter;
 import me.glicz.skanalyzer.plugin.rewriter.call.method.MaterialValuesRewriter;
 import me.glicz.skanalyzer.plugin.rewriter.call.method.MethodCall;
+import me.glicz.skanalyzer.plugin.rewriter.call.method.ParticleValueOfRewriter;
 import org.objectweb.asm.*;
 
 import java.util.Set;
 
 public class PluginRewriter {
-    private static final Set<MethodCall.Rewriter> METHOD_CALL_REWRITERS;
-
-    static {
-        METHOD_CALL_REWRITERS = ImmutableSet.<MethodCall.Rewriter>builder()
-                .add(MaterialValuesRewriter.INSTANCE)
-                .build();
-    }
+    private static final Set<Rewriter<FieldCall>> FIELD_CALL_REWRITERS = Set.of(
+            ParticleConstantsRewriter.INSTANCE
+    );
+    private static final Set<Rewriter<MethodCall>> METHOD_CALL_REWRITERS = Set.of(
+            MaterialValuesRewriter.INSTANCE,
+            ParticleValueOfRewriter.INSTANCE
+    );
 
     public static byte[] rewrite(byte[] classBytes) {
         ClassReader classReader = new ClassReader(classBytes);
@@ -43,15 +45,37 @@ public class PluginRewriter {
         }
 
         @Override
-        public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-            MethodCall methodCall = new MethodCall(opcode, owner, name, descriptor, isInterface);
+        public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+            FieldCall call = new FieldCall(opcode, owner, name, descriptor);
 
-            for (MethodCall.Rewriter rewriter : METHOD_CALL_REWRITERS) {
-                if (!rewriter.test(methodCall)) {
+            for (Rewriter<FieldCall> rewriter : FIELD_CALL_REWRITERS) {
+                if (!rewriter.test(call)) {
                     continue;
                 }
 
-                MethodCall rewrittenCall = rewriter.rewrite(methodCall);
+                FieldCall rewrittenCall = rewriter.rewrite(call);
+                super.visitFieldInsn(
+                        rewrittenCall.opcode(),
+                        rewrittenCall.owner(),
+                        rewrittenCall.name(),
+                        rewrittenCall.descriptor()
+                );
+                return;
+            }
+
+            super.visitFieldInsn(opcode, owner, name, descriptor);
+        }
+
+        @Override
+        public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+            MethodCall call = new MethodCall(opcode, owner, name, descriptor, isInterface);
+
+            for (Rewriter<MethodCall> rewriter : METHOD_CALL_REWRITERS) {
+                if (!rewriter.test(call)) {
+                    continue;
+                }
+
+                MethodCall rewrittenCall = rewriter.rewrite(call);
                 super.visitMethodInsn(
                         rewrittenCall.opcode(),
                         rewrittenCall.owner(),

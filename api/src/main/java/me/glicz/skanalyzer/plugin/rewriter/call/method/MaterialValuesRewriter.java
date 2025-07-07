@@ -1,5 +1,6 @@
 package me.glicz.skanalyzer.plugin.rewriter.call.method;
 
+import me.glicz.skanalyzer.plugin.rewriter.Rewriter;
 import me.glicz.skanalyzer.util.Booleans;
 import org.bukkit.Material;
 import org.objectweb.asm.Opcodes;
@@ -8,7 +9,7 @@ import java.util.Arrays;
 
 import static java.util.function.Predicate.not;
 
-public final class MaterialValuesRewriter implements MethodCall.Rewriter {
+public final class MaterialValuesRewriter implements Rewriter<MethodCall> {
     public static final MaterialValuesRewriter INSTANCE = new MaterialValuesRewriter();
 
     private static final MethodCall METHOD_CALL = new MethodCall(
