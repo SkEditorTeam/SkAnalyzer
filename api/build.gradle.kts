@@ -7,7 +7,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
 
-    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:v4.52.0") {
+    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.64.0") {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
@@ -22,7 +22,7 @@ dependencies {
     api("org.ow2.asm:asm:9.7.1")
     api("org.jgrapht:jgrapht-core:1.5.2")
 
-    // some deps used by plugins, but not necessarily but analyzer
+    // some deps used by plugins, but not necessarily by analyzer
     runtimeOnly("com.googlecode.json-simple:json-simple:1.1.1") {
         isTransitive = false
     }
