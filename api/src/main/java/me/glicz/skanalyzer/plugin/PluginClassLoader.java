@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.Nullable;
-import org.mockbukkit.mockbukkit.plugin.MockBukkitPluginClassLoaderGroup;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
         ClassLoader.registerAsParallelCapable();
     }
 
-    private final PluginClassLoaderGroup group = new MockBukkitPluginClassLoaderGroup();
+    private final PluginClassLoaderGroup group = GlobalClassLoaderGroup.get(this);
     private final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
     private final PluginDescriptionFile configuration;
     private final File dataFolder, file;
@@ -176,7 +175,7 @@ public class PluginClassLoader extends URLClassLoader implements ConfiguredPlugi
     }
 
     @Override
-    public @Nullable PluginClassLoaderGroup getGroup() {
+    public PluginClassLoaderGroup getGroup() {
         return group;
     }
 

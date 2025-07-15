@@ -2,7 +2,6 @@ package me.glicz.skanalyzer.plugin.loader;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.plugin.PluginClassLoader;
 import me.glicz.skanalyzer.server.AnalyzerServer;
@@ -40,7 +39,6 @@ public class AnalyzerPluginLoader {
         return FileUtils.listFiles(PLUGINS_DIRECTORY, new String[]{"jar"}, false);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public void initPlugins() {
         Collection<File> candidates = getPluginCandidates();
 
@@ -55,6 +53,8 @@ public class AnalyzerPluginLoader {
 
         pluginLoadOrder = new PluginLoadOrderResolver(plugins).resolveLoadOrder();
 
+        // not needed with GlobalClassLoaderGroup, however I want to look into it in the future
+        /*
         pluginLoadOrder.plugins().forEach(plugin -> {
             PluginClassLoader classLoader = (PluginClassLoader) plugin.getClass().getClassLoader();
 
@@ -71,6 +71,7 @@ public class AnalyzerPluginLoader {
             });
 
         });
+         */
     }
 
     private @Nullable JavaPlugin initPlugin(File file) {
@@ -113,7 +114,6 @@ public class AnalyzerPluginLoader {
     public void loadPlugins() {
         pluginLoadOrder.plugins().forEach(plugin -> {
             try {
-                //noinspection UnstableApiUsage
                 plugin.getSLF4JLogger().info("Loading {}", plugin.getPluginMeta().getDisplayName());
 
                 server.getPluginManager().registerLoadedPlugin(plugin);
@@ -133,7 +133,6 @@ public class AnalyzerPluginLoader {
             if (!plugins.contains(plugin.getName())) return;
 
             try {
-                //noinspection UnstableApiUsage
                 plugin.getSLF4JLogger().info("Enabling {}", plugin.getPluginMeta().getDisplayName());
 
                 server.getPluginManager().enablePlugin(plugin);

@@ -22,7 +22,6 @@ class PluginLoadOrderResolver {
         buildDependencyGraph();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     private void buildDependencyGraph() {
         for (JavaPlugin plugin : plugins.values()) {
             dependencyGraph.addVertex(plugin.getName());
