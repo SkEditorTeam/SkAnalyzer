@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.69.2") {
+        exclude("net.bytebuddy")
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
