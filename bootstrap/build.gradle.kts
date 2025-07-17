@@ -1,5 +1,4 @@
 plugins {
-    id("java")
     id("me.glicz.skanalyzer.plugin")
 }
 

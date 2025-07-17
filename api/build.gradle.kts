@@ -1,10 +1,10 @@
 plugins {
-    id("java-library")
-    id("maven-publish")
+    `java-library`
+    `maven-publish`
 }
 
 dependencies {
-    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.64.0") {
+    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.69.2") {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
