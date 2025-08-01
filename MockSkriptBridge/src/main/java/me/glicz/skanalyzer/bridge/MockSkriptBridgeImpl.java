@@ -45,7 +45,7 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
 
         Set<File> scripts = ScriptUtils.listScripts(file);
 
-        // unload already loaded scripts
+        // unload already loaded scripts in this path
         ScriptLoader.unloadScripts(transformSet(
                 scripts, ScriptLoader::getScript, Objects::nonNull
         ));

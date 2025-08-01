@@ -64,7 +64,7 @@ public final class AnalyzeUtils {
             options.putAll(optionsData.getOptions());
         }
 
-        return new ScriptStructure(commands, events, functions, options);
+        return new ScriptStructure(commands, events, functions, options, script.addons);
     }
 
     public static CommandData toCommandData(StructCommand command, ScriptCommand scriptCommand) {
