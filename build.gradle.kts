@@ -15,7 +15,6 @@ configure(subprojects.filter { it.name != "MockSkript" }) {
         withType<JavaCompile> {
             options.encoding = Charsets.UTF_8.name()
             options.release = 21
-            dependsOn("clean")
         }
     }
 }

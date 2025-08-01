@@ -1,5 +1,8 @@
 package me.glicz.skanalyzer.app;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.AnalyzerFlag;
@@ -7,6 +10,7 @@ import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.app.command.*;
 import me.glicz.skanalyzer.app.registry.CommandRegistry;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -15,7 +19,7 @@ import java.util.Scanner;
 @Getter
 @Accessors(fluent = true)
 public class SkAnalyzerApp {
-    public static final String PARENT_PROCESS_PROPERTY = "skanalyzer.parentProcess";
+    private static final String PARENT_PROCESS_PROPERTY = "skanalyzer.parentProcess";
 
     private final SkAnalyzer skAnalyzer;
     private final CommandRegistry commandRegistry;
@@ -36,8 +40,17 @@ public class SkAnalyzerApp {
             }
         }
 
+        OptionParser optionParser = new OptionParser();
+
+        OptionSpec<File> addPluginSpec = optionParser.accepts("add-plugin")
+                .withRequiredArg()
+                .ofType(File.class);
+
+        OptionSet optionSet = optionParser.parse(args);
+
         this.skAnalyzer = SkAnalyzer.builder()
-                .flags(parseFlags(args))
+                .flags(parseFlags(args)) // TODO use joptsimple
+                .addPlugins(optionSet.valuesOf(addPluginSpec).toArray(File[]::new))
                 .build();
         this.commandRegistry = new CommandRegistry();
 

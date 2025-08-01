@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 
 public class AnalyzerPluginLoader {
@@ -26,17 +27,26 @@ public class AnalyzerPluginLoader {
     private final Map<String, JavaPlugin> plugins = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger("PluginLoader");
     private final AnalyzerServer server;
+    private final Set<File> extraPlugins;
+
     private @MonotonicNonNull ResolvedPluginLoadOrder pluginLoadOrder;
 
-    public AnalyzerPluginLoader(AnalyzerServer server) {
+    public AnalyzerPluginLoader(AnalyzerServer server, Set<File> extraPlugins) {
         this.server = server;
+        this.extraPlugins = extraPlugins;
 
         //noinspection ResultOfMethodCallIgnored
         PLUGINS_DIRECTORY.mkdirs();
     }
 
     private Collection<File> getPluginCandidates() {
-        return FileUtils.listFiles(PLUGINS_DIRECTORY, new String[]{"jar"}, false);
+        Collection<File> pluginCandidates = FileUtils.listFiles(
+                PLUGINS_DIRECTORY, new String[]{"jar"}, false
+        );
+
+        pluginCandidates.addAll(extraPlugins);
+
+        return pluginCandidates;
     }
 
     public void initPlugins() {

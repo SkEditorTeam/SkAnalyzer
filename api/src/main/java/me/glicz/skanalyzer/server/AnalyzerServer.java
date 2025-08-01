@@ -22,10 +22,8 @@ import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
 import org.mockbukkit.mockbukkit.scoreboard.CriteriaMock;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class AnalyzerServer extends ServerMock {
@@ -43,12 +41,12 @@ public class AnalyzerServer extends ServerMock {
     private final SkAnalyzer skAnalyzer;
     private final AnalyzerPluginLoader pluginLoader;
 
-    public AnalyzerServer(SkAnalyzer skAnalyzer) {
+    public AnalyzerServer(SkAnalyzer skAnalyzer, Set<File> extraPlugins) {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
         this.skAnalyzer = skAnalyzer;
-        this.pluginLoader = new AnalyzerPluginLoader(this);
+        this.pluginLoader = new AnalyzerPluginLoader(this, extraPlugins);
 
         setPauseWhenEmptyTime(-1);
     }
