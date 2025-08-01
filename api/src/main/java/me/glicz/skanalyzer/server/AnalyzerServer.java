@@ -10,6 +10,7 @@ import me.glicz.skanalyzer.server.structure.AnalyzerStructureManager;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionBrewer;
@@ -23,6 +24,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -109,14 +111,24 @@ public class AnalyzerServer extends ServerMock {
         return scoreboardCriteria.computeIfAbsent(name, CriteriaMock::new);
     }
 
+    public Map<String, Criteria> getScoreboardCriteria() {
+        return Collections.unmodifiableMap(scoreboardCriteria);
+    }
+
+    @Override
+    public @Nullable Advancement getAdvancement(NamespacedKey key) {
+        return null;
+    }
+
+    @Override
+    public Iterator<Advancement> advancementIterator() {
+        return Collections.emptyIterator();
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public AnalyzerUnsafeValues getUnsafe() {
         return unsafe;
-    }
-
-    public Map<String, Criteria> getScoreboardCriteria() {
-        return Collections.unmodifiableMap(scoreboardCriteria);
     }
 
     @Override
