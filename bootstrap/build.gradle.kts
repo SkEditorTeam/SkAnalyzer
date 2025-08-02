@@ -42,6 +42,7 @@ tasks {
                 args("--add-plugin=${it.absolutePath}")
             }
         }
+        dependsOn(configurations.plugin)
 
         javaLauncher = project.javaToolchains.launcherFor {
             vendor = JvmVendorSpec.JETBRAINS
