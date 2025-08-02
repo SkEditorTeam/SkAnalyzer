@@ -69,7 +69,8 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
 
                     structures.put(scriptFile, new AnalyzeResult(
                             logHandler.getScriptErrors(scriptFile),
-                            toScriptStructure(script)
+                            toScriptStructure(script),
+                            script.addons
                     ));
                 }
 

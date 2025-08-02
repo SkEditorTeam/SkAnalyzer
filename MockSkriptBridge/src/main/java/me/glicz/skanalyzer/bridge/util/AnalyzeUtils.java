@@ -21,8 +21,8 @@ import java.util.*;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toMap;
-import static me.glicz.skanalyzer.bridge.util.ObjectUtils.transformValue;
 import static me.glicz.skanalyzer.bridge.util.ObjectUtils.nonNull;
+import static me.glicz.skanalyzer.bridge.util.ObjectUtils.transformValue;
 import static me.glicz.skanalyzer.bridge.util.StringUtils.emptyToNull;
 
 public final class AnalyzeUtils {
@@ -64,7 +64,7 @@ public final class AnalyzeUtils {
             options.putAll(optionsData.getOptions());
         }
 
-        return new ScriptStructure(commands, events, functions, options, script.addons);
+        return new ScriptStructure(commands, events, functions, options);
     }
 
     public static CommandData toCommandData(StructCommand command, ScriptCommand scriptCommand) {
