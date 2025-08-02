@@ -1,6 +1,7 @@
 package me.glicz.skanalyzer.bridge.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ public final class ScriptUtils {
     private ScriptUtils() {
     }
 
-    public static Set<File> listScripts(File input) {
+    public static Set<File> listScripts(File input) throws IOException {
         File[] files = requireNonNullElseGet(input.listFiles(), () -> new File[]{input});
 
         Set<File> scripts = new HashSet<>();
@@ -26,7 +27,7 @@ public final class ScriptUtils {
 
             String fileName = file.getName();
             if (!fileName.startsWith(DISABLED_SCRIPT_PREFIX) && fileName.endsWith(SCRIPT_EXTENSION)) {
-                scripts.add(file);
+                scripts.add(file.getCanonicalFile());
             }
         }
 

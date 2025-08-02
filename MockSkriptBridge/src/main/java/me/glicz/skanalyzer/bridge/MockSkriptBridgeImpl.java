@@ -13,12 +13,14 @@ import org.skriptlang.skript.lang.script.Script;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static java.util.Collections.emptySet;
 import static me.glicz.skanalyzer.bridge.util.AnalyzeUtils.toScriptStructure;
-import static me.glicz.skanalyzer.bridge.util.ObjectUtils.transformValue;
+import static me.glicz.skanalyzer.bridge.util.ScriptUtils.SCRIPT_EXTENSION;
 import static me.glicz.skanalyzer.bridge.util.SetUtils.transformSet;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
@@ -39,11 +41,18 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public CompletableFuture<AnalyzeResults> loadScript(String path) {
         File file = new File(path);
-        if (!file.exists() || (!file.isDirectory() && !file.getName().endsWith(".sk"))) {
-            return CompletableFuture.failedFuture(new IllegalArgumentException("provided file doesn't end with '.sk'"));
+        if (!file.exists() || (!file.isDirectory() && !file.getName().endsWith(SCRIPT_EXTENSION))) {
+            return CompletableFuture.failedFuture(new IllegalArgumentException(
+                    "provided file doesn't end with '%s'".formatted(SCRIPT_EXTENSION)
+            ));
         }
 
-        Set<File> scripts = ScriptUtils.listScripts(file);
+        Set<File> scripts;
+        try {
+            scripts = ScriptUtils.listScripts(file);
+        } catch (IOException e) {
+            return CompletableFuture.failedFuture(e);
+        }
 
         // unload already loaded scripts in this path
         ScriptLoader.unloadScripts(transformSet(
@@ -72,13 +81,19 @@ public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
     public boolean unloadScript(String path) {
         File file = new File(path);
-        if (!file.exists() || (!file.isDirectory() && !file.getName().endsWith(".sk"))) {
-            throw new IllegalArgumentException("provided file doesn't end with '.sk'");
+        if (!file.exists() || (!file.isDirectory() && !file.getName().endsWith(SCRIPT_EXTENSION))) {
+            throw new IllegalArgumentException(
+                    "provided file doesn't end with '%s'".formatted(SCRIPT_EXTENSION)
+            );
         }
 
-        Set<Script> scripts = file.isDirectory()
-                ? transformSet(ScriptUtils.listScripts(file), ScriptLoader::getScript, Objects::nonNull)
-                : transformValue(ScriptLoader.getScript(file), Collections::singleton, emptySet());
+        Set<Script> scripts;
+        try {
+            scripts = transformSet(ScriptUtils.listScripts(file), ScriptLoader::getScript, Objects::nonNull);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+
         if (scripts.isEmpty()) {
             return false;
         }
