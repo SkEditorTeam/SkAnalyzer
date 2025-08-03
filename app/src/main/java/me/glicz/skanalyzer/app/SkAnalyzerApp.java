@@ -46,6 +46,8 @@ public class SkAnalyzerApp {
                 .withRequiredArg()
                 .ofType(File.class);
 
+        optionParser.allowsUnrecognizedOptions();
+
         OptionSet optionSet = optionParser.parse(args);
 
         this.skAnalyzer = SkAnalyzer.builder()
