@@ -7,6 +7,7 @@ import me.glicz.skanalyzer.util.EnumSets;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
@@ -59,11 +60,11 @@ public final class SkAnalyzer {
         return started;
     }
 
-    public CompletableFuture<AnalyzerServer> start() {
+    public CompletableFuture<Void> start() {
         return start(false);
     }
 
-    public CompletableFuture<AnalyzerServer> start(boolean daemon) {
+    public CompletableFuture<Void> start(boolean daemon) {
         if (started) {
             return CompletableFuture.failedFuture(new IllegalStateException());
         }
@@ -74,8 +75,8 @@ public final class SkAnalyzer {
         return buildServer(daemon);
     }
 
-    private CompletableFuture<AnalyzerServer> buildServer(boolean daemon) {
-        CompletableFuture<AnalyzerServer> future = new CompletableFuture<>();
+    private CompletableFuture<Void> buildServer(boolean daemon) {
+        CompletableFuture<@Nullable Void> future = new CompletableFuture<>();
 
         Thread thread = new Thread(() -> {
             server = MockBukkit.mock(new AnalyzerServer(this, extraPlugins));
@@ -101,7 +102,7 @@ public final class SkAnalyzer {
             server.getScheduler().performOneTick();
 
             logger.info("Successfully enabled. Have fun!");
-            future.complete(server);
+            future.complete(null);
 
             server.startTicking();
         }, "Server Thread");
