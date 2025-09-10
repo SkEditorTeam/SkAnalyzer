@@ -3,7 +3,6 @@ package me.glicz.skanalyzer.plugin.loader;
 import com.google.common.collect.Multimaps;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import org.bukkit.plugin.PluginLoadOrder;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -13,24 +12,26 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 import java.util.*;
 
 class PluginLoadOrderResolver {
-    private final Map<String, JavaPlugin> plugins;
+    private final Map<String, ResolvedPlugin> resolvedPlugins;
     private final Graph<String, DefaultEdge> dependencyGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     private final Map<String, PluginLoadOrder> loadOrderMap = new HashMap<>();
 
-    public PluginLoadOrderResolver(Map<String, JavaPlugin> plugins) {
-        this.plugins = plugins;
+    public PluginLoadOrderResolver(Map<String, ResolvedPlugin> resolvedPlugins) {
+        this.resolvedPlugins = resolvedPlugins;
         buildDependencyGraph();
     }
 
     private void buildDependencyGraph() {
-        for (JavaPlugin plugin : plugins.values()) {
-            dependencyGraph.addVertex(plugin.getName());
-            loadOrderMap.put(plugin.getName(), plugin.getPluginMeta().getLoadOrder());
+        for (ResolvedPlugin plugin : resolvedPlugins.values()) {
+            String name = plugin.description().getName();
+
+            dependencyGraph.addVertex(name);
+            loadOrderMap.put(name, plugin.description().getLoadOrder());
         }
 
-        for (JavaPlugin plugin : plugins.values()) {
-            String name = plugin.getName();
-            PluginMeta pluginMeta = plugin.getPluginMeta();
+        for (ResolvedPlugin provider : resolvedPlugins.values()) {
+            String name = provider.description().getName();
+            PluginMeta pluginMeta = provider.description();
 
             for (String depend : pluginMeta.getPluginDependencies()) {
                 if (!dependencyGraph.containsVertex(depend)) {
@@ -69,18 +70,20 @@ class PluginLoadOrderResolver {
     }
 
     public ResolvedPluginLoadOrder resolveLoadOrder() {
-        List<JavaPlugin> sortedPlugins = new ArrayList<>();
+        List<ResolvedPlugin> sortedPlugins = new ArrayList<>();
         TopologicalOrderIterator<String, DefaultEdge> iterator = new TopologicalOrderIterator<>(dependencyGraph);
 
         while (iterator.hasNext()) {
-            JavaPlugin plugin = plugins.get(iterator.next());
+            ResolvedPlugin provider = resolvedPlugins.get(iterator.next());
 
-            if (plugin != null) {
-                sortedPlugins.add(plugin);
+            if (provider != null) {
+                sortedPlugins.add(provider);
             }
         }
 
-        sortedPlugins.sort(Comparator.comparing(plugin -> loadOrderMap.get(plugin.getName())));
+        sortedPlugins.sort(Comparator.comparing(provider ->
+                loadOrderMap.get(provider.description().getName())
+        ));
 
         return new ResolvedPluginLoadOrder(
                 List.copyOf(sortedPlugins),
