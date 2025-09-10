@@ -4,13 +4,11 @@ plugins {
 }
 
 dependencies {
-    api("io.papermc.paper:paper-api:1.21.8-R0.1-20250829.204528-51") {
+    api("io.papermc.paper:paper-api:1.21.8-R0.1-20250906.215025-55") {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
-    //api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.74.1") {
-    api("com.github.MockBukkit:MockBukkit:v4.74.1") {
-        exclude("io.papermc.paper")
+    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.76.0") {
         exclude("net.bytebuddy")
     }
 
