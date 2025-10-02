@@ -1,5 +1,6 @@
 plugins {
-    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+    id("skanalyzer.common-conventions")
+    alias(libs.plugins.pluginYml.bukkit)
 }
 
 dependencies {

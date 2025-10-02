@@ -7,8 +7,7 @@ import me.glicz.skanalyzer.util.EnumSets;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,6 @@ public final class SkAnalyzer {
         return new Builder();
     }
 
-    @Unmodifiable
     public Set<AnalyzerFlag> getFlags() {
         return unmodifiableSet(flags);
     }

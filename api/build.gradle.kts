@@ -1,49 +1,28 @@
 plugins {
-    `java-library`
-    `maven-publish`
+    id("skanalyzer.publishing-conventions")
 }
 
 dependencies {
-    api("io.papermc.paper:paper-api:1.21.8-R0.1-20250906.215025-55") {
+    api(libs.paper.api) {
         exclude("org.apache.logging.log4j")
         exclude("org.slf4j")
     }
-    api("org.mockbukkit.mockbukkit:mockbukkit-v1.21:4.76.0") {
+    api(libs.mockbukkit) {
         exclude("net.bytebuddy")
     }
 
-    api("org.apache.logging.log4j:log4j-to-slf4j:3.0.0-beta2")
-    api("ch.qos.logback:logback-classic:1.5.17")
-    api("org.slf4j:jul-to-slf4j:2.0.17")
-    api("org.fusesource.jansi:jansi:2.4.1")
+    api(libs.log4j.to.slf4j)
+    api(libs.logback.classic)
+    api(libs.jul.to.slf4j)
+    api(libs.jansi)
 
-    api("commons-io:commons-io:2.18.0")
-    api("commons-lang:commons-lang:2.6")
-    api("org.ow2.asm:asm:9.7.1")
-    api("org.jgrapht:jgrapht-core:1.5.2")
+    api(libs.commons.io)
+    api(libs.commons.lang)
+    api(libs.asm)
+    api(libs.jgrapht.core)
 
     // some deps used by plugins, but not necessarily by analyzer
-    runtimeOnly("com.googlecode.json-simple:json-simple:1.1.1") {
+    runtimeOnly(libs.jsonSimple) {
         isTransitive = false
-    }
-}
-
-java {
-    withSourcesJar()
-}
-
-publishing {
-    repositories {
-        val repoType = if (version.toString().endsWith("-SNAPSHOT")) "snapshots" else "releases"
-        maven("https://repo.roxymc.net/${repoType}") {
-            name = "roxymc"
-            credentials(PasswordCredentials::class)
-        }
-    }
-
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-        }
     }
 }

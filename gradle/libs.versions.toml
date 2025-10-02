@@ -1,0 +1,34 @@
+[versions]
+asm = "9.7.1"
+commons-io = "2.18.0"
+commons-lang = "2.6"
+indra = "3.2.0"
+jansi = "2.4.1"
+jgrapht = "1.5.2"
+joptSimple = "5.0.4"
+jsonSimple = "1.1.1"
+log4j = "3.0.0-beta2"
+logback = "1.5.17"
+mockbukkit = "4.76.0"
+paper = "1.21.8-R0.1-20250906.215025-55"
+pluginYml = "0.6.0"
+slf4j = "2.0.17"
+
+[libraries]
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+commons-lang = { module = "commons-lang:commons-lang", version.ref = "commons-lang" }
+jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
+jgrapht-core = { module = "org.jgrapht:jgrapht-core", version.ref = "jgrapht" }
+joptSimple = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "joptSimple" }
+jsonSimple = { module = "com.googlecode.json-simple:json-simple", version.ref = "jsonSimple" }
+jul-to-slf4j = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
+log4j-to-slf4j = { module = "org.apache.logging.log4j:log4j-to-slf4j", version.ref = "log4j" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version.ref = "mockbukkit" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+
+build-indra-publishing = { module = "net.kyori.indra.publishing:net.kyori.indra.publishing.gradle.plugin", version.ref = "indra" }
+
+[plugins]
+pluginYml-bukkit = { id = "net.minecrell.plugin-yml.bukkit", version.ref = "pluginYml" }

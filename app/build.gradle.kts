@@ -1,9 +1,10 @@
-dependencies {
-    compileOnly("org.projectlombok:lombok:1.18.36")
-    annotationProcessor("org.projectlombok:lombok:1.18.36")
+plugins {
+    id("skanalyzer.common-conventions")
+}
 
+dependencies {
     implementation(project(":skanalyzer-api"))
-    implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
+    implementation(libs.joptSimple)
 }
 
 tasks.jar {

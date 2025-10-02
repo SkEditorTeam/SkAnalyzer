@@ -3,21 +3,17 @@ package me.glicz.skanalyzer.app;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.Getter;
-import lombok.experimental.Accessors;
 import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.app.command.*;
 import me.glicz.skanalyzer.app.registry.CommandRegistry;
+import me.glicz.skanalyzer.app.util.CommandInputHandler;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Scanner;
 
-@Getter
-@Accessors(fluent = true)
 public class SkAnalyzerApp {
     private static final String PARENT_PROCESS_PROPERTY = "skanalyzer.parentProcess";
 
@@ -78,37 +74,20 @@ public class SkAnalyzerApp {
         return Arrays.stream(args).map(AnalyzerFlag::getByArg).filter(Objects::nonNull).toArray(AnalyzerFlag[]::new);
     }
 
+    public SkAnalyzer skAnalyzer() {
+        return skAnalyzer;
+    }
+
+    public CommandRegistry commandRegistry() {
+        return commandRegistry;
+    }
+
     private void startReadingInput() {
-        Thread thread = new Thread("Command Input Thread") {
-            private final Scanner scanner = new Scanner(System.in);
+        Thread thread = new Thread(
+                new CommandInputHandler(this),
+                "Command Input Thread"
+        );
 
-            @Override
-            public void run() {
-                while (!Thread.interrupted()) {
-                    try {
-                        if (!scanner.hasNext()) {
-                            continue;
-                        }
-
-                        String line = scanner.nextLine();
-                        if (line == null || line.isBlank()) {
-                            continue;
-                        }
-
-                        String[] args = line.split(" ");
-                        commandRegistry.getCommand(args[0]).ifPresentOrElse(
-                                command -> command.execute(Arrays.copyOfRange(args, 1, args.length)),
-                                () -> skAnalyzer.getLogger().error("Unknown command: {}", args[0])
-                        );
-                    } catch (Exception e) {
-                        skAnalyzer.getLogger().atError()
-                                .addArgument(Thread.currentThread())
-                                .setCause(e)
-                                .log("An exception occurred in {}. You should report this issue immediately.");
-                    }
-                }
-            }
-        };
         thread.setDaemon(true);
         thread.start();
     }

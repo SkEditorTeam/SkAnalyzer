@@ -1,5 +1,6 @@
 plugins {
-    id("me.glicz.skanalyzer.plugin")
+    id("skanalyzer.common-conventions")
+    id("skanalyzer.bootstrap-plugin")
 }
 
 dependencies {
