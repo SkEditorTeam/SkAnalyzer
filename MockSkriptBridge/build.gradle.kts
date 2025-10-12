@@ -14,3 +14,7 @@ bukkit {
     main = "me.glicz.skanalyzer.bridge.MockSkriptBridgePlugin"
     depend = listOf("Skript")
 }
+
+tasks.withType<Jar> {
+    archiveBaseName = project.name
+}
