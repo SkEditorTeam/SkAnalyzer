@@ -11,6 +11,8 @@ dependencies {
         exclude("net.bytebuddy")
     }
 
+    api(libs.configurate.yaml)
+
     api(libs.log4j.to.slf4j)
     api(libs.logback.classic)
     api(libs.jul.to.slf4j)

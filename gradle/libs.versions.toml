@@ -2,6 +2,7 @@
 asm = "9.7.1"
 commons-io = "2.18.0"
 commons-lang = "2.6"
+configurate = "4.2.0"
 indra = "3.2.0"
 jansi = "2.4.1"
 jgrapht = "1.5.2"
@@ -18,6 +19,7 @@ slf4j = "2.0.17"
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 commons-lang = { module = "commons-lang:commons-lang", version.ref = "commons-lang" }
+configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
 jgrapht-core = { module = "org.jgrapht:jgrapht-core", version.ref = "jgrapht" }
 joptSimple = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "joptSimple" }

@@ -4,9 +4,9 @@ import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
 import ch.njol.skript.hooks.VaultHook;
 import ch.njol.skript.hooks.regions.RegionsPlugin;
-import me.glicz.skanalyzer.AnalyzerHookType;
 import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
 import me.glicz.skanalyzer.bridge.util.ScriptUtils;
+import me.glicz.skanalyzer.config.Config;
 import me.glicz.skanalyzer.result.AnalyzeResult;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import org.skriptlang.skript.lang.script.Script;
@@ -25,16 +25,15 @@ import static me.glicz.skanalyzer.bridge.util.SetUtils.transformSet;
 
 public class MockSkriptBridgeImpl extends MockSkriptBridge {
     @Override
-    public void forceLoadHook(AnalyzerHookType type) throws IOException {
-        switch (type) {
-            case VAULT -> {
-                String basePackage = VaultHook.class.getPackage().getName();
-                Skript.getAddonInstance().loadClasses(basePackage, "economy", "chat", "permission");
-            }
-            case REGIONS -> {
-                String basePackage = RegionsPlugin.class.getPackage().getName();
-                Skript.getAddonInstance().loadClasses(basePackage);
-            }
+    public void forceLoadHooks(Config.ForcedHooks forcedHooks) throws IOException {
+        if (forcedHooks.vault()) {
+            String basePackage = VaultHook.class.getPackage().getName();
+            Skript.getAddonInstance().loadClasses(basePackage, "economy", "chat", "permission");
+        }
+
+        if (forcedHooks.regions()) {
+            String basePackage = RegionsPlugin.class.getPackage().getName();
+            Skript.getAddonInstance().loadClasses(basePackage, "classes", "conditions", "events", "expressions");
         }
     }
 

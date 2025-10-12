@@ -3,16 +3,14 @@ package me.glicz.skanalyzer.app;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import me.glicz.skanalyzer.AnalyzerFlag;
 import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.app.command.*;
 import me.glicz.skanalyzer.app.registry.CommandRegistry;
 import me.glicz.skanalyzer.app.util.CommandInputHandler;
+import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 public class SkAnalyzerApp {
     private static final String PARENT_PROCESS_PROPERTY = "skanalyzer.parentProcess";
@@ -20,7 +18,7 @@ public class SkAnalyzerApp {
     private final SkAnalyzer skAnalyzer;
     private final CommandRegistry commandRegistry;
 
-    public SkAnalyzerApp(String[] args) {
+    public SkAnalyzerApp(String[] args) throws ConfigurateException {
         System.out.printf("SkAnalyzer v%s - simple Skript parser. Created by Glicz.%n", getClass().getPackage().getSpecificationVersion());
 
         String parentProcess = System.getProperty(PARENT_PROCESS_PROPERTY);
@@ -47,9 +45,9 @@ public class SkAnalyzerApp {
         OptionSet optionSet = optionParser.parse(args);
 
         this.skAnalyzer = SkAnalyzer.builder()
-                .flags(parseFlags(args)) // TODO use joptsimple
                 .addPlugins(optionSet.valuesOf(addPluginSpec).toArray(File[]::new))
                 .build();
+
         this.commandRegistry = new CommandRegistry();
 
         this.skAnalyzer.start().thenRun(() -> {
@@ -66,14 +64,9 @@ public class SkAnalyzerApp {
         });
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ConfigurateException {
         new SkAnalyzerApp(args);
     }
-
-    private static AnalyzerFlag[] parseFlags(String[] args) {
-        return Arrays.stream(args).map(AnalyzerFlag::getByArg).filter(Objects::nonNull).toArray(AnalyzerFlag[]::new);
-    }
-
     public SkAnalyzer skAnalyzer() {
         return skAnalyzer;
     }
