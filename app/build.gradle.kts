@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":skanalyzer-api"))
+    implementation(project(":skanalyzer-core"))
     implementation(libs.joptSimple)
 }
 

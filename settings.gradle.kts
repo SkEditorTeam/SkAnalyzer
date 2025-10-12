@@ -9,8 +9,8 @@ plugins {
 rootProject.name = "SkAnalyzer"
 
 listOf(
-    "api",
-    "app"
+    "app",
+    "core"
 ).forEach {
     val name = "${rootProject.name}-$it".lowercase()
 

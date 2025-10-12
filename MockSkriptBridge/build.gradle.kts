@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":skanalyzer-api"))
+    compileOnly(project(":skanalyzer-core"))
     compileOnly(project(":MockSkript", "shadow")) {
         exclude("*", "*")
     }
