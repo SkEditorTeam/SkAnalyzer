@@ -1,6 +1,6 @@
 package me.glicz.skanalyzer;
 
-import me.glicz.skanalyzer.bridge.MockSkriptBridge;
+import me.glicz.skanalyzer.bridge.SkriptBridge;
 import me.glicz.skanalyzer.config.Config;
 import me.glicz.skanalyzer.config.ConfigLoader;
 import me.glicz.skanalyzer.result.AnalyzeResults;
@@ -86,7 +86,7 @@ public final class SkAnalyzer {
             server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
 
             try {
-                mockSkriptBridge().forceLoadHooks(config.forcedHooks());
+                skriptBridge().forceLoadHooks(config.forcedHooks());
 
                 logger.info("Successfully force loaded hooks");
             } catch (IOException e) {
@@ -107,8 +107,8 @@ public final class SkAnalyzer {
         return future;
     }
 
-    private MockSkriptBridge mockSkriptBridge() {
-        return requireNonNull(server.getServicesManager().getRegistration(MockSkriptBridge.class)).getProvider();
+    private SkriptBridge skriptBridge() {
+        return requireNonNull(server.getServicesManager().load(SkriptBridge.class));
     }
 
     public CompletableFuture<AnalyzeResults> parseScript(String path) {
@@ -116,15 +116,15 @@ public final class SkAnalyzer {
     }
 
     public CompletableFuture<AnalyzeResults> loadScript(String path) {
-        return mockSkriptBridge().loadScript(path);
+        return skriptBridge().loadScript(path);
     }
 
     public boolean unloadScript(String path) {
-        return mockSkriptBridge().unloadScript(path);
+        return skriptBridge().unloadScript(path);
     }
 
     public void unloadAllScripts() {
-        mockSkriptBridge().unloadAllScripts();
+        skriptBridge().unloadAllScripts();
     }
 
     public static final class Builder {

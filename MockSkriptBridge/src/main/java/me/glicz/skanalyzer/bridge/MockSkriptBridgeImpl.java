@@ -23,7 +23,7 @@ import static me.glicz.skanalyzer.bridge.util.AnalyzeUtils.toScriptStructure;
 import static me.glicz.skanalyzer.bridge.util.ScriptUtils.SCRIPT_EXTENSION;
 import static me.glicz.skanalyzer.bridge.util.SetUtils.transformSet;
 
-public class MockSkriptBridgeImpl extends MockSkriptBridge {
+public class MockSkriptBridgeImpl implements SkriptBridge {
     @Override
     public void forceLoadHooks(Config.ForcedHooks forcedHooks) throws IOException {
         if (forcedHooks.vault()) {
