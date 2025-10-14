@@ -5,6 +5,8 @@ import me.glicz.skanalyzer.plugin.rewriter.call.field.ParticleConstantsRewriter;
 import me.glicz.skanalyzer.plugin.rewriter.call.method.MaterialValuesRewriter;
 import me.glicz.skanalyzer.plugin.rewriter.call.method.MethodCall;
 import me.glicz.skanalyzer.plugin.rewriter.call.method.ParticleValueOfRewriter;
+import me.glicz.skanalyzer.plugin.rewriter.call.method.oldenum.OldEnumValueOfRewriter;
+import me.glicz.skanalyzer.plugin.rewriter.call.method.oldenum.OldEnumValuesRewriter;
 import org.objectweb.asm.*;
 
 import java.util.Set;
@@ -14,6 +16,8 @@ public class PluginRewriter {
             ParticleConstantsRewriter.INSTANCE
     );
     private static final Set<Rewriter<MethodCall>> METHOD_CALL_REWRITERS = Set.of(
+            OldEnumValueOfRewriter.INSTANCE,
+            OldEnumValuesRewriter.INSTANCE,
             MaterialValuesRewriter.INSTANCE,
             ParticleValueOfRewriter.INSTANCE
     );
