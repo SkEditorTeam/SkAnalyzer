@@ -44,7 +44,7 @@ public abstract class AbstractConfigurateConfigProvider implements ConfigProvide
         ConfigurationLoader<?> loader = createLoader();
 
         ConfigurationNode node = loader.load();
-        Config config = node.<Config>get(Config.class, Config::defaultConfig);
+        Config config = node.<Config>get(Config.class, Config::new);
 
         loader.save(loader.createNode().set(config));
 

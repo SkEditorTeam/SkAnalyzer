@@ -26,12 +26,12 @@ import static me.glicz.skanalyzer.bridge.util.SetUtils.transformSet;
 public class MockSkriptBridgeImpl implements SkriptBridge {
     @Override
     public void forceLoadHooks(Config.ForcedHooks forcedHooks) throws IOException {
-        if (forcedHooks.vault()) {
+        if (forcedHooks.vault) {
             String basePackage = VaultHook.class.getPackage().getName();
             Skript.getAddonInstance().loadClasses(basePackage, "economy", "chat", "permission");
         }
 
-        if (forcedHooks.regions()) {
+        if (forcedHooks.regions) {
             String basePackage = RegionsPlugin.class.getPackage().getName();
             Skript.getAddonInstance().loadClasses(basePackage, "classes", "conditions", "events", "expressions");
         }

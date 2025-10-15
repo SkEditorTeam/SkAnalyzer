@@ -89,7 +89,7 @@ public final class SkAnalyzer {
             server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
 
             try {
-                skriptBridge().forceLoadHooks(config.forcedHooks());
+                skriptBridge().forceLoadHooks(config.forcedHooks);
 
                 logger.info("Successfully force loaded hooks");
             } catch (IOException e) {
@@ -132,7 +132,7 @@ public final class SkAnalyzer {
 
     public static final class Builder {
         private final Set<File> extraPlugins = new HashSet<>();
-        private ConfigProvider configProvider = Config::defaultConfig;
+        private ConfigProvider configProvider = Config::new;
 
         private Builder() {
         }
