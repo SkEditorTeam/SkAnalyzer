@@ -2,6 +2,7 @@ package me.glicz.skanalyzer.server;
 
 import io.papermc.paper.threadedregions.scheduler.AsyncScheduler;
 import me.glicz.skanalyzer.SkAnalyzer;
+import me.glicz.skanalyzer.config.Config;
 import me.glicz.skanalyzer.plugin.loader.AnalyzerPluginLoader;
 import me.glicz.skanalyzer.server.command.AnalyzerConsoleCommandSender;
 import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
@@ -78,6 +79,10 @@ public class AnalyzerServer extends ServerMock {
                     .setCause(ex)
                     .log("Something went wrong while trying to tick");
         }
+    }
+
+    public Config getAnalyzerConfig() {
+        return skAnalyzer.getConfig();
     }
 
     public AnalyzerPluginLoader getPluginLoader() {

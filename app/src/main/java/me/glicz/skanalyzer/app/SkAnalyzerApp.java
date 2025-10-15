@@ -7,9 +7,11 @@ import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.app.command.*;
 import me.glicz.skanalyzer.app.registry.CommandRegistry;
 import me.glicz.skanalyzer.app.util.CommandInputHandler;
-import org.spongepowered.configurate.ConfigurateException;
+import me.glicz.skanalyzer.config.provider.configurate.YamlConfigurateConfigProvider;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.NoSuchElementException;
 
 public class SkAnalyzerApp {
@@ -18,7 +20,7 @@ public class SkAnalyzerApp {
     private final SkAnalyzer skAnalyzer;
     private final CommandRegistry commandRegistry;
 
-    public SkAnalyzerApp(String[] args) throws ConfigurateException {
+    public SkAnalyzerApp(String[] args) throws IOException {
         System.out.printf("SkAnalyzer v%s - simple Skript parser. Created by Glicz.%n", getClass().getPackage().getSpecificationVersion());
 
         String parentProcess = System.getProperty(PARENT_PROCESS_PROPERTY);
@@ -46,6 +48,7 @@ public class SkAnalyzerApp {
 
         this.skAnalyzer = SkAnalyzer.builder()
                 .addPlugins(optionSet.valuesOf(addPluginSpec).toArray(File[]::new))
+                .configProvider(new YamlConfigurateConfigProvider(Path.of("config.yml")))
                 .build();
 
         this.commandRegistry = new CommandRegistry();
@@ -64,7 +67,7 @@ public class SkAnalyzerApp {
         });
     }
 
-    public static void main(String[] args) throws ConfigurateException {
+    public static void main(String[] args) throws IOException {
         new SkAnalyzerApp(args);
     }
     public SkAnalyzer skAnalyzer() {

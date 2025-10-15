@@ -2,7 +2,7 @@ package me.glicz.skanalyzer;
 
 import me.glicz.skanalyzer.bridge.SkriptBridge;
 import me.glicz.skanalyzer.config.Config;
-import me.glicz.skanalyzer.config.ConfigLoader;
+import me.glicz.skanalyzer.config.provider.ConfigProvider;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
 import org.bukkit.plugin.PluginLoadOrder;
@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +30,11 @@ public final class SkAnalyzer {
     private @MonotonicNonNull AnalyzerServer server;
     private boolean started;
 
-    private SkAnalyzer(Builder builder) throws ConfigurateException {
+    private SkAnalyzer(Builder builder) throws IOException {
         this.logger = LoggerFactory.getLogger(getClass().getSimpleName());
         this.extraPlugins = Set.copyOf(builder.extraPlugins);
 
-        this.config = ConfigLoader.loadConfig();
+        this.config = builder.configProvider.loadConfig();
     }
 
     @Contract(" -> new")
@@ -45,6 +44,10 @@ public final class SkAnalyzer {
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public Config getConfig() {
+        return config;
     }
 
     public AnalyzerServer getServer() {
@@ -129,6 +132,7 @@ public final class SkAnalyzer {
 
     public static final class Builder {
         private final Set<File> extraPlugins = new HashSet<>();
+        private ConfigProvider configProvider = Config::defaultConfig;
 
         private Builder() {
         }
@@ -143,7 +147,12 @@ public final class SkAnalyzer {
             return this;
         }
 
-        public SkAnalyzer build() throws ConfigurateException {
+        public Builder configProvider(ConfigProvider configProvider) {
+            this.configProvider = configProvider;
+            return this;
+        }
+
+        public SkAnalyzer build() throws IOException {
             return new SkAnalyzer(this);
         }
     }
