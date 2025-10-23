@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.result;
+package me.glicz.skanalyzer.result.error;
 
 import java.util.logging.Level;
 

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -114,16 +115,22 @@ public final class SkAnalyzer {
         return requireNonNull(server.getServicesManager().load(SkriptBridge.class));
     }
 
-    public CompletableFuture<AnalyzeResults> parseScript(String path) {
-        return loadScript(path).whenComplete((results, ex) -> unloadScript(path));
+    public CompletableFuture<AnalyzeResults> parseScripts(File... files) {
+        return loadScripts(files).whenComplete((results, ex) -> {
+            try {
+                unloadScripts(files);
+            } catch (IOException e) {
+                throw new CompletionException(e);
+            }
+        });
     }
 
-    public CompletableFuture<AnalyzeResults> loadScript(String path) {
-        return skriptBridge().loadScript(path);
+    public CompletableFuture<AnalyzeResults> loadScripts(File... files) {
+        return skriptBridge().loadScripts(files);
     }
 
-    public boolean unloadScript(String path) {
-        return skriptBridge().unloadScript(path);
+    public boolean unloadScripts(File... files) throws IOException {
+        return skriptBridge().unloadScripts(files);
     }
 
     public void unloadAllScripts() {

@@ -1,5 +1,6 @@
 package me.glicz.skanalyzer.bridge.util;
 
+import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.classes.ClassInfo;
 import ch.njol.skript.command.ScriptCommand;
 import ch.njol.skript.lang.SkriptEvent;
@@ -10,13 +11,18 @@ import ch.njol.skript.structures.StructCommand;
 import ch.njol.skript.structures.StructEvent;
 import ch.njol.skript.structures.StructFunction;
 import ch.njol.skript.structures.StructOptions;
+import me.glicz.skanalyzer.bridge.log.CachingLogHandler;
+import me.glicz.skanalyzer.result.AnalyzeResult;
+import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.result.structure.ScriptStructure;
 import me.glicz.skanalyzer.result.structure.data.CommandData;
 import me.glicz.skanalyzer.result.structure.data.EventData;
 import me.glicz.skanalyzer.result.structure.data.FunctionData;
 import org.bukkit.event.EventPriority;
+import org.jspecify.annotations.Nullable;
 import org.skriptlang.skript.lang.script.Script;
 
+import java.io.File;
 import java.util.*;
 
 import static java.util.Arrays.stream;
@@ -29,7 +35,33 @@ public final class AnalyzeUtils {
     private AnalyzeUtils() {
     }
 
-    public static ScriptStructure toScriptStructure(Script script) {
+    public static AnalyzeResults collectResults(Set<File> scripts, CachingLogHandler logHandler) {
+        Map<File, AnalyzeResult> results = new HashMap<>();
+
+        for (File script : scripts) {
+            AnalyzeResult result = collectResult(script, logHandler);
+
+            if (result != null) {
+                results.put(script, result);
+            }
+        }
+
+        return new AnalyzeResults(results);
+    }
+
+    private static @Nullable AnalyzeResult collectResult(File scriptFile, CachingLogHandler logHandler) {
+        Script script = ScriptLoader.getScript(scriptFile);
+
+        if (script == null) {
+            return null;
+        }
+
+        return new AnalyzeResult(
+                logHandler.getScriptErrors(scriptFile), toScriptStructure(script), script.addons
+        );
+    }
+
+    private static ScriptStructure toScriptStructure(Script script) {
         List<CommandData> commands = new ArrayList<>();
         List<EventData> events = new ArrayList<>();
         List<FunctionData> functions = new ArrayList<>();
@@ -67,7 +99,7 @@ public final class AnalyzeUtils {
         return new ScriptStructure(commands, events, functions, options);
     }
 
-    public static CommandData toCommandData(StructCommand command, ScriptCommand scriptCommand) {
+    private static CommandData toCommandData(StructCommand command, ScriptCommand scriptCommand) {
         int line = command.getEntryContainer().getSource().getLine();
         String name = scriptCommand.getName();
         List<String> aliases = scriptCommand.getAliases();
@@ -84,7 +116,7 @@ public final class AnalyzeUtils {
         return new CommandData(line, name, aliases, permission, description, prefix, usage, arguments);
     }
 
-    public static EventData toEventData(SkriptEvent event, SkriptEventInfo<?> eventInfo) {
+    private static EventData toEventData(SkriptEvent event, SkriptEventInfo<?> eventInfo) {
         int line = event.getEntryContainer().getSource().getLine();
         String expression = event.expr;
         String id = nonNull(eventInfo.getDocumentationID(), eventInfo.getId());
@@ -93,7 +125,7 @@ public final class AnalyzeUtils {
         return new EventData(line, expression, id, priority);
     }
 
-    public static FunctionData toFunctionData(StructFunction function, Signature<?> signature) {
+    private static FunctionData toFunctionData(StructFunction function, Signature<?> signature) {
         int line = function.getEntryContainer().getSource().getLine();
         String name = signature.getName();
         boolean local = signature.isLocal();

@@ -5,7 +5,7 @@ import ch.njol.skript.log.LogHandler;
 import ch.njol.skript.log.SkriptLogger;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import me.glicz.skanalyzer.result.ScriptError;
+import me.glicz.skanalyzer.result.error.ScriptError;
 
 import java.io.File;
 import java.util.Collections;

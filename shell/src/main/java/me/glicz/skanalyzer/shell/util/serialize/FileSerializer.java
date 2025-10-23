@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.util.serialize;
+package me.glicz.skanalyzer.shell.util.serialize;
 
 import com.google.gson.*;
 

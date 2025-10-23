@@ -1,8 +1,9 @@
 package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 import me.glicz.skanalyzer.result.AnalyzeResults;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 
 public class LoadCommand extends AbstractParseCommand {
@@ -11,7 +12,7 @@ public class LoadCommand extends AbstractParseCommand {
     }
 
     @Override
-    protected CompletableFuture<AnalyzeResults> parseScript(String path) {
-        return app.skAnalyzer().loadScript(path);
+    protected CompletableFuture<AnalyzeResults> parseScript(File file) {
+        return app.skAnalyzer().loadScripts(file);
     }
 }

@@ -4,10 +4,10 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import me.glicz.skanalyzer.SkAnalyzer;
+import me.glicz.skanalyzer.config.provider.configurate.YamlConfigurateConfigProvider;
 import me.glicz.skanalyzer.shell.command.*;
 import me.glicz.skanalyzer.shell.registry.CommandRegistry;
 import me.glicz.skanalyzer.shell.util.CommandInputHandler;
-import me.glicz.skanalyzer.config.provider.configurate.YamlConfigurateConfigProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +70,7 @@ public class SkAnalyzerShell {
     public static void main(String[] args) throws IOException {
         new SkAnalyzerShell(args);
     }
+
     public SkAnalyzer skAnalyzer() {
         return skAnalyzer;
     }

@@ -2,6 +2,8 @@ package me.glicz.skanalyzer.shell.command;
 
 import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
+import java.io.File;
+
 public class UnloadCommand extends Command {
     public UnloadCommand(SkAnalyzerShell app) {
         super(app, "unload", "Unloads specified script(s)");
@@ -20,23 +22,20 @@ public class UnloadCommand extends Command {
             return;
         }
 
-        String path = String.join(" ", args);
+        File file = new File(String.join(" ", args));
+
+        if (!file.exists()) {
+            app.skAnalyzer().getLogger().error("Invalid argument! Specified file does not exist: {}", file);
+            return;
+        }
 
         try {
-            if (app.skAnalyzer().unloadScript(path)) {
-                app.skAnalyzer().getLogger().info("Successfully unloaded this script");
-            }
-        } catch (Throwable throwable) {
-            if (throwable instanceof IllegalArgumentException e) {
-                app.skAnalyzer().getLogger().atError()
-                        .addArgument(e.getMessage())
-                        .addArgument(path)
-                        .log("Invalid argument: {} ({})");
-                return;
-            }
+            app.skAnalyzer().unloadScripts(file);
 
+            app.skAnalyzer().getLogger().info("Successfully unloaded specified script(s)");
+        } catch (Throwable throwable) {
             app.skAnalyzer().getLogger().atError()
-                    .addArgument(path)
+                    .addArgument(file)
                     .setCause(throwable)
                     .log("Something went wrong while trying to unload '{}'");
         }

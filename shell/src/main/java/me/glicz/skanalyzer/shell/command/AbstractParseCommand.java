@@ -1,8 +1,10 @@
 package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 import me.glicz.skanalyzer.result.AnalyzeResults;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
+import me.glicz.skanalyzer.shell.util.serialize.Serialization;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -18,32 +20,30 @@ abstract class AbstractParseCommand extends Command {
             return;
         }
 
-        String path = String.join(" ", args);
+        File file = new File(String.join(" ", args));
 
-        parseScript(path)
+        if (!file.exists()) {
+            app.skAnalyzer().getLogger().error("Invalid argument! Specified file does not exist: {}", file);
+            return;
+        }
+
+        parseScript(file)
                 .thenAccept(results ->
-                        app.skAnalyzer().getLogger().info(results.toString())
+                        app.skAnalyzer().getLogger().info(Serialization.GSON.toJson(results))
                 )
                 .exceptionally(throwable -> {
                     if (throwable instanceof CompletionException e) {
                         throwable = e.getCause();
                     }
 
-                    if (throwable instanceof IllegalArgumentException e) {
-                        app.skAnalyzer().getLogger().atError()
-                                .addArgument(e.getMessage())
-                                .addArgument(path)
-                                .log("Invalid argument: {} ({})");
-                        return null;
-                    }
-
                     app.skAnalyzer().getLogger().atError()
-                            .addArgument(path)
+                            .addArgument(file)
                             .setCause(throwable)
                             .log("Something went wrong while trying to parse '{}'");
+
                     return null;
                 });
     }
 
-    protected abstract CompletableFuture<AnalyzeResults> parseScript(String path);
+    protected abstract CompletableFuture<AnalyzeResults> parseScript(File file);
 }

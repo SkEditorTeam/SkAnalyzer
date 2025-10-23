@@ -13,15 +13,10 @@ public record ScriptStructure(
         List<FunctionData> functions,
         Map<String, String> options
 ) {
-    public ScriptStructure(
-            List<CommandData> commands,
-            List<EventData> events,
-            List<FunctionData> functions,
-            Map<String, String> options
-    ) {
-        this.commands = List.copyOf(commands);
-        this.events = List.copyOf(events);
-        this.functions = List.copyOf(functions);
-        this.options = Map.copyOf(options);
+    public ScriptStructure {
+        commands = List.copyOf(commands);
+        events = List.copyOf(events);
+        functions = List.copyOf(functions);
+        options = Map.copyOf(options);
     }
 }

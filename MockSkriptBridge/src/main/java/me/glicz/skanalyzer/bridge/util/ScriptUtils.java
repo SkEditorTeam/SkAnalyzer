@@ -1,8 +1,9 @@
 package me.glicz.skanalyzer.bridge.util;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 
 import static ch.njol.skript.ScriptLoader.DISABLED_SCRIPT_PREFIX;
@@ -14,23 +15,39 @@ public final class ScriptUtils {
     private ScriptUtils() {
     }
 
-    public static Set<File> listScripts(File input) throws IOException {
-        File[] files = requireNonNullElseGet(input.listFiles(), () -> new File[]{input});
+    public static boolean isValidFile(File file) {
+        String fileName = file.getName();
 
-        Set<File> scripts = new HashSet<>();
+        if (file.isDirectory()) {
+            return !fileName.startsWith(".");
+        }
+
+        return !file.isHidden() && !fileName.startsWith(DISABLED_SCRIPT_PREFIX) && fileName.endsWith(SCRIPT_EXTENSION);
+    }
+
+    public static Set<File> listScripts(Iterable<File> files, boolean validateFiles) throws IOException {
+        ImmutableSet.Builder<File> scripts = ImmutableSet.builder();
 
         for (File file : files) {
-            if (file.isDirectory()) {
-                scripts.addAll(listScripts(file));
+            collectScripts(file, scripts, validateFiles, false);
+        }
+
+        return scripts.build();
+    }
+
+    private static void collectScripts(File input, ImmutableSet.Builder<File> builder, boolean validateFiles, boolean validateDirs) throws IOException {
+        File[] files = requireNonNullElseGet(input.listFiles(), () -> new File[]{input});
+
+        for (File file : files) {
+            if ((!file.isDirectory() || validateDirs) && validateFiles && !isValidFile(file)) {
                 continue;
             }
 
-            String fileName = file.getName();
-            if (!fileName.startsWith(DISABLED_SCRIPT_PREFIX) && fileName.endsWith(SCRIPT_EXTENSION)) {
-                scripts.add(file.getCanonicalFile());
+            if (file.isDirectory()) {
+                collectScripts(file, builder, true, true);
+            } else if (file.isFile()) {
+                builder.add(file.getCanonicalFile());
             }
         }
-
-        return scripts;
     }
 }
