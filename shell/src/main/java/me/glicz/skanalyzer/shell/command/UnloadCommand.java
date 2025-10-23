@@ -1,9 +1,9 @@
-package me.glicz.skanalyzer.app.command;
+package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
 public class UnloadCommand extends Command {
-    public UnloadCommand(SkAnalyzerApp app) {
+    public UnloadCommand(SkAnalyzerShell app) {
         super(app, "unload", "Unloads specified script(s)");
     }
 

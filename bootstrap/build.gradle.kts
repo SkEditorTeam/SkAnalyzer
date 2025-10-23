@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    runtimeOnly(project(":skanalyzer-app"))
+    runtimeOnly(project(":skanalyzer-shell"))
 
     plugin(project(":MockSkript"))
     plugin(project(":MockSkriptBridge"))
@@ -35,7 +35,7 @@ tasks {
     }
 
     registerRunTask("runDev") {
-        mainClass = "me.glicz.skanalyzer.app.SkAnalyzerApp"
+        mainClass = "me.glicz.skanalyzer.shell.SkAnalyzerShell"
         classpath(configurations.runtimeClasspath.get())
 
         configurations.plugin {
@@ -61,7 +61,7 @@ tasks {
     }
 
     registerRunTask("runBootstrap") {
-        mainClass = "me.glicz.skanalyzer.bootstrap.Main"
+        mainClass = "me.glicz.skanalyzer.shell.SkAnalyzerShell"
         classpath(jar)
     }
 }

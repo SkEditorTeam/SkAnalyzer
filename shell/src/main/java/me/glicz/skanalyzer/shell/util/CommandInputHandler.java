@@ -1,15 +1,15 @@
-package me.glicz.skanalyzer.app.util;
+package me.glicz.skanalyzer.shell.util;
 
-import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 public final class CommandInputHandler implements Runnable {
     private final Scanner scanner = new Scanner(System.in);
-    private final SkAnalyzerApp app;
+    private final SkAnalyzerShell app;
 
-    public CommandInputHandler(SkAnalyzerApp app) {
+    public CommandInputHandler(SkAnalyzerShell app) {
         this.app = app;
     }
 

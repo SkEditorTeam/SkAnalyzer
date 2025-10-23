@@ -1,12 +1,12 @@
-package me.glicz.skanalyzer.app;
+package me.glicz.skanalyzer.shell;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import me.glicz.skanalyzer.SkAnalyzer;
-import me.glicz.skanalyzer.app.command.*;
-import me.glicz.skanalyzer.app.registry.CommandRegistry;
-import me.glicz.skanalyzer.app.util.CommandInputHandler;
+import me.glicz.skanalyzer.shell.command.*;
+import me.glicz.skanalyzer.shell.registry.CommandRegistry;
+import me.glicz.skanalyzer.shell.util.CommandInputHandler;
 import me.glicz.skanalyzer.config.provider.configurate.YamlConfigurateConfigProvider;
 
 import java.io.File;
@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 
-public class SkAnalyzerApp {
+public class SkAnalyzerShell {
     private static final String PARENT_PROCESS_PROPERTY = "skanalyzer.parentProcess";
 
     private final SkAnalyzer skAnalyzer;
     private final CommandRegistry commandRegistry;
 
-    public SkAnalyzerApp(String[] args) throws IOException {
+    private SkAnalyzerShell(String[] args) throws IOException {
         System.out.printf("SkAnalyzer v%s - simple Skript parser. Created by Glicz.%n", getClass().getPackage().getSpecificationVersion());
 
         String parentProcess = System.getProperty(PARENT_PROCESS_PROPERTY);
@@ -68,7 +68,7 @@ public class SkAnalyzerApp {
     }
 
     public static void main(String[] args) throws IOException {
-        new SkAnalyzerApp(args);
+        new SkAnalyzerShell(args);
     }
     public SkAnalyzer skAnalyzer() {
         return skAnalyzer;

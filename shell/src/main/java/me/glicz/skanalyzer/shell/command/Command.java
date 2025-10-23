@@ -1,13 +1,13 @@
-package me.glicz.skanalyzer.app.command;
+package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
 public abstract class Command {
-    protected final SkAnalyzerApp app;
+    protected final SkAnalyzerShell app;
     protected final String name;
     protected final String description;
 
-    public Command(SkAnalyzerApp app, String name, String description) {
+    public Command(SkAnalyzerShell app, String name, String description) {
         this.app = app;
         this.name = name;
         this.description = description;

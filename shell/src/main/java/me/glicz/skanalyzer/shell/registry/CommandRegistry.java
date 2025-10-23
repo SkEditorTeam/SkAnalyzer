@@ -1,6 +1,6 @@
-package me.glicz.skanalyzer.app.registry;
+package me.glicz.skanalyzer.shell.registry;
 
-import me.glicz.skanalyzer.app.command.Command;
+import me.glicz.skanalyzer.shell.command.Command;
 
 import java.util.HashMap;
 import java.util.List;

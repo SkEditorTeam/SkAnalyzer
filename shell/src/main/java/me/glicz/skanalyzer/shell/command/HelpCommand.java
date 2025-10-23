@@ -1,9 +1,9 @@
-package me.glicz.skanalyzer.app.command;
+package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
 public class HelpCommand extends Command {
-    public HelpCommand(SkAnalyzerApp app) {
+    public HelpCommand(SkAnalyzerShell app) {
         super(app, "help", "Displays help");
     }
 

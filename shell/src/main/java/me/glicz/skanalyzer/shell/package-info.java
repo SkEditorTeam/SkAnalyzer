@@ -1,4 +1,4 @@
 @NullMarked
-package me.glicz.skanalyzer.app.registry;
+package me.glicz.skanalyzer.shell;
 
 import org.jspecify.annotations.NullMarked;

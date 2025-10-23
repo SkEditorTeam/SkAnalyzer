@@ -1,9 +1,9 @@
-package me.glicz.skanalyzer.app.command;
+package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 
 public class ExitCommand extends Command {
-    public ExitCommand(SkAnalyzerApp app) {
+    public ExitCommand(SkAnalyzerShell app) {
         super(app, "exit", "Exits the program");
     }
 

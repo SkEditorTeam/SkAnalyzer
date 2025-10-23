@@ -1,13 +1,13 @@
-package me.glicz.skanalyzer.app.command;
+package me.glicz.skanalyzer.shell.command;
 
-import me.glicz.skanalyzer.app.SkAnalyzerApp;
+import me.glicz.skanalyzer.shell.SkAnalyzerShell;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 abstract class AbstractParseCommand extends Command {
-    public AbstractParseCommand(SkAnalyzerApp app, String name, String description) {
+    public AbstractParseCommand(SkAnalyzerShell app, String name, String description) {
         super(app, name, description);
     }
 
