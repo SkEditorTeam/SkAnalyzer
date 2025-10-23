@@ -17,8 +17,7 @@ public record Asset(Type type, byte[] hash, String id, String path) {
     public static Asset[] read(Type type, BufferedReader reader) throws IOException {
         List<Asset> assets = new ArrayList<>();
 
-        String line;
-        while ((line = reader.readLine()) != null) {
+        for (String line; (line = reader.readLine()) != null; ) {
             String[] parts = line.split("\t");
             assets.add(new Asset(type, Utils.fromHex(parts[0]), parts[1], parts[2]));
         }

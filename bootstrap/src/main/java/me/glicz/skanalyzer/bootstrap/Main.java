@@ -11,7 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 public class Main {
-    private static final String APP_MAIN = "me.glicz.skanalyzer.app.SkAnalyzerApp";
+    private static final String SHELL_MAIN = "me.glicz.skanalyzer.shell.SkAnalyzerShell";
 
     public static void main(String[] args) throws MalformedURLException {
         Asset[] libraries = readAssets(Asset.Type.LIBRARY);
@@ -26,14 +26,14 @@ public class Main {
         }
 
         ClassLoader classLoader = new URLClassLoader(urls, Main.class.getClassLoader());
-        Thread thread = new Thread(() -> invokeAppMain(classLoader, args));
+        Thread thread = new Thread(() -> invokeShellMain(classLoader, args));
         thread.setContextClassLoader(classLoader);
         thread.start();
     }
 
-    private static void invokeAppMain(ClassLoader classLoader, String[] args) {
+    private static void invokeShellMain(ClassLoader classLoader, String[] args) {
         try {
-            Class.forName(APP_MAIN, true, classLoader)
+            Class.forName(SHELL_MAIN, true, classLoader)
                     .getDeclaredMethod("main", String[].class)
                     .invoke(null, (Object) args);
         } catch (Throwable e) {
@@ -43,7 +43,9 @@ public class Main {
 
     private static Asset[] readAssets(Asset.Type type) {
         InputStream is = Main.class.getResourceAsStream("/META-INF/" + type.directory() + ".list");
-        if (is == null) return new Asset[0];
+        if (is == null) {
+            return new Asset[0];
+        }
 
         try (is) {
             return Asset.read(type, new BufferedReader(new InputStreamReader(is)));

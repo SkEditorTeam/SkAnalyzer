@@ -8,11 +8,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class Utils {
-    private static final MessageDigest digest;
+    private static final MessageDigest SHA256_DIGEST;
 
     static {
         try {
-            digest = MessageDigest.getInstance("SHA-256");
+            SHA256_DIGEST = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -24,7 +24,7 @@ public class Utils {
         }
 
         try {
-            return Arrays.equals(hash, digest.digest(Files.readAllBytes(path)));
+            return Arrays.equals(hash, SHA256_DIGEST.digest(Files.readAllBytes(path)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
