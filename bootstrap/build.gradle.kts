@@ -17,23 +17,6 @@ tasks {
         archiveBaseName = rootProject.name
     }
 
-    fun registerRunTask(name: String, configurationAction: Action<in JavaExec>) = register(name, JavaExec::class) {
-        group = "skanalyzer"
-        doNotTrackState(name)
-
-        standardInput = System.`in`
-
-        if (System.getProperty("idea.active")?.toBoolean() == true) {
-            jvmArgs("-Djansi.passthrough=true")
-        }
-
-        doFirst {
-            workingDir(project.rootDir.resolve("run").apply { mkdirs() })
-        }
-
-        configurationAction.execute(this)
-    }
-
     registerRunTask("runDev") {
         mainClass = "me.glicz.skanalyzer.shell.SkAnalyzerShell"
         classpath(configurations.runtimeClasspath.get())
@@ -44,11 +27,6 @@ tasks {
             }
         }
         dependsOn(configurations.plugin)
-
-        javaLauncher = project.javaToolchains.launcherFor {
-            vendor = JvmVendorSpec.JETBRAINS
-            languageVersion = java.toolchain.languageVersion
-        }
 
         debugOptions {
             suspend = false
