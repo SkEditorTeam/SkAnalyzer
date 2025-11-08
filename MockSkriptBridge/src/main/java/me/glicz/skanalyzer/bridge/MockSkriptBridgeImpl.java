@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import static me.glicz.skanalyzer.bridge.util.ScriptUtils.listScripts;
 import static me.glicz.skanalyzer.bridge.util.SetUtils.transformSet;
 
-public class MockSkriptBridgeImpl implements SkriptBridge {
+public final class MockSkriptBridgeImpl implements SkriptBridge {
     @Override
     public void forceLoadHooks(Config.ForcedHooks forcedHooks) throws IOException {
         if (forcedHooks.vault) {

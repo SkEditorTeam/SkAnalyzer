@@ -1,6 +1,5 @@
 package me.glicz.skanalyzer.bridge.util;
 
-import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
@@ -13,11 +12,11 @@ public final class ObjectUtils {
         return value != null ? value : defaultValue;
     }
 
-    public static <T, R> @UnknownNullability R transformValue(@Nullable T value, Function<T, R> function) {
+    public static <T, R extends @Nullable Object> R transformValue(@Nullable T value, Function<T, R> function) {
         return transformValue(value, function, null);
     }
 
-    public static <T, R> @UnknownNullability R transformValue(@Nullable T value, Function<T, R> function, @Nullable R defaultValue) {
+    public static <T, R extends @Nullable Object> R transformValue(@Nullable T value, Function<T, R> function, R defaultValue) {
         return value != null ? function.apply(value) : defaultValue;
     }
 }

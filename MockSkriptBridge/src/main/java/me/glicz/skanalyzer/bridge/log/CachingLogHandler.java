@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-public class CachingLogHandler extends LogHandler {
+public final class CachingLogHandler extends LogHandler {
     private final Multimap<File, ScriptError> scriptErrors = MultimapBuilder.hashKeys().arrayListValues().build();
 
     public List<ScriptError> getScriptErrors(File file) {
