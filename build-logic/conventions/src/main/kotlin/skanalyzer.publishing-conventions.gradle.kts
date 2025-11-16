@@ -6,6 +6,8 @@ plugins {
 indra {
     publishReleasesTo("roxymc", "https://repo.roxymc.net/releases")
     publishSnapshotsTo("roxymc", "https://repo.roxymc.net/snapshots")
+}
 
-    includeJavaSoftwareComponentInPublications(true)
+tasks.withType<Sign>().configureEach {
+    enabled = false
 }
