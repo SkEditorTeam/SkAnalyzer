@@ -39,7 +39,7 @@ tasks {
     }
 
     registerRunTask("runBootstrap") {
-        mainClass = "me.glicz.skanalyzer.shell.SkAnalyzerShell"
+        mainClass = "me.glicz.skanalyzer.bootstrap.Main"
         classpath(jar)
     }
 }
