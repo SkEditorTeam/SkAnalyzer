@@ -1,19 +1,23 @@
 package me.glicz.skanalyzer.bootstrap;
 
 import me.glicz.skanalyzer.bootstrap.asset.Asset;
+import me.glicz.skanalyzer.bootstrap.util.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class Main {
-    private static final String SHELL_MAIN = "me.glicz.skanalyzer.shell.SkAnalyzerShell";
+import static java.lang.invoke.MethodType.methodType;
 
-    public static void main(String[] args) throws MalformedURLException {
+public final class Main {
+    private static final String MAIN_CLASS = "me.glicz.skanalyzer.shell.SkAnalyzerShell";
+
+    public static void main(String[] args) throws IOException {
         Asset[] libraries = readAssets(Asset.Type.LIBRARY);
 
         URL[] urls = new URL[libraries.length];
@@ -26,22 +30,26 @@ public class Main {
         }
 
         ClassLoader classLoader = new URLClassLoader(urls, Main.class.getClassLoader());
-        Thread thread = new Thread(() -> invokeShellMain(classLoader, args));
+        Thread thread = new Thread(() -> invokeMain(classLoader, args));
         thread.setContextClassLoader(classLoader);
         thread.start();
     }
 
-    private static void invokeShellMain(ClassLoader classLoader, String[] args) {
+    private static void invokeMain(ClassLoader classLoader, String[] args) {
         try {
-            Class.forName(SHELL_MAIN, true, classLoader)
-                    .getDeclaredMethod("main", String[].class)
-                    .invoke(null, (Object) args);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
+            Class<?> mainClass = Class.forName(MAIN_CLASS, true, classLoader);
+
+            MethodHandle mainHandle = MethodHandles.lookup()
+                    .findStatic(mainClass, "main", methodType(void.class, String[].class))
+                    .asFixedArity();
+
+            mainHandle.invoke((Object) args);
+        } catch (Throwable t) {
+            throw Utils.sneakyThrow(t);
         }
     }
 
-    private static Asset[] readAssets(Asset.Type type) {
+    private static Asset[] readAssets(Asset.Type type) throws IOException {
         InputStream is = Main.class.getResourceAsStream("/META-INF/" + type.directory() + ".list");
         if (is == null) {
             return new Asset[0];
@@ -49,8 +57,6 @@ public class Main {
 
         try (is) {
             return Asset.read(type, new BufferedReader(new InputStreamReader(is)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }

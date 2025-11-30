@@ -10,7 +10,7 @@ gradlePlugin {
     plugins {
         register("bootstrapPlugin") {
             id = "skanalyzer.bootstrap-plugin"
-            implementationClass = "me.glicz.skanalyzer.plugin.SkAnalyzerPlugin"
+            implementationClass = "me.glicz.skanalyzer.bootstrap.BoostrapPlugin"
         }
     }
 }

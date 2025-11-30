@@ -7,7 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class Utils {
+public final class Utils {
     private static final MessageDigest SHA256_DIGEST;
 
     static {
@@ -18,31 +18,28 @@ public class Utils {
         }
     }
 
-    public static boolean verifyFile(Path path, byte[] hash) {
+    public static boolean verifyFile(Path path, byte[] hash) throws IOException {
         if (!Files.exists(path)) {
             return false;
         }
 
-        try {
-            return Arrays.equals(hash, SHA256_DIGEST.digest(Files.readAllBytes(path)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return Arrays.equals(hash, SHA256_DIGEST.digest(Files.readAllBytes(path)));
     }
 
-    // Based on PaperMC/Paperclip Util#fromHex
-    public static byte[] fromHex(String hex) {
-        if (hex.length() % 2 != 0) {
+    public static byte[] fromHex(String s) {
+        if (s.length() % 2 != 0) {
             throw new IllegalArgumentException();
         }
 
-        final byte[] bytes = new byte[hex.length() / 2];
+        byte[] bytes = new byte[s.length() / 2];
 
         for (int i = 0; i < bytes.length; i++) {
-            final char left = hex.charAt(i * 2);
-            final char right = hex.charAt(i * 2 + 1);
+            int offset = i * 2;
 
-            bytes[i] = (byte) ((hexDigit(left) << 4) | (hexDigit(right) & 0xF));
+            int high = hexDigit(s.charAt(offset));
+            int low = hexDigit(s.charAt(offset + 1));
+
+            bytes[i] = (byte) ((high << 4) | low);
         }
 
         return bytes;
@@ -56,5 +53,10 @@ public class Utils {
         }
 
         return digit;
+    }
+
+    public static <X extends Throwable> RuntimeException sneakyThrow(Throwable ex) throws X {
+        //noinspection unchecked
+        throw (X) ex;
     }
 }

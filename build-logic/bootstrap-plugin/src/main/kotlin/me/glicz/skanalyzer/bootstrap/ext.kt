@@ -1,3 +1,5 @@
+@file:Suppress("PackageDirectoryMismatch", "UnstableApiUsage")
+
 import org.gradle.api.Action
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec

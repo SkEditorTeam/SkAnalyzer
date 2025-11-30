@@ -6,7 +6,6 @@ import me.glicz.skanalyzer.bootstrap.util.Utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,25 +24,26 @@ public record Asset(Type type, byte[] hash, String id, String path) {
         return assets.toArray(Asset[]::new);
     }
 
-    public URL extractIfNeeded() throws MalformedURLException {
-        Path path = Path.of(type.directory, path());
-        if (Utils.verifyFile(path, hash)) {
-            return path.toUri().toURL();
+    public URL extractIfNeeded() throws IOException {
+        Path path = Path.of(this.type.directory, this.path);
+        URL url = path.toUri().toURL();
+
+        if (Utils.verifyFile(path, this.hash)) {
+            return url;
         }
 
-        InputStream is = Main.class.getResourceAsStream("/META-INF/" + path.toString().replace('\\', '/'));
-        if (is == null) {
-            return path.toUri().toURL();
-        }
+        String resourcePath = path.toString().replace('\\', '/');
 
-        try (is) {
+        try (InputStream is = Main.class.getResourceAsStream("/META-INF/" + resourcePath)) {
+            if (is == null) {
+                throw new IllegalStateException("Asset not found: " + resourcePath);
+            }
+
             Files.deleteIfExists(path);
             Files.createDirectories(path.getParent());
             Files.copy(is, path);
 
-            return path.toUri().toURL();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return url;
         }
     }
 
