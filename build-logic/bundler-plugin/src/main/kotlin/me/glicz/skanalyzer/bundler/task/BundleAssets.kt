@@ -1,23 +1,21 @@
 @file:OptIn(ExperimentalPathApi::class)
 
-package me.glicz.skanalyzer.bootstrap.task
+package me.glicz.skanalyzer.bundler.task
 
-import me.glicz.skanalyzer.bootstrap.util.Hash
-import me.glicz.skanalyzer.bootstrap.util.MessageDigests.sha256
-import me.glicz.skanalyzer.bootstrap.util.asPath
-import me.glicz.skanalyzer.bootstrap.util.digest
+import me.glicz.skanalyzer.bundler.util.Hash
+import me.glicz.skanalyzer.bundler.util.MessageDigests.sha256
+import me.glicz.skanalyzer.bundler.util.asPath
+import me.glicz.skanalyzer.bundler.util.digest
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Classpath
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import java.nio.file.Path
 import kotlin.io.path.*
 
+@UntrackedTask(because = "dynamic assets")
 abstract class BundleAssets : DefaultTask() {
     @get:Input
     abstract val bundleName: Property<String>

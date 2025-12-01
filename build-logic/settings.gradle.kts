@@ -1,3 +1,5 @@
+rootProject.name = "skanalyzer-build-logic"
+
 dependencyResolutionManagement {
     versionCatalogs {
         register("libs") {
@@ -7,6 +9,6 @@ dependencyResolutionManagement {
 }
 
 include(
-    "bootstrap-plugin",
+    "bundler-plugin",
     "conventions"
 )

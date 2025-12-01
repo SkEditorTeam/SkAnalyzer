@@ -30,4 +30,4 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: bootstrap/build/libs
+          path: shell/build/libs/skanalyzer-*-bundler-*.jar

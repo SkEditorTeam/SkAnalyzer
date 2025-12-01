@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.bootstrap.util
+package me.glicz.skanalyzer.bundler.util
 
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.file.FileSystemLocation

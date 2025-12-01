@@ -1,4 +1,4 @@
-package me.glicz.skanalyzer.bootstrap.util
+package me.glicz.skanalyzer.bundler.util
 
 import java.io.File
 import java.security.MessageDigest
