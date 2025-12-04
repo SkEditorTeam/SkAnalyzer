@@ -13,13 +13,15 @@ dependencies {
     library(project)
 }
 
-bundler {
-    bootstrapJar = project(":skanalyzer-bootstrap").tasks.jar
-}
-
 tasks {
     jar {
         manifest.attributes["Specification-Version"] = version
+    }
+
+    bundlerJar {
+        from(project(":skanalyzer-bootstrap").tasks.jar.map {
+            it.outputs.files.map(::zipTree)
+        })
     }
 
     runDev {

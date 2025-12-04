@@ -8,14 +8,13 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 
 class BundlerPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
-        val bundlerExt = project.extensions.create<BundlerExtension>("bundler")
-
         val library by configurations.registering
         val plugin by configurations.registering {
             isTransitive = false
@@ -37,10 +36,13 @@ class BundlerPlugin : Plugin<Project> {
             configuration.set(plugin)
         }
 
-        val bundlerJar by tasks.registering(Jar::class) {
+        val bundlerJar by tasks.registering(Zip::class) {
             group = "skanalyzer"
+            doNotTrackState(name)
 
             archiveBaseName = "${project.name}-bundler"
+            archiveExtension = Jar.DEFAULT_EXTENSION
+            setMetadataCharset(Charsets.UTF_8.name())
 
             from(bundleLibraries) {
                 into("META-INF")
@@ -48,14 +50,6 @@ class BundlerPlugin : Plugin<Project> {
 
             from(bundlePlugins) {
                 into("META-INF")
-            }
-
-            from(bundlerExt.bootstrapJar.map {
-                it.outputs.files.map(::zipTree)
-            })
-
-            doFirst {
-                manifest.attributes.putAll(bundlerExt.bootstrapJar.get().manifest.attributes)
             }
         }
 
