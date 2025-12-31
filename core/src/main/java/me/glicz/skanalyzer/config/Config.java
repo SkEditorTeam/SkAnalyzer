@@ -4,7 +4,6 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 @ConfigSerializable
 public final class Config {
-    public boolean allowAutoReload;
     public ForcedHooks forcedHooks = new ForcedHooks();
 
     @ConfigSerializable
