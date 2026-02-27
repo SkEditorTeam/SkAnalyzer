@@ -7,7 +7,6 @@ import me.glicz.skanalyzer.plugin.loader.AnalyzerPluginLoader;
 import me.glicz.skanalyzer.server.command.AnalyzerConsoleCommandSender;
 import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
 import me.glicz.skanalyzer.server.scheduler.AnalyzerScheduler;
-import me.glicz.skanalyzer.server.structure.AnalyzerStructureManager;
 import net.kyori.adventure.util.Ticks;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -16,7 +15,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionBrewer;
 import org.bukkit.scoreboard.Criteria;
-import org.bukkit.structure.StructureManager;
 import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
@@ -30,7 +28,6 @@ import java.util.logging.Logger;
 public class AnalyzerServer extends ServerMock {
     private final AnalyzerScheduler scheduler = new AnalyzerScheduler();
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
-    private final AnalyzerStructureManager structureManager = new AnalyzerStructureManager();
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
     private final FoliaAsyncScheduler asyncScheduler = new FoliaAsyncScheduler(scheduler);
 
@@ -155,11 +152,6 @@ public class AnalyzerServer extends ServerMock {
     @Override
     public @Nullable LootTable getLootTable(NamespacedKey key) {
         return null;
-    }
-
-    @Override
-    public StructureManager getStructureManager() {
-        return structureManager;
     }
 
     @Override
