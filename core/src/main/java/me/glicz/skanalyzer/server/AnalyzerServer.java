@@ -18,6 +18,8 @@ import org.bukkit.scoreboard.Criteria;
 import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.scheduler.paper.FoliaAsyncScheduler;
+import org.mockbukkit.mockbukkit.scheduler.paper.FoliaGlobalRegionScheduler;
+import org.mockbukkit.mockbukkit.scheduler.paper.FoliaRegionScheduler;
 import org.mockbukkit.mockbukkit.scoreboard.CriteriaMock;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -29,7 +31,10 @@ public class AnalyzerServer extends ServerMock {
     private final AnalyzerScheduler scheduler = new AnalyzerScheduler();
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
+
+    private final FoliaRegionScheduler regionScheduler = new FoliaRegionScheduler(scheduler);
     private final FoliaAsyncScheduler asyncScheduler = new FoliaAsyncScheduler(scheduler);
+    private final FoliaGlobalRegionScheduler globalRegionScheduler = new FoliaGlobalRegionScheduler(scheduler);
 
     private final Logger logger = Logger.getLogger("Server");
     private @Nullable AnalyzerConsoleCommandSender consoleSender;
@@ -165,7 +170,17 @@ public class AnalyzerServer extends ServerMock {
     }
 
     @Override
+    public FoliaRegionScheduler getRegionScheduler() {
+        return regionScheduler;
+    }
+
+    @Override
     public AsyncScheduler getAsyncScheduler() {
         return asyncScheduler;
+    }
+
+    @Override
+    public FoliaGlobalRegionScheduler getGlobalRegionScheduler() {
+        return globalRegionScheduler;
     }
 }
