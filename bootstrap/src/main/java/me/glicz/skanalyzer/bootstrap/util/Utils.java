@@ -55,8 +55,8 @@ public final class Utils {
         return digit;
     }
 
+    @SuppressWarnings("unchecked")
     public static <X extends Throwable> RuntimeException sneakyThrow(Throwable ex) throws X {
-        //noinspection unchecked
         throw (X) ex;
     }
 }

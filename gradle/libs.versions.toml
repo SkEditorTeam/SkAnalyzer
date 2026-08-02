@@ -1,19 +1,19 @@
 [versions]
-asm = "9.8"
+asm = "9.10.1"
 commons-io = "2.18.0"
 commons-lang = "2.6"
 configurate = "4.2.0"
 indra = "4.0.0"
-jansi = "2.4.2"
+jansi = "2.4.3"
 jgrapht = "1.5.2"
 joptSimple = "5.0.4"
 jsonSimple = "1.1.1"
 log4j = "3.0.0-beta2"
-logback = "1.5.21"
-mockbukkit = "4.106.1"
-paper = "1.21.11-R0.1-20260226.171420-82"
+logback = "1.5.38"
+mockbukkit = "4.114.0"
+paper = "26.1.2.build.72-stable"
 pluginYml = "0.6.0"
-slf4j = "2.0.17"
+slf4j = "2.0.18"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
@@ -27,7 +27,7 @@ jsonSimple = { module = "com.googlecode.json-simple:json-simple", version.ref = 
 jul-to-slf4j = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
 log4j-to-slf4j = { module = "org.apache.logging.log4j:log4j-to-slf4j", version.ref = "log4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version.ref = "mockbukkit" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v26.1.2", version.ref = "mockbukkit" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 
 build-indra-publishing = { module = "net.kyori.indra.publishing:net.kyori.indra.publishing.gradle.plugin", version.ref = "indra" }

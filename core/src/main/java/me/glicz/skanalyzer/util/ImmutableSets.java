@@ -15,7 +15,8 @@ public final class ImmutableSets {
             array[i] = transformer.apply(elements[i]);
         }
 
-        //noinspection unchecked
-        return (Set<R>) Set.of(array);
+        @SuppressWarnings("unchecked")
+        Set<R> set = (Set<R>) Set.of(array);
+        return set;
     }
 }

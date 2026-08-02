@@ -59,11 +59,11 @@ public final class SkAnalyzer {
         return started;
     }
 
-    public CompletableFuture<Void> start() {
+    public CompletableFuture<@Nullable Void> start() {
         return start(false);
     }
 
-    public CompletableFuture<Void> start(boolean daemon) {
+    public CompletableFuture<@Nullable Void> start(boolean daemon) {
         if (started) {
             return CompletableFuture.failedFuture(new IllegalStateException());
         }
@@ -74,7 +74,7 @@ public final class SkAnalyzer {
         return buildServer(daemon);
     }
 
-    private CompletableFuture<Void> buildServer(boolean daemon) {
+    private CompletableFuture<@Nullable Void> buildServer(boolean daemon) {
         CompletableFuture<@Nullable Void> future = new CompletableFuture<>();
 
         Thread thread = new Thread(() -> {
@@ -116,7 +116,7 @@ public final class SkAnalyzer {
     }
 
     public CompletableFuture<AnalyzeResults> parseScripts(File... files) {
-        return loadScripts(files).whenComplete((results, ex) -> {
+        return loadScripts(files).whenComplete((_, _) -> {
             try {
                 unloadScripts(files);
             } catch (IOException e) {
