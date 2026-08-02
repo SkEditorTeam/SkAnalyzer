@@ -69,7 +69,7 @@ public final class SkAnalyzer {
         }
 
         started = true;
-        logger.info("Enabling...");
+        logger.info("Starting...");
 
         return buildServer(daemon);
     }
@@ -104,7 +104,7 @@ public final class SkAnalyzer {
                 // plugins may schedule some task for server start before actual ticking starts
                 server.getScheduler().performOneTick();
 
-                logger.info("Successfully enabled. Have fun!");
+                logger.info("Successfully started. Have fun!");
                 future.complete(null);
 
                 server.startTicking();
@@ -162,12 +162,12 @@ public final class SkAnalyzer {
         private Builder() {
         }
 
-        public Builder addPlugin(File plugin) {
+        public Builder addExtraPlugin(File plugin) {
             this.extraPlugins.add(plugin);
             return this;
         }
 
-        public Builder addPlugins(File... plugins) {
+        public Builder addExtraPlugins(File... plugins) {
             Collections.addAll(this.extraPlugins, plugins);
             return this;
         }

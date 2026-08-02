@@ -47,7 +47,7 @@ public class SkAnalyzerShell {
         OptionSet optionSet = optionParser.parse(args);
 
         this.skAnalyzer = SkAnalyzer.builder()
-                .addPlugins(optionSet.valuesOf(addPluginSpec).toArray(File[]::new))
+                .addExtraPlugins(optionSet.valuesOf(addPluginSpec).toArray(File[]::new))
                 .configProvider(new YamlConfigurateConfigProvider(Path.of("config.yml")))
                 .build();
 
@@ -56,13 +56,12 @@ public class SkAnalyzerShell {
         this.skAnalyzer.start().whenComplete((_, ex) -> {
             if (ex != null) {
                 this.skAnalyzer.getLogger().error("Something went wrong while trying to start SkAnalyzer", ex);
-                System.exit(0);
+                System.exit(1);
                 return;
             }
 
             this.commandRegistry.register(new ExitCommand(this));
             this.commandRegistry.register(new HelpCommand(this));
-            this.commandRegistry.register(new ParseCommand(this));
             this.commandRegistry.register(new LoadCommand(this));
             this.commandRegistry.register(new ParseCommand(this));
             this.commandRegistry.register(new UnloadCommand(this));
