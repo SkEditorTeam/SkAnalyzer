@@ -5,6 +5,7 @@ import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.config.Config;
 import me.glicz.skanalyzer.plugin.loader.AnalyzerPluginLoader;
 import me.glicz.skanalyzer.server.command.AnalyzerConsoleCommandSender;
+import me.glicz.skanalyzer.server.inventory.AnalyzerItemFactory;
 import me.glicz.skanalyzer.server.potion.AnalyzerPotionBrewer;
 import me.glicz.skanalyzer.server.scheduler.AnalyzerScheduler;
 import net.kyori.adventure.util.Ticks;
@@ -12,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemFactory;
 import org.bukkit.loot.LootTable;
 import org.bukkit.potion.PotionBrewer;
 import org.bukkit.scoreboard.Criteria;
@@ -28,6 +30,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class AnalyzerServer extends ServerMock {
+    private final AnalyzerItemFactory itemFactory = new AnalyzerItemFactory();
     private final AnalyzerScheduler scheduler = new AnalyzerScheduler();
     private final AnalyzerUnsafeValues unsafe = new AnalyzerUnsafeValues();
     private final AnalyzerPotionBrewer potionBrewer = new AnalyzerPotionBrewer();
@@ -107,6 +110,11 @@ public class AnalyzerServer extends ServerMock {
     }
 
     @Override
+    public ItemFactory getItemFactory() {
+        return itemFactory;
+    }
+
+    @Override
     public AnalyzerScheduler getScheduler() {
         return scheduler;
     }
@@ -137,21 +145,8 @@ public class AnalyzerServer extends ServerMock {
     }
 
     @Override
-    public BlockData createBlockData(String data) {
-        String rawMaterial = (data.indexOf('[') == -1)
-                ? data
-                : data.substring(0, data.indexOf('['));
-        Material material = Material.matchMaterial(rawMaterial);
-        if (material == null) {
-            throw new IllegalArgumentException();
-        }
-
-        return createBlockData(material);
-    }
-
-    @Override
-    public BlockData createBlockData(Material material, String data) {
-        return createBlockData(material);
+    public BlockData createBlockData(@Nullable Material material, @Nullable String data) {
+        return super.createBlockData(material, !"[]".equals(data) ? data : null);
     }
 
     @Override
