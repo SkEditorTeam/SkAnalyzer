@@ -22,8 +22,3 @@ listOf(
         projectDir = file(module)
     }
 }
-
-include(
-    "MockSkript",
-    "MockSkriptBridge"
-)

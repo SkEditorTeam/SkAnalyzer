@@ -6,7 +6,6 @@ import me.glicz.skanalyzer.config.provider.ConfigProvider;
 import me.glicz.skanalyzer.result.AnalyzeResults;
 import me.glicz.skanalyzer.server.AnalyzerServer;
 import org.bukkit.plugin.PluginLoadOrder;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 import org.mockbukkit.mockbukkit.MockBukkit;
@@ -21,14 +20,14 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class SkAnalyzer {
     private final Logger logger;
     private final Set<File> extraPlugins;
     private final Config config;
 
-    private @MonotonicNonNull AnalyzerServer server;
+    private @Nullable AnalyzerServer server;
     private boolean started;
 
     private SkAnalyzer(Builder builder) throws IOException {
@@ -52,6 +51,7 @@ public final class SkAnalyzer {
     }
 
     public AnalyzerServer getServer() {
+        checkState(server != null, "The server has not started yet");
         return server;
     }
 
@@ -78,32 +78,39 @@ public final class SkAnalyzer {
         CompletableFuture<@Nullable Void> future = new CompletableFuture<>();
 
         Thread thread = new Thread(() -> {
-            server = MockBukkit.mock(new AnalyzerServer(this, extraPlugins));
-
-            server.getPluginLoader().initPlugins();
-            server.getPluginLoader().loadPlugins();
-
-            server.getPluginLoader().enablePlugins(PluginLoadOrder.STARTUP);
-
-            server.addSimpleWorld("world");
-
-            server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
-
             try {
-                skriptBridge().forceLoadHooks(config.forcedHooks);
+                server = MockBukkit.mock(new AnalyzerServer(this, extraPlugins));
 
-                logger.info("Successfully force loaded hooks");
-            } catch (IOException e) {
-                logger.error("Something went wrong while trying to force load hooks", e);
+                server.getPluginLoader().initPlugins();
+                server.getPluginLoader().loadPlugins();
+
+                server.getPluginLoader().enablePlugins(PluginLoadOrder.STARTUP);
+
+                server.addSimpleWorld("world");
+
+                server.getPluginLoader().enablePlugins(PluginLoadOrder.POSTWORLD);
+
+                // let's check if Skript bridge is present
+                skriptBridge();
+
+                try {
+                    skriptBridge().forceLoadHooks(config.forcedHooks);
+
+                    logger.info("Successfully force loaded hooks");
+                } catch (IOException ex) {
+                    logger.error("Something went wrong while trying to force load hooks", ex);
+                }
+
+                // plugins may schedule some task for server start before actual ticking starts
+                server.getScheduler().performOneTick();
+
+                logger.info("Successfully enabled. Have fun!");
+                future.complete(null);
+
+                server.startTicking();
+            } catch (Throwable ex) {
+                future.completeExceptionally(ex);
             }
-
-            // plugins may schedule some task for server start before actual ticking starts
-            server.getScheduler().performOneTick();
-
-            logger.info("Successfully enabled. Have fun!");
-            future.complete(null);
-
-            server.startTicking();
         }, "Server Thread");
         thread.setDaemon(daemon);
         thread.start();
@@ -112,7 +119,18 @@ public final class SkAnalyzer {
     }
 
     private SkriptBridge skriptBridge() {
-        return requireNonNull(server.getServicesManager().load(SkriptBridge.class));
+        SkriptBridge skriptBridge = getServer().getServicesManager().load(SkriptBridge.class);
+        if (skriptBridge != null) {
+            return skriptBridge;
+        }
+
+        getLogger().error("--------------------------------------------------------");
+        getLogger().error("Required Skript bridge is missing!");
+        getLogger().error("Please download a suitable Skratched Skript build from:");
+        getLogger().error("https://github.com/SkEditorTeam/Skratches");
+        getLogger().error("--------------------------------------------------------");
+
+        throw new IllegalStateException("Required Skript bridge is missing!");
     }
 
     public CompletableFuture<AnalyzeResults> parseScripts(File... files) {

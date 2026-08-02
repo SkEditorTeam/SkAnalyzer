@@ -53,7 +53,13 @@ public class SkAnalyzerShell {
 
         this.commandRegistry = new CommandRegistry();
 
-        this.skAnalyzer.start().thenRun(() -> {
+        this.skAnalyzer.start().whenComplete((_, ex) -> {
+            if (ex != null) {
+                this.skAnalyzer.getLogger().error("Something went wrong while trying to start SkAnalyzer", ex);
+                System.exit(0);
+                return;
+            }
+
             this.commandRegistry.register(new ExitCommand(this));
             this.commandRegistry.register(new HelpCommand(this));
             this.commandRegistry.register(new ParseCommand(this));
@@ -67,7 +73,7 @@ public class SkAnalyzerShell {
         });
     }
 
-    public static void main(String[] args) throws IOException {
+    static void main(String[] args) throws IOException {
         new SkAnalyzerShell(args);
     }
 

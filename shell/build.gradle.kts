@@ -7,9 +7,6 @@ dependencies {
     implementation(project(":skanalyzer-core"))
     implementation(libs.joptSimple)
 
-    plugin(project(":MockSkript"))
-    plugin(project(":MockSkriptBridge"))
-
     library(project)
 }
 
