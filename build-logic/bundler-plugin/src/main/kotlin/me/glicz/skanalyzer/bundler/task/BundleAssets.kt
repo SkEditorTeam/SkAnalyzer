@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalPathApi::class)
-
 package me.glicz.skanalyzer.bundler.task
 
 import me.glicz.skanalyzer.bundler.util.Hash
@@ -51,6 +49,7 @@ abstract class BundleAssets : DefaultTask() {
         val bundleName = bundleName.get()
 
         val outputDir = outputDir.get().asPath.apply {
+            @OptIn(ExperimentalPathApi::class)
             deleteRecursively()
             createDirectories()
         }
