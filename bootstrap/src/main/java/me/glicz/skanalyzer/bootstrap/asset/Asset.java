@@ -49,7 +49,7 @@ public record Asset(Type type, byte[] hash, String id, String path) {
 
     public enum Type {
         LIBRARY("libraries"),
-        PLUGIN("plugins");
+        ;
 
         private final String directory;
 

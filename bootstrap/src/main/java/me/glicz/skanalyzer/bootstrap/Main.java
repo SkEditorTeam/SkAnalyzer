@@ -17,16 +17,15 @@ import static java.lang.invoke.MethodType.methodType;
 public final class Main {
     private static final String MAIN_CLASS = "me.glicz.skanalyzer.shell.SkAnalyzerShell";
 
-    public static void main(String[] args) throws IOException {
+    private Main() {
+    }
+
+    static void main(String[] args) throws IOException {
         Asset[] libraries = readAssets(Asset.Type.LIBRARY);
 
         URL[] urls = new URL[libraries.length];
         for (int i = 0; i < libraries.length; i++) {
             urls[i] = libraries[i].extractIfNeeded();
-        }
-
-        for (Asset plugin : readAssets(Asset.Type.PLUGIN)) {
-            plugin.extractIfNeeded(); // just extract the plugin, not needed in classpath
         }
 
         ClassLoader classLoader = new URLClassLoader(urls, Main.class.getClassLoader());
@@ -39,7 +38,7 @@ public final class Main {
         try {
             Class<?> mainClass = Class.forName(MAIN_CLASS, true, classLoader);
 
-            MethodHandle mainHandle = MethodHandles.lookup()
+            MethodHandle mainHandle = MethodHandles.privateLookupIn(mainClass, MethodHandles.lookup())
                     .findStatic(mainClass, "main", methodType(void.class, String[].class))
                     .asFixedArity();
 
