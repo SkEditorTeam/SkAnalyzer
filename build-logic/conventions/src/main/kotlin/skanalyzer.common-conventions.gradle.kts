@@ -17,3 +17,7 @@ indra {
         target(25)
     }
 }
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:-this-escape")
+}
