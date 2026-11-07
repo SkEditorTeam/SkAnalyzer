@@ -5,22 +5,19 @@ import io.papermc.paper.plugin.provider.classloader.ConfiguredPluginClassLoader;
 import io.papermc.paper.plugin.provider.classloader.PluginClassLoaderGroup;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings("UnstableApiUsage")
 final class GlobalClassLoaderGroup implements PluginClassLoaderGroup {
     private static final GlobalClassLoaderGroup INSTANCE = new GlobalClassLoaderGroup();
 
-    private final List<ConfiguredPluginClassLoader> classLoaders = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ConfiguredPluginClassLoader> classLoaders = new CopyOnWriteArrayList<>();
 
     private GlobalClassLoaderGroup() {
     }
 
     static GlobalClassLoaderGroup get(ConfiguredPluginClassLoader classLoader) {
-        if (!INSTANCE.classLoaders.contains(classLoader)) {
-            INSTANCE.classLoaders.add(classLoader);
-        }
+        INSTANCE.classLoaders.addIfAbsent(classLoader);
 
         return INSTANCE;
     }
@@ -52,6 +49,6 @@ final class GlobalClassLoaderGroup implements PluginClassLoaderGroup {
 
     @Override
     public ClassLoaderAccess getAccess() {
-        return $ -> true;
+        return _ -> true;
     }
 }

@@ -23,36 +23,36 @@ class PluginLoadOrderResolver {
 
     private void buildDependencyGraph() {
         for (ResolvedPlugin plugin : resolvedPlugins.values()) {
-            String name = plugin.description().getName();
+            String name = plugin.meta().getName();
 
             dependencyGraph.addVertex(name);
-            loadOrderMap.put(name, plugin.description().getLoadOrder());
+            loadOrderMap.put(name, plugin.meta().getLoadOrder());
         }
 
-        for (ResolvedPlugin provider : resolvedPlugins.values()) {
-            String name = provider.description().getName();
-            PluginMeta pluginMeta = provider.description();
+        for (ResolvedPlugin plugin : resolvedPlugins.values()) {
+            PluginMeta pluginMeta = plugin.meta();
+            String pluginName = pluginMeta.getName();
 
             for (String depend : pluginMeta.getPluginDependencies()) {
                 if (!dependencyGraph.containsVertex(depend)) {
-                    throw new IllegalStateException("Plugin '" + name + "' depends on missing plugin: '" + depend + "'");
+                    throw new IllegalStateException("Plugin '" + pluginName + "' depends on missing plugin: '" + depend + "'");
                 }
 
-                dependencyGraph.addEdge(depend, name);
-                adjustLoadOrder(name, depend);
+                dependencyGraph.addEdge(depend, pluginName);
+                adjustLoadOrder(pluginName, depend);
             }
 
             for (String softDepend : pluginMeta.getPluginSoftDependencies()) {
                 if (dependencyGraph.containsVertex(softDepend)) {
-                    dependencyGraph.addEdge(softDepend, name);
-                    adjustLoadOrder(name, softDepend);
+                    dependencyGraph.addEdge(softDepend, pluginName);
+                    adjustLoadOrder(pluginName, softDepend);
                 }
             }
 
             for (String loadBefore : pluginMeta.getLoadBeforePlugins()) {
                 if (dependencyGraph.containsVertex(loadBefore)) {
-                    dependencyGraph.addEdge(loadBefore, name);
-                    adjustLoadOrder(name, loadBefore);
+                    dependencyGraph.addEdge(loadBefore, pluginName);
+                    adjustLoadOrder(pluginName, loadBefore);
                 }
             }
         }
@@ -82,7 +82,7 @@ class PluginLoadOrderResolver {
         }
 
         sortedPlugins.sort(Comparator.comparing(provider ->
-                loadOrderMap.get(provider.description().getName())
+                loadOrderMap.get(provider.meta().getName())
         ));
 
         return new ResolvedPluginLoadOrder(
