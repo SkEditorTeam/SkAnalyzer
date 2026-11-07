@@ -6,15 +6,21 @@ import me.glicz.skanalyzer.SkAnalyzer;
 import me.glicz.skanalyzer.plugin.PluginClassLoader;
 import me.glicz.skanalyzer.server.AnalyzerServer;
 import org.apache.commons.io.FileUtils;
+import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class AnalyzerPluginLoader {
@@ -99,9 +105,7 @@ public class AnalyzerPluginLoader {
 
     private ResolvedPlugin resolvePlugin(File file) throws Exception {
         JarFile jarFile = new JarFile(file);
-        PluginDescriptionFile description = new PluginDescriptionFile(
-                jarFile.getInputStream(jarFile.getEntry("plugin.yml"))
-        );
+        PluginDescriptionFile description = loadPluginDescription(file, jarFile);
 
         PluginClassLoader classLoader = new PluginClassLoader(
                 SkAnalyzer.class.getClassLoader(),
@@ -112,6 +116,87 @@ public class AnalyzerPluginLoader {
         );
 
         return new ResolvedPlugin(description, classLoader);
+    }
+
+    private PluginDescriptionFile loadPluginDescription(File file, JarFile jarFile) throws Exception {
+        JarEntry entry = jarFile.getJarEntry("plugin.yml");
+        if (entry != null) {
+            try (InputStream in = jarFile.getInputStream(entry)) {
+                return new PluginDescriptionFile(in);
+            }
+        }
+
+        JarEntry paperEntry = jarFile.getJarEntry("paper-plugin.yml");
+        if (paperEntry != null) {
+            try (InputStream in = jarFile.getInputStream(paperEntry)) {
+                return loadPaperPluginDescription(in);
+            }
+        }
+
+        throw new IllegalArgumentException("Jar does not contain plugin.yml or paper-plugin.yml: " + file.getName());
+    }
+
+    private PluginDescriptionFile loadPaperPluginDescription(InputStream inputStream) throws InvalidDescriptionException {
+        Yaml yaml = new Yaml();
+        Object loaded = yaml.load(inputStream);
+        if (!(loaded instanceof Map<?, ?> rawData)) {
+            throw new IllegalArgumentException("Invalid paper-plugin.yml structure");
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> data = new HashMap<>((Map<String, Object>) rawData);
+
+        convertPaperDependencies(data);
+
+        String dumpedYaml = yaml.dump(data);
+        return new PluginDescriptionFile(new ByteArrayInputStream(dumpedYaml.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private void convertPaperDependencies(Map<String, Object> data) {
+        Object depsObj = data.get("dependencies");
+        if (!(depsObj instanceof Map<?, ?> depsMap)) {
+            return;
+        }
+
+        List<String> depend = new ArrayList<>();
+        List<String> softdepend = new ArrayList<>();
+        List<String> loadBefore = new ArrayList<>();
+
+        collectDependencies(depsMap.get("bootstrap"), depend, softdepend, loadBefore);
+        collectDependencies(depsMap.get("server"), depend, softdepend, loadBefore);
+
+        if (!depend.isEmpty()) data.put("depend", depend);
+        if (!softdepend.isEmpty()) data.put("softdepend", softdepend);
+        if (!loadBefore.isEmpty()) data.put("loadbefore", loadBefore);
+    }
+
+    private void collectDependencies(Object scopeObj, List<String> depend, List<String> softdepend, List<String> loadBefore) {
+        if (!(scopeObj instanceof Map<?, ?> scopeMap)) {
+            return;
+        }
+
+        for (Map.Entry<?, ?> entry : scopeMap.entrySet()) {
+            String pluginName = String.valueOf(entry.getKey());
+            boolean required = true;
+            String loadOrder = "BEFORE";
+
+            if (entry.getValue() instanceof Map<?, ?> conf) {
+                if (conf.containsKey("required")) {
+                    required = Boolean.parseBoolean(String.valueOf(conf.get("required")));
+                }
+                if (conf.containsKey("load")) {
+                    loadOrder = String.valueOf(conf.get("load")).toUpperCase(Locale.ROOT);
+                }
+            }
+
+            if ("AFTER".equals(loadOrder)) {
+                loadBefore.add(pluginName);
+            } else if (required) {
+                depend.add(pluginName);
+            } else {
+                softdepend.add(pluginName);
+            }
+        }
     }
 
     private void initPlugin(ResolvedPlugin plugin) {
