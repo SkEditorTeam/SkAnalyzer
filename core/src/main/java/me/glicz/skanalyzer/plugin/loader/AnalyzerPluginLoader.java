@@ -55,7 +55,7 @@ public class AnalyzerPluginLoader {
         candidates.forEach(candidate -> {
             try {
                 ResolvedPlugin plugin = resolvePlugin(candidate);
-                String name = plugin.description().getName();
+                String name = plugin.meta().getName();
 
                 Preconditions.checkState(
                         !plugins.containsKey(name),
@@ -99,9 +99,7 @@ public class AnalyzerPluginLoader {
 
     private ResolvedPlugin resolvePlugin(File file) throws Exception {
         JarFile jarFile = new JarFile(file);
-        PluginDescriptionFile description = new PluginDescriptionFile(
-                jarFile.getInputStream(jarFile.getEntry("plugin.yml"))
-        );
+        PluginDescriptionFile description = PluginMetaFileType.resolve(jarFile);
 
         PluginClassLoader classLoader = new PluginClassLoader(
                 SkAnalyzer.class.getClassLoader(),
@@ -115,12 +113,12 @@ public class AnalyzerPluginLoader {
     }
 
     private void initPlugin(ResolvedPlugin plugin) {
-        String name = plugin.description().getName();
+        String name = plugin.meta().getName();
 
         try {
-            //noinspection resource
+            @SuppressWarnings("resource")
             Class<?> mainClass = plugin.classLoader().loadClass(
-                    plugin.description().getMainClass(),
+                    plugin.meta().getMainClass(),
                     true,
                     false,
                     false

@@ -1,7 +1,7 @@
 package me.glicz.skanalyzer.plugin.loader;
 
+import io.papermc.paper.plugin.configuration.PluginMeta;
 import me.glicz.skanalyzer.plugin.PluginClassLoader;
-import org.bukkit.plugin.PluginDescriptionFile;
 
-record ResolvedPlugin(PluginDescriptionFile description, PluginClassLoader classLoader) {
+record ResolvedPlugin(PluginMeta meta, PluginClassLoader classLoader) {
 }
